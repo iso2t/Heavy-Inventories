@@ -17,32 +17,32 @@ public class ModifyPlayerMove {
         var holder = PlayerHolder.getOrCreate(player);
         boolean over = holder.isOverEncumbered();
 
-        float enc01 = Mth.clamp(holder.getEncumberedPercentage() / 100f, 0f, 1f);
+        float factor = Mth.clamp(holder.getEncumberedPercentage() / 100f, 0f, 1f);
 
         // Surefooted floor per level (1.0f means none)
-        float mult = getMultiplier(holder, over, enc01);
+        float multiplier = getMultiplier(holder, over, factor);
 
-        input.forwardImpulse *= mult;
-        input.leftImpulse    *= mult;
+        input.forwardImpulse *= multiplier;
+        input.leftImpulse *= multiplier;
     }
 
-    private static float getMultiplier(PlayerHolder holder, boolean over, float enc01) {
+    private static float getMultiplier(PlayerHolder holder, boolean over, float factor) {
         float surefootedFloor = holder.getSureFootedMult();
         boolean hasSurefooted = surefootedFloor < 1.0f;
 
-        float mult;
+        float multiplier;
         if (over) {
-            mult = hasSurefooted ? SUREFOOTED_OVERENCUMBERED_SPEED : 0f;
+            multiplier = hasSurefooted ? SUREFOOTED_OVERENCUMBERED_SPEED : 0f;
         } else {
-            mult = (float) Math.pow(1f - enc01, ENCUMBRANCE_CURVE_K);
+            multiplier = (float) Math.pow(1f - factor, ENCUMBRANCE_CURVE_K);
 
             if (hasSurefooted) {
-                mult = Math.max(mult, Math.max(surefootedFloor, MIN_FLOOR_WITH_SUREFOOTED));
+                multiplier = Math.max(multiplier, Math.max(surefootedFloor, MIN_FLOOR_WITH_SUREFOOTED));
             }
         }
 
-        mult = Mth.clamp(mult, 0f, 1f);
-        return mult;
+        multiplier = Mth.clamp(multiplier, 0f, 1f);
+        return multiplier;
     }
 
 }

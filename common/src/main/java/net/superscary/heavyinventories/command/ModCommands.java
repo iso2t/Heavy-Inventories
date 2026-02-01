@@ -51,7 +51,6 @@ public class ModCommands {
                                         })
                                 )
                         )
-                        // TODO: Implement dump command. Should dump all items from the given modid into the paired json file.
                         .then(Commands.literal("dump")
                                 .then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("modid", StringArgumentType.string())
                                         .suggests(new ModidSuggestionProvider())
@@ -88,18 +87,6 @@ public class ModCommands {
         }
         ItemStack stack = context.getSource().getPlayer().getItemInHand(context.getSource().getPlayer().getUsedItemHand());
         WeightOverride.put(stack.getItem(), number);
-        context.getSource().sendSuccess(() -> Component.translatable("command.heavyinventories.command_set.success", number), true);
-        return Command.SINGLE_SUCCESS;
-    }
-
-    protected static int executeSetDensityCommand(CommandContext<CommandSourceStack> context) {
-        float number = FloatArgumentType.getFloat(context, "density_argument");
-        if (context.getSource().getPlayer() == null) {
-            context.getSource().sendFailure(Component.translatable("command.heavyinventories.command_set.failure", number));
-            return 0;
-        }
-        ItemStack stack = context.getSource().getPlayer().getItemInHand(context.getSource().getPlayer().getUsedItemHand());
-        //WeightOverride.put(stack.getItem(), number);
         context.getSource().sendSuccess(() -> Component.translatable("command.heavyinventories.command_set.success", number), true);
         return Command.SINGLE_SUCCESS;
     }

@@ -50,25 +50,31 @@ public final class CalculateWeight {
     private static float calculateRecursiveWeight(ItemLike itemLike, Level level, Set<ItemLike> visited, int depth) {
         visited.add(itemLike);
         
-        float weight = 0;
+        float minWeight = Float.MAX_VALUE;
         IResourceList resources = IResourceList.getResourceList(itemLike, level);
 
         if (!resources.getResources().isEmpty()) {
-            var firstRecipe = resources.getResources().iterator().next();
-            
-            for (var entry : firstRecipe.entrySet()) {
-                ItemLike ingredient = entry.getKey();
-                int amount = entry.getValue();
+            for (IResourceList.RecipeData recipe : resources.getResources()) {
+                float recipeWeight = 0;
+                
+                for (var entry : recipe.ingredients().entrySet()) {
+                    ItemLike ingredient = entry.getKey();
+                    int amount = entry.getValue();
 
-                float ingredientWeight = from(ingredient, level, visited, depth + 1);
-                weight += ingredientWeight * amount;
+                    float ingredientWeight = from(ingredient, level, visited, depth + 1);
+                    recipeWeight += ingredientWeight * amount;
+                }
+                
+                if (recipeWeight < minWeight) {
+                    minWeight = recipeWeight;
+                }
             }
         } else {
-            weight = from(new ItemStack(itemLike));
+            minWeight = from(new ItemStack(itemLike));
         }
 
         visited.remove(itemLike);
-        return weight;
+        return minWeight == Float.MAX_VALUE ? from(new ItemStack(itemLike)) : minWeight;
     }
 
     public static float from(Fluid fluid, int millibuckets, Level level) {

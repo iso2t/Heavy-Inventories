@@ -12,7 +12,7 @@ import net.superscary.heavyinventories.api.events.PlayerEvents;
 import net.superscary.heavyinventories.api.movement.ModifyPlayerMove;
 import net.superscary.heavyinventories.command.ModCommands;
 import net.superscary.heavyinventories.config.ConfigOptions;
-import net.superscary.heavyinventories.fabric.callbacks.MovementInputUpdateEvent;
+import net.superscary.heavyinventories.fabric.callbacks.PlayerInputCallback;
 import net.superscary.heavyinventories.fabric.callbacks.PlayerCraftCallback;
 import net.superscary.heavyinventories.fabric.callbacks.PlayerPickupItemCallback;
 import net.superscary.heavyinventories.gui.GraphicsRenderer;
@@ -21,7 +21,9 @@ public class ModHooks {
 
     public static void registerHooks() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (client.player != null) PlayerEvents.onPlayerTick(client.player);
+            if (client.player != null) {
+                PlayerEvents.onPlayerTick(client.player);
+            }
         });
 
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, damageSource) -> {
@@ -34,9 +36,11 @@ public class ModHooks {
 
         PlayerPickupItemCallback.EVENT.register((livingEntity, slot, stack) -> PlayerEvents.onPickupItem(livingEntity.player));
 
-        MovementInputUpdateEvent.EVENT.register((ModifyPlayerMove::hook));
+        PlayerInputCallback.EVENT.register((ModifyPlayerMove::hook));
 
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> PlayerEvents.logout(handler.player));
+
+        ServerPlayConnectionEvents.JOIN.register(((handler, sender, server) -> PlayerEvents.logout(handler.player)));
 
         ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, oldWorld, newWorld) -> PlayerEvents.playerChangedDimension(player));
 

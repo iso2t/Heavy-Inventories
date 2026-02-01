@@ -1,5 +1,8 @@
 package net.superscary.heavyinventories.api.util;
 
+import lombok.Getter;
+
+@Getter
 public enum MeasuringSystem {
     KGS("Metric", "Kilograms", "kgs"),
     LBS("Imperial", "Pounds", "lbs"),
@@ -12,18 +15,6 @@ public enum MeasuringSystem {
         this.unit = unit;
         this.name = name;
         this.sub = sub;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getSub() {
-        return sub;
-    }
-
-    public String getUnit() {
-        return unit;
     }
 
     @Override

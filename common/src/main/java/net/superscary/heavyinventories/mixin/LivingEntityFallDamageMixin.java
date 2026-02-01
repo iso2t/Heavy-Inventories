@@ -7,15 +7,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-/**
- * Scales the fall-damage multiplier for players based on encumbrance:
- * - Encumbered: x1.5
- * - Over-encumbered: x3.0
- * <p>
- * We modify the "damageMultiplier" parameter (2nd float) at the method head, so
- * vanilla still applies boots, effects, etc. on top of our scaled value.
- */
-
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityFallDamageMixin {
 

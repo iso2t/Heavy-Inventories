@@ -28,3 +28,4 @@ runs
 /fabric/src/generated/resources/.cache/
 
 .vscode
+.eclipse

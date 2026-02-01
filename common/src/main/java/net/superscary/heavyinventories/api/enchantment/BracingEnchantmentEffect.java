@@ -23,10 +23,11 @@ public record BracingEnchantmentEffect() implements EnchantmentEntityEffect {
 
         var holder = PlayerHolder.getOrCreate(player);
         holder.applyBracing(enchantmentLevel, PER_LEVEL_PCT, CAP_PCT);
+        serverLevel.broadcastEntityEvent(entity, (byte)10);
     }
 
     @Override
-    public void onDeactivated(EnchantedItemInUse item, Entity entity, Vec3 pos, int enchantmentLevel) {
+    public void onDeactivated(@NotNull EnchantedItemInUse item, @NotNull Entity entity, @NotNull Vec3 pos, int enchantmentLevel) {
         if (!(entity instanceof Player player)) return;
         var holder = PlayerHolder.getOrCreate(player);
         holder.clearBracing();

@@ -15,21 +15,17 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityFluidTravelMixin {
 
-    // Signature: public void travel(Vec3 travelVector)
-    // We modify the first and only param (ordinal 0) at HEAD.
     @ModifyVariable(method = "travel", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private Vec3 heavyinventories$scaleFluidTravel(Vec3 travel) {
         LivingEntity self = (LivingEntity) (Object) this;
 
-        // Only modify if in a fluid
         if (!(self instanceof Player player)) return travel;
         if (!(self.isInWaterOrBubble() || self.isInLava())) return travel;
 
-        // Get holder and multiplier
-        float mult = PlayerHolder.getOrCreate(player).getFluidSwimMultiplier();
-        if (mult == 1.0f) return travel;
+        float multi = PlayerHolder.getOrCreate(player).getFluidSwimMultiplier();
+        if (multi == 1.0f) return travel;
 
-        return new Vec3(travel.x * mult, travel.y, travel.z * mult);
+        return new Vec3(travel.x * multi, travel.y, travel.z * multi);
     }
 
 }

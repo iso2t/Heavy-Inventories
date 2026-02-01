@@ -34,15 +34,23 @@ import java.util.List;
 public interface IResourceList {
 
     /**
+     * Represents a single recipe's ingredients and output count.
+     * @param ingredients Map of ingredient items to their required counts
+     * @param outputCount The number of items this recipe produces
+     */
+    record RecipeData(HashMap<ItemLike, Integer> ingredients, int outputCount) {}
+
+    /**
      * Gets the crafting resources for an item.
      * It is a collection in the case of multiple recipes for the same item.
-     * Heavy Inventories will use the first recipe found.
+     * Heavy Inventories will use the recipe with the lowest computed weight.
      * <p>
-     * ItemLike -> The item.
-     * Integer -> The number of the specified item in the recipe.
+     * Each RecipeData contains:
+     * - ingredients: ItemLike -> count mapping
+     * - outputCount: how many items the recipe produces
      * @return The crafting resources.
      */
-    Collection<HashMap<ItemLike, Integer>> getResources();
+    Collection<RecipeData> getResources();
 
     /**
      * Gets a list of resources that can be used to get all items used to craft the specified item.
@@ -51,7 +59,7 @@ public interface IResourceList {
      * @return {@link IResourceList} The crafting resources.
      */
     static IResourceList getResourceList(ItemLike itemLike, Level level) {
-        final Collection<HashMap<ItemLike, Integer>> resources = new ArrayList<>();
+        final Collection<RecipeData> resources = new ArrayList<>();
         resources.addAll(getCraftingTableList(itemLike, level).getResources());
         resources.addAll(getSmeltingList(itemLike, level).getResources());
         resources.addAll(getBlastingList(itemLike, level).getResources());
@@ -68,7 +76,7 @@ public interface IResourceList {
      * @return {@link IResourceList} The crafting resources.
      */
     static IResourceList getCraftingTableList(ItemLike itemLike, Level level) {
-        final Collection<HashMap<ItemLike, Integer>> resources = new ArrayList<>();
+        final Collection<RecipeData> resources = new ArrayList<>();
         var access = level.registryAccess();
 
         List<RecipeHolder<CraftingRecipe>> matches = level.getRecipeManager().getAllRecipesFor(RecipeType.CRAFTING)
@@ -80,13 +88,16 @@ public interface IResourceList {
         for (RecipeHolder<CraftingRecipe> match : matches) {
             HashMap<ItemLike, Integer> map = new HashMap<>();
             for (Ingredient ingredient : match.value().getIngredients()) {
-                for (ItemStack stack : ingredient.getItems()) {
-                    ItemLike item = stack.getItem();
+                ItemStack[] items = ingredient.getItems();
+                if (items.length > 0) {
+                    // Only count ONE item per ingredient slot, not all alternatives
+                    ItemLike item = items[0].getItem();
                     map.merge(item, 1, Integer::sum);
                 }
             }
 
-            resources.add(map);
+            int outputCount = match.value().getResultItem(access).getCount();
+            resources.add(new RecipeData(map, outputCount));
         }
 
         return () -> resources;
@@ -99,7 +110,7 @@ public interface IResourceList {
      * @return {@link IResourceList} The crafting resources.
      */
     static IResourceList getSmeltingList(ItemLike itemLike, Level level) {
-        final Collection<HashMap<ItemLike, Integer>> resources = new ArrayList<>();
+        final Collection<RecipeData> resources = new ArrayList<>();
         var access = level.registryAccess();
 
         List<RecipeHolder<SmeltingRecipe>> matches = level.getRecipeManager().getAllRecipesFor(RecipeType.SMELTING)
@@ -111,13 +122,15 @@ public interface IResourceList {
         for (RecipeHolder<SmeltingRecipe> match : matches) {
             HashMap<ItemLike, Integer> map = new HashMap<>();
             for (Ingredient ingredient : match.value().getIngredients()) {
-                for (ItemStack stack : ingredient.getItems()) {
-                    ItemLike item = stack.getItem();
+                ItemStack[] items = ingredient.getItems();
+                if (items.length > 0) {
+                    ItemLike item = items[0].getItem();
                     map.merge(item, 1, Integer::sum);
                 }
             }
 
-            resources.add(map);
+            int outputCount = match.value().getResultItem(access).getCount();
+            resources.add(new RecipeData(map, outputCount));
         }
 
         return () -> resources;
@@ -130,7 +143,7 @@ public interface IResourceList {
      * @return {@link IResourceList} The crafting resources.
      */
     static IResourceList getBlastingList(ItemLike itemLike, Level level) {
-        final Collection<HashMap<ItemLike, Integer>> resources = new ArrayList<>();
+        final Collection<RecipeData> resources = new ArrayList<>();
         var access = level.registryAccess();
 
         List<RecipeHolder<BlastingRecipe>> matches = level.getRecipeManager().getAllRecipesFor(RecipeType.BLASTING)
@@ -142,13 +155,15 @@ public interface IResourceList {
         for (RecipeHolder<BlastingRecipe> match : matches) {
             HashMap<ItemLike, Integer> map = new HashMap<>();
             for (Ingredient ingredient : match.value().getIngredients()) {
-                for (ItemStack stack : ingredient.getItems()) {
-                    ItemLike item = stack.getItem();
+                ItemStack[] items = ingredient.getItems();
+                if (items.length > 0) {
+                    ItemLike item = items[0].getItem();
                     map.merge(item, 1, Integer::sum);
                 }
             }
 
-            resources.add(map);
+            int outputCount = match.value().getResultItem(access).getCount();
+            resources.add(new RecipeData(map, outputCount));
         }
 
         return () -> resources;
@@ -161,7 +176,7 @@ public interface IResourceList {
      * @return {@link IResourceList} The crafting resources.
      */
     static IResourceList getSmokingList(ItemLike itemLike, Level level) {
-        final Collection<HashMap<ItemLike, Integer>> resources = new ArrayList<>();
+        final Collection<RecipeData> resources = new ArrayList<>();
         var access = level.registryAccess();
 
         List<RecipeHolder<SmokingRecipe>> matches = level.getRecipeManager().getAllRecipesFor(RecipeType.SMOKING)
@@ -173,13 +188,15 @@ public interface IResourceList {
         for (RecipeHolder<SmokingRecipe> match : matches) {
             HashMap<ItemLike, Integer> map = new HashMap<>();
             for (Ingredient ingredient : match.value().getIngredients()) {
-                for (ItemStack stack : ingredient.getItems()) {
-                    ItemLike item = stack.getItem();
+                ItemStack[] items = ingredient.getItems();
+                if (items.length > 0) {
+                    ItemLike item = items[0].getItem();
                     map.merge(item, 1, Integer::sum);
                 }
             }
 
-            resources.add(map);
+            int outputCount = match.value().getResultItem(access).getCount();
+            resources.add(new RecipeData(map, outputCount));
         }
 
         return () -> resources;
@@ -192,7 +209,7 @@ public interface IResourceList {
      * @return {@link IResourceList} The crafting resources.
      */
     static IResourceList getSmithingList(ItemLike itemLike, Level level) {
-        final Collection<HashMap<ItemLike, Integer>> resources = new ArrayList<>();
+        final Collection<RecipeData> resources = new ArrayList<>();
         var access = level.registryAccess();
 
         List<RecipeHolder<SmithingRecipe>> matches = level.getRecipeManager().getAllRecipesFor(RecipeType.SMITHING)
@@ -204,13 +221,15 @@ public interface IResourceList {
         for (RecipeHolder<SmithingRecipe> match : matches) {
             HashMap<ItemLike, Integer> map = new HashMap<>();
             for (Ingredient ingredient : match.value().getIngredients()) {
-                for (ItemStack stack : ingredient.getItems()) {
-                    ItemLike item = stack.getItem();
+                ItemStack[] items = ingredient.getItems();
+                if (items.length > 0) {
+                    ItemLike item = items[0].getItem();
                     map.merge(item, 1, Integer::sum);
                 }
             }
 
-            resources.add(map);
+            int outputCount = match.value().getResultItem(access).getCount();
+            resources.add(new RecipeData(map, outputCount));
         }
 
         return () -> resources;
