@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${version}",
+  "name": "${mod_name}",
+  "description": "${description}",
+  "authors": [
+    "${mod_author}"
+  ],
+  "contact": {
+    "homepage": "https://superscary.net/",
+    "sources": "https://github.com/SuperScary/Heavy-Inventories/",
+    "issues": "https://github.com/SuperScary/Heavy-Inventories/issues/"
+  },
+  "license": "${license}",
+  "icon": "${mod_id}.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.iso2t.heavyinventories.fabric.core.HeavyInventoriesFabric"
+    ],
+    "fabric-datagen": [
+      "com.iso2t.heavyinventories.fabric.datagen.DataGenerators"
+    ]
+  },
+  "mixins": [
+    "${mod_id}.mixins.json",
+    "${mod_id}.fabric.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${fabric_loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}",
+    "java": ">=${java_version}",
+    "cloth-config": ">=${cloth_config_version}"
+  }
+}

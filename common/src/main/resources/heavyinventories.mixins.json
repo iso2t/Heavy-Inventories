@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.iso2t.heavyinventories.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "mixins": [
+    "LivingEntityFallDamageMixin",
+    "LivingEntityFluidGravityMixin",
+    "LivingEntityFluidTravelMixin",
+    "LivingEntityJumpFromGroundMixin"
+  ],
+  "client": [
+  ],
+  "server": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

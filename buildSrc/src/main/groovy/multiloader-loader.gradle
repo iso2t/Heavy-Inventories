@@ -1,0 +1,111 @@
+plugins {
+    id 'multiloader-common'
+}
+
+configurations {
+    commonJava{
+        canBeResolved = true
+    }
+    commonResources{
+        canBeResolved = true
+    }
+}
+
+dependencies {
+    compileOnly(project(':common')) {
+        def loaderAttribute = Attribute.of('io.github.mcgradleconventions.loader', String)
+        attributes {
+            attribute(loaderAttribute, 'common')
+        }
+    }
+    commonJava project(path: ':common', configuration: 'commonJava')
+    commonResources project(path: ':common', configuration: 'commonResources')
+}
+
+tasks.named('compileJava', JavaCompile) {
+    dependsOn(configurations.commonJava)
+    source(configurations.commonJava)
+}
+
+processResources {
+    dependsOn(configurations.commonResources)
+    from(configurations.commonResources)
+}
+
+tasks.named('javadoc', Javadoc).configure {
+    dependsOn(configurations.commonJava)
+    source(configurations.commonJava)
+}
+
+tasks.named('sourcesJar', Jar) {
+    dependsOn(configurations.commonJava)
+    from(configurations.commonJava)
+    dependsOn(configurations.commonResources)
+    from(configurations.commonResources)
+}
+
+// Validate the packaged artifact: compilation alone cannot catch stale resource class names.
+def verifyModJar = tasks.register('verifyModJar') {
+    group = 'verification'
+    description = 'Checks mod metadata, mixins, services, and enchantment resources in the loader jar.'
+    dependsOn tasks.named('jar')
+    inputs.file(tasks.named('jar', Jar).flatMap { it.archiveFile })
+
+    doLast {
+        new java.util.zip.ZipFile(tasks.named('jar', Jar).get().archiveFile.get().asFile).withCloseable { zip ->
+            def requireEntry = { String path ->
+                if (zip.getEntry(path) == null) {
+                    throw new GradleException("Missing jar entry: ${path}")
+                }
+            }
+            def readEntry = { String path ->
+                requireEntry(path)
+                zip.getInputStream(zip.getEntry(path)).withCloseable { it.getText('UTF-8') }
+            }
+            def requireClass = { String className -> requireEntry(className.replace('.', '/') + '.class') }
+            def json = new groovy.json.JsonSlurper()
+
+            if (project.name == 'fabric') {
+                def metadata = json.parseText(readEntry('fabric.mod.json'))
+                if (metadata.id != mod_id || metadata.version != project.version.toString()) {
+                    throw new GradleException('Fabric mod identity does not match project properties')
+                }
+                metadata.entrypoints.values().flatten().each { requireClass(it as String) }
+                metadata.mixins.each { requireEntry(it as String) }
+                requireEntry(metadata.icon as String)
+            } else {
+                def metadata = readEntry('META-INF/neoforge.mods.toml')
+                if (!metadata.contains('modId = "' + mod_id + '"') || metadata.contains('${')) {
+                    throw new GradleException('NeoForge metadata contains an incorrect mod ID or unresolved properties')
+                }
+                (metadata =~ /(?m)^config\s*=\s*"([^"]+)"/).each { requireEntry(it[1]) }
+                requireClass('com.iso2t.heavyinventories.neoforge.core.HeavyInventoriesNeoForgeBootstrap')
+            }
+
+            zip.entries().each { entry ->
+                if (entry.name.endsWith('.mixins.json')) {
+                    def config = json.parseText(readEntry(entry.name))
+                    ['mixins', 'client', 'server'].each { side ->
+                        (config[side] ?: []).each { requireClass(config['package'] + '.' + it) }
+                    }
+                    if (config.refmap) requireEntry(config.refmap as String)
+                }
+                if (entry.name.startsWith('META-INF/services/') && !entry.directory) {
+                    requireClass(entry.name.substring('META-INF/services/'.length()))
+                    readEntry(entry.name).readLines().each { line ->
+                        def provider = line.split('#', 2)[0].trim()
+                        if (provider) requireClass(provider)
+                    }
+                }
+            }
+            ['bracing', 'reinforced', 'surefooted'].each {
+                requireEntry("data/${mod_id}/enchantment/${it}.json")
+            }
+            requireEntry("LICENSE.md_${mod_name}")
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn verifyModJar
+}
