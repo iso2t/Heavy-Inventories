@@ -61,7 +61,7 @@ def resolve_branch_ref(root: Path, branch: str) -> str:
 
 
 def resolve(root: Path, tag: str) -> str:
-    require(TAG_PATTERN.fullmatch(tag) is not None, "Release tag must match vX.Y.Z[-alpha.N|-beta.N|-rc.N]")
+    require(TAG_PATTERN.fullmatch(tag) is not None, "Release tag must match vX.Y.Z[.W][-alpha.N|-beta.N|-rc.N]")
     sha = git("rev-parse", "--verify", f"refs/tags/{tag}^{{commit}}", root=root)
 
     branches = release_branches(root)
