@@ -57,7 +57,10 @@ def resolve(root: Path, tag: str) -> str:
                 capture_output=True,
                 text=True,
             )
-            trusted |= check.returncode == 0
+            if check.returncode == 0:
+                trusted = True
+            elif check.returncode != 1:
+                raise ReleaseError(f"Git merge-base failed for branch {branch}")
         require(trusted, "Tag must point to a commit merged into a configured release branch")
 
     output = os.environ.get("GITHUB_OUTPUT")
