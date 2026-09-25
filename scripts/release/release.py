@@ -121,7 +121,7 @@ def resolve(root, tag):
         require(re.fullmatch(r'[A-Za-z0-9_./-]+', branch) and '..' not in branch, 'Invalid release branch')
         check = subprocess.run(['git', 'merge-base', '--is-ancestor', sha, 'refs/remotes/origin/' + branch], cwd=root, capture_output=True)
         trusted |= check.returncode == 0
-    require(trusted, 'Tag must point to a commit merged into a configured release branch (main by default)')
+    require(trusted, 'Tag must point to a commit on a configured release branch: ' + ', '.join(rules['release_branches']))
     output = os.environ.get('GITHUB_OUTPUT')
     if output:
         with open(output, 'a', encoding='utf-8') as handle:

@@ -6,11 +6,11 @@ The assistant must never commit, create/push tags, push branches, or publish mer
 
 ## Agreed direction and implementation defaults
 
-Confirmed by the user: version-tag pushes authorize automatic publication, manual runs default to dry-run, and changelogs use one Markdown file per version with an Unreleased draft. The defaults below are implemented in the checked-in policy and scripts; rollout checks remain below.
+Updated by the user: publication is manual-only. Branch/tag pushes never publish; manual runs default to dry-run. Changelogs use one Markdown file per version with an Unreleased draft. The defaults below are implemented in the checked-in policy and scripts; rollout checks remain below.
 
 | Decision | Implemented behavior |
 | --- | --- |
-| Publication trigger | A maintainer pushes an existing release tag such as `v4.0.0-rc.1`; ordinary branch pushes and pull requests only validate |
+| Publication trigger | A maintainer runs Publish release with an existing tag and mode=publish; branch/tag pushes never publish |
 | Manual workflow | Select an existing tag; default to dry-run; explicit publish mode can recover an incomplete release |
 | Changelogs | `changelogs/<version>.md`, with `UNRELEASED.md` as the working draft |
 | Version authority | `version` in the tagged `gradle.properties`; tag must equal `v` plus that value |
@@ -19,7 +19,7 @@ Confirmed by the user: version-tag pushes authorize automatic publication, manua
 | Release body | The same version-specific changelog on all three services |
 | First rollout | Publishing remains disabled until projects, secrets, and a dry-run have been reviewed |
 
-No part of the workflow creates or pushes Git refs. The maintainer creates and pushes the release tag; the workflow responds to that explicit action.
+No part of the workflow creates or pushes Git refs. The maintainer creates and pushes the release tag, then explicitly dispatches the manual workflow. A tag push alone does nothing to publishing.
 
 ## Platform layout
 
@@ -53,7 +53,7 @@ Follow the [publishing setup guide](PUBLISHING.md) for token creation, exact rep
 1. Create or verify ownership of the Heavy Inventories listings on CurseForge and Modrinth, including any required initial approval. Record the real project IDs; do not invent them from names.
 2. Create publishing tokens in the platforms' account settings with the account/project permissions needed to upload versions. Store values directly in GitHub's repository Actions secrets, never in source files, changelogs, logs, or chat.
 3. Add the variables and secrets below. Keep publication disabled until the dry-run and authenticated preflight are complete.
-4. Make the workflow available on the repository's default branch for manual dispatch. Protect release tags so only authorized maintainers can create or replace them. Approval via a GitHub environment is optional; it is not assumed or added as an extra required step in this design.
+4. Make `26.1` the repository default branch and put the workflow there for manual dispatch. Protect release tags so only authorized maintainers can create or replace them. Approval via a GitHub environment is optional; it is not assumed or added as an extra required step in this design.
 5. Have a maintainer choose the first release tag and enable publishing. Creating platform listings, configuring repository settings, adding credentials, and first live publication are separate setup actions, not work performed by this document.
 
 | Name | Storage | Purpose |
@@ -73,7 +73,7 @@ GitHub provides the workflow token; limit write permission to the publishing job
 
 ```mermaid
 flowchart TD
-    A[Maintainer tag or manual existing-tag selection] --> B[Validate version, changelog, and metadata]
+    A[Manual existing-tag selection] --> B[Validate version, changelog, and metadata]
     B --> C[Clean build and tests: Linux and Windows]
     C --> D[Package exact Linux jars and immutable manifest]
     D --> E{Dry-run?}
@@ -86,7 +86,7 @@ flowchart TD
 
 Refactor the existing build matrix into reusable validation/build jobs, retaining ordinary branch/PR checks. The release workflow must wait for both operating systems at the exact selected commit; a previous green result on a moving branch is insufficient. No `release: published` trigger chain is needed: one workflow coordinates all destinations. The existing CI does not launch Minecraft; release acceptance still includes the project's separately recorded gameplay checks.
 
-Resolve the tag once to a commit SHA and use that SHA for source, properties, changelog, and build. Recheck that the tag has not moved before publication. Check allowed release-line ancestry (`main` initially, configured in `release/publishing.json`); do not execute secrets-bearing workflows for pull-request heads or arbitrary unreviewed branches. Manual workflow dispatch requires the workflow on the default branch. [GitHub workflow events](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows)
+Resolve the tag once to a commit SHA and use that SHA for source, properties, changelog, and build. Recheck that the tag has not moved before publication. Check allowed release-line ancestry (`26.1`, configured in `release/publishing.json`); do not execute secrets-bearing workflows for pull-request heads or arbitrary unreviewed branches. Manual workflow dispatch requires the workflow on the default branch. [GitHub workflow events](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows)
 
 Build both loaders, run common tests, verify packaged resources/metadata, and compile the runtime harness. Have Gradle report the exact two `archiveFile` paths into a machine-readable manifest rather than relying on a broad `*.jar` glob. Transfer the verified Linux bundle between jobs; never rebuild separately for each destination. The package contains:
 
@@ -129,7 +129,7 @@ The local `4.0.0-rc.1.md` draft starts from the current release notes. Its prese
 
 ### 1. Settle the publishing contract
 
-- [x] Confirm tag-triggered publication, manual dry-run default, and per-version changelog layout.
+- [x] Confirm manual-only publication, dry-run default, and per-version changelog layout.
 - [ ] Confirm the first release version before live rollout; the current RC1 notes are a prepared draft.
 - [ ] Verify/create platform listings and record actual project/dependency IDs without exposing token values.
 - [x] Implement conservative required Cloth relations with explicit client-only release notes, prerelease mapping, and configured latest-stable policy.

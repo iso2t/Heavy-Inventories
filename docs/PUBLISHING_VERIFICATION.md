@@ -26,7 +26,7 @@ The clean build retains existing JavaDoc and Gradle deprecation warnings; there 
 
 ## Remaining rollout checks
 
-- [ ] Maintainer commits/pushes these changes and merges the intended release commit into `main` (the configured trusted release branch).
+- [ ] Maintainer commits/pushes these changes to `26.1` (the configured release branch) and selects `26.1` as the GitHub default branch for manual workflow discovery.
 - [ ] Run the real GitHub-hosted Linux/Windows dry-run for the existing release tag.
 - [ ] Verify repository secret/variable names and actual project IDs, then run `mode=preflight`.
 - [ ] Verify account upload permission on both platforms. Read-only APIs do not prove upload scopes; CurseForge's author API cannot verify project-level upload permission or perform file lookup.
@@ -34,3 +34,9 @@ The clean build retains existing JavaDoc and Gradle deprecation warnings; there 
 - [ ] Verify platform entries, loader/game/dependency metadata, artifact hashes, and CurseForge moderation/public availability.
 
 Project/dependency IDs for Fabric API and Cloth Config were read from public platform metadata. The implementation uses two repository secrets plus the automatic GitHub token, as documented in the [setup guide](PUBLISHING.md). Tokens and destination project settings were not read from the user's account.
+
+## Branch and manual-trigger correction
+
+Publishing now has only `workflow_dispatch`; branch and tag pushes cannot publish. Resolution uses the selected workflow commit instead of checking out the repository default branch, and release ancestry is checked against `origin/26.1`. Local branch `26.1` now tracks `origin/26.1` rather than the deleted `origin/releases/26.1-rc1`. Repository default-branch settings remain unchanged remotely.
+
+After these corrections, all 37 release-tool tests and actionlint passed locally. This includes accepting a release on `26.1` without requiring ancestry on `main`.

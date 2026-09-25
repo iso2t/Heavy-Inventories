@@ -70,7 +70,7 @@ These three values must match exactly; RC1 is an example, not a decision to publ
 
 While developing, add player-facing changes to [Unreleased](../changelogs/UNRELEASED.md). Before release, curate them into the version file using the [template](../changelogs/TEMPLATE.md), remove empty sections/placeholders, update the [index](../CHANGELOG.md), and reset Unreleased for subsequent work. The version file supplies the release notes for all three platforms.
 
-Commit and merge the release changes through your normal Git workflow. The release commit must contain the publishing workflow, scripts, version, and changelog. Merge it into `main` before tagging: `release/publishing.json` permits release commits reachable from `main`. The default branch must also contain the workflow for manual runs. If a future maintenance branch should publish, add its exact name to `release_branches` in that configuration through review first. Finish build and gameplay verification before tagging. Tag the exact reviewed commit, not a later untested change.
+Commit and merge the release changes through your normal Git workflow. The release commit must contain the publishing workflow, scripts, version, and changelog. Keep it on `26.1`: `release/publishing.json` permits release commits reachable from that branch. No merge into `main` is required. Set the repository default branch to `26.1` in GitHub repository Settings so GitHub can expose the manual workflow from the current code. The workflow resolves its setup from the branch selected for the manual run, then builds the exact release tag commit. If a future maintenance branch should publish, add its exact name to `release_branches` in that configuration through review first. Finish build and gameplay verification before tagging. Tag the exact reviewed commit, not a later untested change.
 
 Channel mapping: `-rc.N` and `-beta.N` publish as beta/prerelease; `-alpha.N` as alpha/prerelease; a version without a suffix is stable. The tag's leading `v` does not appear in `gradle.properties` or the changelog filename.
 
@@ -101,7 +101,7 @@ git push origin refs/tags/v4.0.0-rc.1
 
 Substitute the chosen version everywhere. An ordinary branch push does not normally push this tag. Prefer the explicit single-tag command over `git push --tags`, which sends all local tags. Do not move or force-push a published tag; changed release contents need a new version. [Git's tagging guide](https://git-scm.com/book/en/v2/Git-Basics-Tagging)
 
-Once these changes are on GitHub and publishing is enabled, **the tag push is the publication trigger**. Creating the local tag alone does not publish. You do not also need to create a GitHub release manually; the workflow creates it.
+**Pushing a tag does not publish.** Publication is manual-only: open Actions, select Publish release, choose Run workflow, select branch `26.1`, enter the existing tag, and choose `mode=publish`. You do not create the GitHub release yourself; the workflow creates it. Ordinary branch pushes still run Build and verify.
 
 ## 6. First rollout: dry-run before enabling publication
 
@@ -113,17 +113,17 @@ In **Actions → Publish release → Run workflow**, the inputs are:
 | `mode` | `dry-run` (default), `preflight` (API reads only), or `publish` |
 | `recovery` | Leave `{}` unless reconciling an ambiguous upload as described below |
 
-The ordinary branch/PR build validates release notes and tests the publisher without tokens. A release run builds on Linux and Windows, compiles the runtime harness, and packages the exact verified Linux jars. Only after both builds pass can publication begin. It does not launch Minecraft gameplay tests.
+The ordinary branch/PR build validates release notes and tests the publisher without tokens. Tag pushes do not run the publisher. A release run builds on Linux and Windows, compiles the runtime harness, and packages the exact verified Linux jars. Only after both builds pass can publication begin. It does not launch Minecraft gameplay tests.
 
-1. Keep `PUBLISH_ENABLED=false`. Ensure the implementation is on the default branch and in the reviewed release commit.
-2. Create and push the chosen release tag using step 5. The run produces preview artifacts, then deliberately fails the publication gate while the switch is off.
-3. Open the repository's Actions page, select the publishing workflow, and choose **Run workflow**. Use its default-branch workflow, select the existing release tag as the release input, and set `mode=dry-run` and leave `recovery={}`.
+1. Keep `PUBLISH_ENABLED=false`. Set `26.1` as the default branch and ensure it contains the implementation and reviewed release commit.
+2. Create and push the chosen release tag using step 5. This makes the tag available to the manual workflow; pushing it does not start publication.
+3. Open the repository's Actions page, select the publishing workflow, and choose **Run workflow**. Select branch `26.1`, enter the existing release tag in the `tag` input, and set `mode=dry-run` and leave `recovery={}`.
 4. Inspect the resulting two jars, changelog, checksums, manifest, and destination preview. Both Linux and Windows validation must pass. Dry-run validates the release without publishing credentials; it cannot prove the tokens work.
 5. Run the same tag with `mode=preflight`. This reads GitHub, Modrinth, and CurseForge metadata with the configured credentials, without creating a draft or uploading files. This read-only check cannot prove upload-only permissions/scopes: CurseForge does not expose a documented project-permission or file lookup endpoint in its author API. Verify your CurseForge account can upload to the configured project. The live path repeats its available checks before writing.
-6. Set `PUBLISH_ENABLED=true`. Manually run the same existing tag with `mode=publish`. Changing the variable does not replay the earlier tag event, and pushing an unchanged tag does not create another event.
+6. Set `PUBLISH_ENABLED=true`. Manually run the same existing tag with `mode=publish`. Changing the variable or pushing a tag never starts publication; only the explicit manual run does.
 7. Verify both loader entries on CurseForge and Modrinth, and the GitHub release containing both jars. Confirm dependency declarations and any pending moderation.
 
-For later releases, leave publishing enabled, prepare the new release commit/changelog, and push its new tag. The workflow then validates, builds, and publishes automatically. Manual runs continue to default to dry-run.
+For later releases, prepare the version/changelog, push the reviewed commit to `26.1`, and push its new tag. Then manually run Publish release with that tag and `mode=publish`. Every manual run defaults to `dry-run`; live publication also requires `PUBLISH_ENABLED=true`. Existing tags still point to their original commits; use a new version/tag to include subsequent fixes.
 
 ## 7. If publication fails
 
@@ -131,7 +131,7 @@ Inspect the workflow summary before rerunning. A failure can leave a GitHub draf
 
 | Symptom | Check |
 | --- | --- |
-| No publishing workflow listed | The workflow has not been pushed to the default branch, or Actions is disabled |
+| No publishing workflow listed | Push the workflow to `26.1` and make `26.1` the repository default branch; also check Actions is enabled |
 | Publication disabled | `PUBLISH_ENABLED` is a repository variable with value `true` |
 | Missing token | Exact secret spelling and repository Actions secret location |
 | Unauthorized upload | Token expiry/scopes and account permission on the selected project |

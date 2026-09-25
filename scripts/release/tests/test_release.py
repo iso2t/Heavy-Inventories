@@ -137,8 +137,18 @@ class ValidationTests(Fixture):
         from unittest.mock import Mock
         with patch.object(release, 'git', return_value='a' * 40), \
                 patch.object(release.subprocess, 'run', return_value=Mock(returncode=1)), \
-                self.assertRaisesRegex(release.ReleaseError, 'merged'):
+                self.assertRaisesRegex(release.ReleaseError, 'configured release branch: 26.1'):
             release.resolve(self.root, 'v4.0.0-rc.1')
+
+    def test_resolve_accepts_version_branch_without_main(self):
+        from unittest.mock import Mock
+        with patch.object(release, 'git', return_value='a' * 40), \
+                patch.object(release.subprocess, 'run', return_value=Mock(returncode=0)) as command, \
+                patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(release.resolve(self.root, 'v4.0.0-rc.1'), 'a' * 40)
+        command.assert_called_once_with(
+            ['git', 'merge-base', '--is-ancestor', 'a' * 40, 'refs/remotes/origin/26.1'],
+            cwd=self.root, capture_output=True)
 
     def test_invalid_destination_ids(self):
         for env in ({}, {'CURSEFORGE_PROJECT_ID': 'abc', 'MODRINTH_PROJECT_ID': 'Abcd1234'},

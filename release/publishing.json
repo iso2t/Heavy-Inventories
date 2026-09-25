@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "repository": "iso2t/Heavy-Inventories",
-  "release_branches": ["main"],
+  "release_branches": ["26.1"],
   "latest_minecraft": "26.1",
   "dependencies": {
     "fabric": [
