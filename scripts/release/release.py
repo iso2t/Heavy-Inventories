@@ -107,7 +107,6 @@ def main() -> int:
     parser.add_argument("--tag", default=os.environ.get("RELEASE_TAG"))
     args = parser.parse_args()
 
-    require(args.command == "resolve", "Unsupported command")
     require(bool(args.tag), "Missing release tag")
 
     print(resolve(args.root, args.tag))
