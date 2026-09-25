@@ -50,6 +50,7 @@ def verifyModJar = tasks.register('verifyModJar') {
     description = 'Checks mod metadata, mixins, services, and enchantment resources in the loader jar.'
     dependsOn tasks.named('jar')
     inputs.file(tasks.named('jar', Jar).flatMap { it.archiveFile })
+    inputs.file(rootProject.file('common/src/main/weight-defaults.json'))
 
     doLast {
         new java.util.zip.ZipFile(tasks.named('jar', Jar).get().archiveFile.get().asFile).withCloseable { zip ->
@@ -105,6 +106,19 @@ def verifyModJar = tasks.register('verifyModJar') {
             ['bracing', 'reinforced', 'surefooted'].each {
                 requireEntry("data/${mod_id}/enchantment/${it}.json")
             }
+            def defaults = json.parse(rootProject.file('common/src/main/weight-defaults.json'))
+            def expectedWeights = [:]
+            defaults.groups.each { group -> group.items.each { id -> expectedWeights[id] = group.weight } }
+            expectedWeights.each { id, weight ->
+                def parts = id.split(':', 2)
+                def path = "data/${parts[0]}/heavyinventories/weights/${parts[1]}.json"
+                def definition = json.parseText(readEntry(path))
+                if (definition.keySet() != (['weight'] as Set) || definition.weight != weight) {
+                    throw new GradleException("Packaged default differs from catalog: ${id}")
+                }
+            }
+            def packagedCount = zip.entries().findAll { it.name ==~ /data\/[^\/]+\/heavyinventories\/weights\/.+\.json/ }.size()
+            if (packagedCount != expectedWeights.size()) throw new GradleException('Stale or missing packaged weight defaults')
             requireEntry("LICENSE.md_${mod_name}")
         }
     }

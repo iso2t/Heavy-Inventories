@@ -8,10 +8,12 @@ import java.util.Map;
 import java.util.Set;
 
 /** Complete gameplay candidate: datapack anchors, then recipes, then fallback. */
-public record ResolvedWeights(Map<Identifier, Float> weights, Map<Identifier, Float> explicitWeights) {
+public record ResolvedWeights(Map<Identifier, Float> weights, Map<Identifier, Float> explicitWeights,
+                              Map<Identifier, WeightProvenance> provenance) {
     public ResolvedWeights {
         weights = Map.copyOf(weights);
         explicitWeights = Map.copyOf(explicitWeights);
+        provenance = Map.copyOf(provenance);
     }
 
     public static ResolvedWeights resolve(WeightPackData.Result data, Collection<RecipeWeights.Recipe> recipes,
@@ -22,9 +24,15 @@ public record ResolvedWeights(Map<Identifier, Float> weights, Map<Identifier, Fl
             if (registeredItems.contains(item) && entry.definition() instanceof WeightDefinition.Fixed value)
                 fixed.put(item, value.weight());
         });
-        var inferred = RecipeWeights.resolve(recipes, fixed);
+        var inferred = RecipeWeights.resolveWithSources(recipes, fixed);
         var complete = new HashMap<Identifier, Float>();
-        for (var item : registeredItems) complete.put(item, inferred.getOrDefault(item, RecipeWeights.FALLBACK));
-        return new ResolvedWeights(complete, fixed);
+        var sources = new HashMap<Identifier, WeightProvenance>();
+        for (var item : registeredItems) {
+            complete.put(item, inferred.weights().getOrDefault(item, RecipeWeights.FALLBACK));
+            var source = fixed.containsKey(item) ? WeightProvenance.Source.EXPLICIT
+                    : inferred.inferred().contains(item) ? WeightProvenance.Source.RECIPE : WeightProvenance.Source.FALLBACK;
+            sources.put(item, new WeightProvenance(source, data.definitions().get(item)));
+        }
+        return new ResolvedWeights(complete, fixed, sources);
     }
 }

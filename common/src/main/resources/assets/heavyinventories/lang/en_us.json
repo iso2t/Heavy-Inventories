@@ -35,7 +35,8 @@
   "config.heavyinventories.stale": "Server settings changed while this screen was open. Reopen it and try again.",
   "config.heavyinventories.saved": "Server settings saved. The change applies to all players.",
   "config.heavyinventories.failed": "Server settings were not applied: %s",
-  "config.heavyinventories.reloaded": "Server settings reloaded; item weights rebuilt from currently loaded datapacks and recipes. For edited pack files, run /reload first, then this command.",
+  "config.heavyinventories.reloaded": "Reloaded server settings and rebuilt weights from loaded datapacks and recipes. Use /reload to load edited datapack files.",
+  "config.heavyinventories.weights_reload_failed": "Heavy Inventories could not apply reloaded weights; previous weights remain active. %s",
   "config.heavyinventories.unavailable": "Join a Heavy Inventories server to view its settings.",
   "config.heavyinventories.edit_help": "Saving sends your changes to the server. Operator permission is checked there; accepted changes apply to all players.",
   "config.heavyinventories.read_only": "These are the server's settings. Only server operators can change them.",
@@ -47,5 +48,7 @@
   "command.heavyinventories.config.no_player": "Open a config screen from a player.",
   "command.heavyinventories.config.success": "Requested the %s config screen.",
   "command.heavyinventories.write_failed": "Weight was not changed: %s",
-  "command.heavyinventories.exported": "Exported active weights to %s. Gameplay is unchanged. This is a review export, not an installable datapack."
+  "command.heavyinventories.exported": "Exported weight report to %s, including sources. This is not an installable datapack and does not change gameplay.",
+  "command.heavyinventories.converted": "Converted %s weights (%s entries without weights skipped) to %s. Review the ZIP, install it in the intended world's datapacks folder, and enable it. Source files and gameplay were unchanged.",
+  "command.heavyinventories.conversion_failed": "Weight conversion failed: %s"
 }

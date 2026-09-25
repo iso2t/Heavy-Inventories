@@ -41,6 +41,10 @@ public class ModCommands {
                                         })
                                 )
                         )
+                        .then(Commands.literal("convert").requires(Commands.hasPermission(new PermissionCheck.Require(Permissions.COMMANDS_GAMEMASTER)))
+                                .then(Commands.literal("legacy")
+                                        .then(Commands.argument("pack_name", StringArgumentType.word())
+                                                .executes(ModCommands::executeConvertCommand))))
                         .then(Commands.literal("dump").requires(Commands.hasPermission(new PermissionCheck.Require(Permissions.COMMANDS_GAMEMASTER)))
                                 .then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("modid", StringArgumentType.string())
                                         .suggests(new ModidSuggestionProvider())
@@ -84,6 +88,22 @@ public class ModCommands {
         }
     }
 
+    protected static int executeConvertCommand(CommandContext<CommandSourceStack> context) {
+        var game = Services.PLATFORM.getGameDirectory();
+        var version = net.minecraft.SharedConstants.getCurrentVersion().packVersion(net.minecraft.server.packs.PackType.SERVER_DATA);
+        try {
+            var result = com.iso2t.heavyinventories.server.weight.LegacyWeightConverter.convert(
+                    game.resolve("weights"), game.resolve("weight-packs"),
+                    StringArgumentType.getString(context, "pack_name"), version.major(), version.minor());
+            context.getSource().sendSuccess(() -> Component.translatable("command.heavyinventories.converted",
+                    result.converted(), result.skipped(), game.toAbsolutePath().normalize().relativize(result.file()).toString()), false);
+            return Command.SINGLE_SUCCESS;
+        } catch (java.io.IOException | IllegalArgumentException e) {
+            context.getSource().sendFailure(Component.translatable("command.heavyinventories.conversion_failed", e.getMessage()));
+            return 0;
+        }
+    }
+
     protected static int executeDumpCommand(CommandContext<CommandSourceStack> context) {
         var modid = StringArgumentType.getString(context, "modid");
 
@@ -100,7 +120,7 @@ public class ModCommands {
 
         var level = context.getSource().getLevel();
         java.nio.file.Path export;
-        try { export = WeightOverride.putDumpFile(modid, items, blocks, level); }
+        try { export = WeightOverride.putDumpFile(modid, level); }
         catch (java.io.IOException | IllegalArgumentException e) {
             context.getSource().sendFailure(Component.literal(e.getMessage()));
             return 0;

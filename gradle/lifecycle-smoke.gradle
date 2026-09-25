@@ -23,7 +23,7 @@ gradle.projectsEvaluated {
         }
         ['runServer', 'runClient'].each { runName ->
             modProject.tasks.named(runName) {
-                if (runName == 'runServer' && modProject.hasProperty('datapackSmoke')) {
+                if (modProject.hasProperty('datapackSmoke')) {
                     systemProperty 'heavyinventories.test.datapacks', 'true'
                 }
                 if (modProject.hasProperty('authorityMultiplayer')) {

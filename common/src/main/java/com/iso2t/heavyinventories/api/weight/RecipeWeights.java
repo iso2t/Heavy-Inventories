@@ -24,7 +24,15 @@ public final class RecipeWeights {
         }
     }
 
+    public record Resolution(Map<Identifier, Float> weights, Set<Identifier> inferred) {
+        public Resolution { weights = Map.copyOf(weights); inferred = Set.copyOf(inferred); }
+    }
+
     public static Map<Identifier, Float> resolve(Collection<Recipe> recipes, Map<Identifier, Float> overrides) {
+        return resolveWithSources(recipes, overrides).weights();
+    }
+
+    public static Resolution resolveWithSources(Collection<Recipe> recipes, Map<Identifier, Float> overrides) {
         if (recipes.size() > MAX_RECIPES) throw new IllegalArgumentException("Too many recipes to infer safely");
         overrides.values().forEach(ServerSettings::validateItemWeight);
         var graph = new TreeMap<Identifier, Set<Identifier>>(ORDER);
@@ -87,6 +95,7 @@ public final class RecipeWeights {
         }
 
         var result = new HashMap<>(overrides);
+        var inferred = new HashSet<Identifier>();
         // Dependencies outside a strongly connected component are resolved before its outputs.
         for (int group = groups.size() - 1; group >= 0; group--) {
             for (var output : groups.get(group)) {
@@ -106,9 +115,10 @@ public final class RecipeWeights {
                     double weight = total / recipe.outputCount;
                     if (Double.isFinite(weight) && weight <= ServerSettings.MAX_VALUE) best = Math.min(best, weight);
                 }
+                if (Double.isFinite(best)) inferred.add(output);
                 result.put(output, Double.isFinite(best) ? (float) best : FALLBACK);
             }
         }
-        return Map.copyOf(result);
+        return new Resolution(result, inferred);
     }
 }

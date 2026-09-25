@@ -43,6 +43,10 @@ public final class ClientLifecycleScenario {
     private volatile boolean screenshotDone;
 
     public void tick(Minecraft client) {
+        if (Boolean.getBoolean("heavyinventories.test.datapacks")) {
+            DatapackReloadClient.tick(client);
+            return;
+        }
         if (Boolean.getBoolean("heavyinventories.test.multiplayer")) {
             NetworkAuthorityClient.clientTick(client);
             return;
@@ -55,10 +59,10 @@ public final class ClientLifecycleScenario {
                 var arrowId = BuiltInRegistries.ITEM.getKey(Items.ARROW);
                 var arrowWeight = ClientWeightData.weight(arrowId);
                 if (!PlayerHolder.getOrCreate(client.player).hasServerState() || arrowWeight == null) return;
-                require(Math.abs(arrowWeight - 0.053125f) < 0.000001f, "Fresh client did not receive inferred arrow weight");
+                require(Math.abs(arrowWeight - 0.09f) < 0.000001f, "Fresh client did not receive inferred arrow weight");
                 for (int count : new int[]{1, 64}) {
                     var lines = com.iso2t.heavyinventories.tooltips.Tooltip.addTooltips(new java.util.ArrayList<>(), new ItemStack(Items.ARROW, count));
-                    String expected = com.iso2t.heavyinventories.client.WeightDisplay.weight(0.053125f * count, com.iso2t.heavyinventories.config.ConfigOptions.WEIGHT_MEASURE);
+                    String expected = com.iso2t.heavyinventories.client.WeightDisplay.weight(0.09f * count, com.iso2t.heavyinventories.config.ConfigOptions.WEIGHT_MEASURE);
                     require(lines.stream().anyMatch(line -> line.getString().contains(expected)), "Arrow tooltip differs from inferred weight");
                 }
                 pauseOnLostFocus = client.options.pauseOnLostFocus;
@@ -68,11 +72,11 @@ public final class ClientLifecycleScenario {
                 operation = server.submit(() -> {
                     var player = server.getPlayerList().getPlayer(uuid);
                     var state = ServerWeightState.of(server);
-                    require(Math.abs(state.unitWeight(arrowId) - 0.053125f) < 0.000001f, "Fresh server did not infer arrow");
+                    require(Math.abs(state.unitWeight(arrowId) - 0.09f) < 0.000001f, "Fresh server did not infer arrow");
                     player.getInventory().clearContent();
                     player.getInventory().setItem(0, new ItemStack(Items.ARROW, 64));
                     PlayerEvents.onPlayerTick(player);
-                    require(Math.abs(PlayerHolder.getOrCreate(player).getWeight() - 3.4f) < 0.00001f, "Arrow inventory total differs");
+                    require(Math.abs(PlayerHolder.getOrCreate(player).getWeight() - 5.76f) < 0.00001f, "Arrow inventory total differs");
                     var values = new java.util.HashMap<>(state.weights());
                     values.put(BuiltInRegistries.ITEM.getKey(Items.STONE), 2f);
                     state.replace(new ServerSettings(10.5f), values);

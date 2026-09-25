@@ -26,6 +26,8 @@ public final class AdminScenario {
         byte[] original = read(file), originalConfig = read(config);
         java.util.Set<Path> oldExports;
         var directory = game.resolve("weight-exports");
+        String packName = "admin-test-" + java.util.UUID.randomUUID();
+        var converted = game.resolve("weight-packs").resolve(packName + ".zip");
         try {
             Files.createDirectories(directory);
             try (var paths = Files.list(directory)) { oldExports = paths.collect(java.util.stream.Collectors.toSet()); }
@@ -57,15 +59,32 @@ public final class AdminScenario {
             try (var paths = Files.list(directory)) {
                 var added = paths.filter(path -> !oldExports.contains(path)).toList();
                 require(added.size() == 1, "Dump did not create exactly one export");
-                require(JsonFiles.readObject(added.getFirst()).getAsJsonObject("stone").get("weight").getAsFloat() == stone, "Export differs from active gameplay");
+                var report = JsonFiles.readObject(added.getFirst());
+                var entries = report.getAsJsonObject("items");
+                require(entries.getAsJsonObject("minecraft:stone").get("weight").getAsFloat() == stone, "Export differs from active gameplay");
+                require(entries.getAsJsonObject("minecraft:arrow").get("source").getAsString().equals("recipe"), "Export lacks inferred provenance");
+                require(entries.getAsJsonObject("minecraft:barrier").get("source").getAsString().equals("fallback"), "Export lacks fallback provenance");
+                require(report.get("revision").getAsLong() == state.revision(), "Export has wrong revision");
             }
+            var selectedPacks = java.util.List.copyOf(server.getPackRepository().getSelectedIds());
+            require(execute(player, "convert legacy " + packName) == 1, "Conversion command failed");
+            require(Files.exists(converted) && Files.readString(file).equals(valid), "Conversion did not preserve legacy file");
+            require(state.revision() == revision && selectedPacks.equals(java.util.List.copyOf(server.getPackRepository().getSelectedIds())), "Conversion applied or enabled weights");
+            byte[] zipBytes = Files.readAllBytes(converted);
+            require(execute(player, "convert legacy " + packName) == 0, "Conversion overwrote an existing ZIP");
+            require(java.util.Arrays.equals(zipBytes, Files.readAllBytes(converted)), "Existing ZIP changed");
+            Files.writeString(file, "{");
+            require(execute(player, "convert legacy " + packName + "-invalid") == 0, "Malformed legacy input converted");
+            require(!Files.exists(game.resolve("weight-packs").resolve(packName + "-invalid.zip")), "Invalid conversion published a pack");
+            Files.writeString(file, valid);
             require(execute(player, "reload") == 1 && state.unitWeight(Identifier.parse("minecraft:stone")) == stone, "Reload read legacy overrides");
             player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
             server.getPlayerList().deop(profile);
-            require(execute(player, "reload") == 0 && execute(player, "dump minecraft") == 0, "Non-operator could write");
-            HeavyInventories.LOGGER.info("ADMIN TOOLS PASSED: ignored legacy files, failed configuration retention, invalid commands, active-table export, reload, permission checks");
+            require(execute(player, "reload") == 0 && execute(player, "dump minecraft") == 0 && execute(player, "convert legacy " + packName + "-denied") == 0, "Non-operator could write");
+            HeavyInventories.LOGGER.info("ADMIN TOOLS PASSED: ignored legacy files, failed configuration retention, invalid commands, active-table provenance export, conversion without application, collision rejection, reload, permission checks");
         } catch (java.io.IOException e) { throw new RuntimeException(e); }
         finally {
+            try { Files.deleteIfExists(converted); } catch (java.io.IOException e) { throw new RuntimeException(e); }
             restore(file, original);
             restore(config, originalConfig);
             if (wasOp) server.getPlayerList().op(profile); else server.getPlayerList().deop(profile);

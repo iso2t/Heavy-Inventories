@@ -1,0 +1,1438 @@
+{
+  "version": 1,
+  "unit": "lb",
+  "description": "Gameplay-scaled material anchors and deliberate exceptions; ordinary recipe outputs remain inferred.",
+  "groups": [
+    {
+      "reason": "Raw timber; stripped logs have no crafting recipe.",
+      "weight": 2,
+      "items": [
+        "minecraft:acacia_log",
+        "minecraft:birch_log",
+        "minecraft:cherry_log",
+        "minecraft:crimson_stem",
+        "minecraft:dark_oak_log",
+        "minecraft:jungle_log",
+        "minecraft:mangrove_log",
+        "minecraft:oak_log",
+        "minecraft:pale_oak_log",
+        "minecraft:spruce_log",
+        "minecraft:stripped_acacia_log",
+        "minecraft:stripped_birch_log",
+        "minecraft:stripped_cherry_log",
+        "minecraft:stripped_crimson_stem",
+        "minecraft:stripped_dark_oak_log",
+        "minecraft:stripped_jungle_log",
+        "minecraft:stripped_mangrove_log",
+        "minecraft:stripped_oak_log",
+        "minecraft:stripped_pale_oak_log",
+        "minecraft:stripped_spruce_log",
+        "minecraft:stripped_warped_stem",
+        "minecraft:warped_stem"
+      ]
+    },
+    {
+      "reason": "Bamboo material anchor; two bamboo match one ordinary stick.",
+      "weight": 0.125,
+      "items": [
+        "minecraft:bamboo"
+      ]
+    },
+    {
+      "reason": "Stripping preserves the nine-bamboo block weight.",
+      "weight": 1.125,
+      "items": [
+        "minecraft:stripped_bamboo_block"
+      ]
+    },
+    {
+      "reason": "Natural stone anchors; alternate mineral recipes must not undercut the mining baseline.",
+      "weight": 4,
+      "items": [
+        "minecraft:stone",
+        "minecraft:cobblestone",
+        "minecraft:granite",
+        "minecraft:diorite",
+        "minecraft:andesite",
+        "minecraft:tuff",
+        "minecraft:calcite",
+        "minecraft:dripstone_block",
+        "minecraft:blackstone",
+        "minecraft:basalt",
+        "minecraft:smooth_basalt"
+      ]
+    },
+    {
+      "reason": "Deep stone is heavier than ordinary stone.",
+      "weight": 5,
+      "items": [
+        "minecraft:deepslate",
+        "minecraft:cobbled_deepslate",
+        "minecraft:reinforced_deepslate"
+      ]
+    },
+    {
+      "reason": "Dense volcanic material.",
+      "weight": 6,
+      "items": [
+        "minecraft:obsidian",
+        "minecraft:crying_obsidian"
+      ]
+    },
+    {
+      "reason": "Bulk soil and aggregate; harvesting does not supply crafting recipes.",
+      "weight": 3,
+      "items": [
+        "minecraft:dirt",
+        "minecraft:grass_block",
+        "minecraft:dirt_path",
+        "minecraft:farmland",
+        "minecraft:podzol",
+        "minecraft:mycelium",
+        "minecraft:rooted_dirt",
+        "minecraft:sand",
+        "minecraft:red_sand",
+        "minecraft:suspicious_sand",
+        "minecraft:gravel",
+        "minecraft:suspicious_gravel",
+        "minecraft:clay",
+        "minecraft:soul_sand",
+        "minecraft:soul_soil",
+        "minecraft:netherrack",
+        "minecraft:end_stone",
+        "minecraft:crimson_nylium",
+        "minecraft:warped_nylium"
+      ]
+    },
+    {
+      "reason": "Waterlogged soil allowance.",
+      "weight": 3.5,
+      "items": [
+        "minecraft:mud"
+      ]
+    },
+    {
+      "reason": "Clay fragments match the four-ball clay block.",
+      "weight": 0.75,
+      "items": [
+        "minecraft:clay_ball"
+      ]
+    },
+    {
+      "reason": "Stone-hosted ores retain the bulk mining weight.",
+      "weight": 4,
+      "items": [
+        "minecraft:coal_ore",
+        "minecraft:copper_ore",
+        "minecraft:diamond_ore",
+        "minecraft:emerald_ore",
+        "minecraft:gold_ore",
+        "minecraft:iron_ore",
+        "minecraft:lapis_ore",
+        "minecraft:nether_gold_ore",
+        "minecraft:nether_quartz_ore",
+        "minecraft:redstone_ore"
+      ]
+    },
+    {
+      "reason": "Deepslate-hosted ores retain the heavier host weight.",
+      "weight": 5,
+      "items": [
+        "minecraft:deepslate_coal_ore",
+        "minecraft:deepslate_copper_ore",
+        "minecraft:deepslate_diamond_ore",
+        "minecraft:deepslate_emerald_ore",
+        "minecraft:deepslate_gold_ore",
+        "minecraft:deepslate_iron_ore",
+        "minecraft:deepslate_lapis_ore",
+        "minecraft:deepslate_redstone_ore"
+      ]
+    },
+    {
+      "reason": "Metal material anchors; raw material and refined unit use the same game scale.",
+      "weight": 2,
+      "items": [
+        "minecraft:iron_ingot",
+        "minecraft:raw_iron",
+        "minecraft:copper_ingot",
+        "minecraft:raw_copper"
+      ]
+    },
+    {
+      "reason": "Gold is heavier than iron or copper.",
+      "weight": 4,
+      "items": [
+        "minecraft:gold_ingot",
+        "minecraft:raw_gold"
+      ]
+    },
+    {
+      "reason": "Gem equipment is lighter than iron equipment.",
+      "weight": 1.5,
+      "items": [
+        "minecraft:diamond"
+      ]
+    },
+    {
+      "reason": "Trade gem.",
+      "weight": 1,
+      "items": [
+        "minecraft:emerald"
+      ]
+    },
+    {
+      "reason": "Advanced metal anchor; deliberate processing/balance exception.",
+      "weight": 4,
+      "items": [
+        "minecraft:netherite_ingot"
+      ]
+    },
+    {
+      "reason": "Ancient-debris mining weight.",
+      "weight": 6,
+      "items": [
+        "minecraft:ancient_debris"
+      ]
+    },
+    {
+      "reason": "Refining debris loses host material.",
+      "weight": 1,
+      "items": [
+        "minecraft:netherite_scrap"
+      ]
+    },
+    {
+      "reason": "Fuel units; charcoal represents processing loss.",
+      "weight": 0.5,
+      "items": [
+        "minecraft:coal",
+        "minecraft:charcoal"
+      ]
+    },
+    {
+      "reason": "Small mineral ingredients.",
+      "weight": 0.1,
+      "items": [
+        "minecraft:flint",
+        "minecraft:redstone",
+        "minecraft:lapis_lazuli",
+        "minecraft:glowstone_dust",
+        "minecraft:resin_clump"
+      ]
+    },
+    {
+      "reason": "Crystal ingredients.",
+      "weight": 0.25,
+      "items": [
+        "minecraft:quartz",
+        "minecraft:amethyst_shard"
+      ]
+    },
+    {
+      "reason": "Prismarine fragments anchor the underwater stone family.",
+      "weight": 1,
+      "items": [
+        "minecraft:prismarine_shard"
+      ]
+    },
+    {
+      "reason": "Prismarine crystal.",
+      "weight": 0.5,
+      "items": [
+        "minecraft:prismarine_crystals"
+      ]
+    },
+    {
+      "reason": "Growing amethyst forms.",
+      "weight": 4,
+      "items": [
+        "minecraft:budding_amethyst"
+      ]
+    },
+    {
+      "reason": "Growing crystal forms have no crafting recipe.",
+      "weight": 0.25,
+      "items": [
+        "minecraft:small_amethyst_bud"
+      ]
+    },
+    {
+      "reason": "Growing crystal forms have no crafting recipe.",
+      "weight": 0.5,
+      "items": [
+        "minecraft:medium_amethyst_bud"
+      ]
+    },
+    {
+      "reason": "Growing crystal forms have no crafting recipe.",
+      "weight": 1,
+      "items": [
+        "minecraft:large_amethyst_bud"
+      ]
+    },
+    {
+      "reason": "Growing crystal forms have no crafting recipe.",
+      "weight": 2,
+      "items": [
+        "minecraft:amethyst_cluster"
+      ]
+    },
+    {
+      "reason": "Light animal drops.",
+      "weight": 0.01,
+      "items": [
+        "minecraft:feather"
+      ]
+    },
+    {
+      "reason": "Thread material.",
+      "weight": 0.05,
+      "items": [
+        "minecraft:string"
+      ]
+    },
+    {
+      "reason": "Leather material anchor.",
+      "weight": 1,
+      "items": [
+        "minecraft:leather"
+      ]
+    },
+    {
+      "reason": "Four rabbit hides match one leather.",
+      "weight": 0.25,
+      "items": [
+        "minecraft:rabbit_hide"
+      ]
+    },
+    {
+      "reason": "Base wool anchor breaks recoloring cycles; ordinary colored wool remains inferred.",
+      "weight": 0.2,
+      "items": [
+        "minecraft:white_wool"
+      ]
+    },
+    {
+      "reason": "Paper source.",
+      "weight": 0.1,
+      "items": [
+        "minecraft:sugar_cane"
+      ]
+    },
+    {
+      "reason": "Small explosive ingredient.",
+      "weight": 0.05,
+      "items": [
+        "minecraft:gunpowder"
+      ]
+    },
+    {
+      "reason": "Bone and blaze material.",
+      "weight": 0.25,
+      "items": [
+        "minecraft:bone",
+        "minecraft:blaze_rod"
+      ]
+    },
+    {
+      "reason": "Slime material anchor breaks its compression cycle.",
+      "weight": 0.25,
+      "items": [
+        "minecraft:slime_ball"
+      ]
+    },
+    {
+      "reason": "Heavy core plus breeze rod produces the 12-pound mace.",
+      "weight": 11,
+      "items": [
+        "minecraft:heavy_core"
+      ]
+    },
+    {
+      "reason": "Breeze material.",
+      "weight": 1,
+      "items": [
+        "minecraft:breeze_rod"
+      ]
+    },
+    {
+      "reason": "Food portions; ordinary cooking remains inferred.",
+      "weight": 0.5,
+      "items": [
+        "minecraft:beef",
+        "minecraft:porkchop",
+        "minecraft:mutton",
+        "minecraft:chicken",
+        "minecraft:rabbit",
+        "minecraft:cod",
+        "minecraft:salmon",
+        "minecraft:tropical_fish",
+        "minecraft:pufferfish"
+      ]
+    },
+    {
+      "reason": "Small harvested produce.",
+      "weight": 0.25,
+      "items": [
+        "minecraft:apple",
+        "minecraft:potato",
+        "minecraft:poisonous_potato"
+      ]
+    },
+    {
+      "reason": "Root vegetable portions.",
+      "weight": 0.125,
+      "items": [
+        "minecraft:carrot",
+        "minecraft:beetroot"
+      ]
+    },
+    {
+      "reason": "Small harvested ingredients.",
+      "weight": 0.1,
+      "items": [
+        "minecraft:wheat",
+        "minecraft:cocoa_beans",
+        "minecraft:nether_wart",
+        "minecraft:chorus_fruit",
+        "minecraft:melon_slice"
+      ]
+    },
+    {
+      "reason": "Berry portions.",
+      "weight": 0.02,
+      "items": [
+        "minecraft:sweet_berries",
+        "minecraft:glow_berries"
+      ]
+    },
+    {
+      "reason": "Mushrooms and kelp portions.",
+      "weight": 0.05,
+      "items": [
+        "minecraft:brown_mushroom",
+        "minecraft:red_mushroom",
+        "minecraft:kelp"
+      ]
+    },
+    {
+      "reason": "Ordinary eggs.",
+      "weight": 0.125,
+      "items": [
+        "minecraft:egg",
+        "minecraft:blue_egg",
+        "minecraft:brown_egg"
+      ]
+    },
+    {
+      "reason": "Large living eggs.",
+      "weight": 0.5,
+      "items": [
+        "minecraft:turtle_egg"
+      ]
+    },
+    {
+      "reason": "Large living eggs.",
+      "weight": 4,
+      "items": [
+        "minecraft:sniffer_egg"
+      ]
+    },
+    {
+      "reason": "Harvested gourds and carved form.",
+      "weight": 2,
+      "items": [
+        "minecraft:pumpkin",
+        "minecraft:carved_pumpkin"
+      ]
+    },
+    {
+      "reason": "Leaves remain light but are not weightless.",
+      "weight": 0.25,
+      "items": [
+        "minecraft:acacia_leaves",
+        "minecraft:azalea_leaves",
+        "minecraft:birch_leaves",
+        "minecraft:cherry_leaves",
+        "minecraft:dark_oak_leaves",
+        "minecraft:flowering_azalea_leaves",
+        "minecraft:jungle_leaves",
+        "minecraft:mangrove_leaves",
+        "minecraft:oak_leaves",
+        "minecraft:pale_oak_leaves",
+        "minecraft:spruce_leaves"
+      ]
+    },
+    {
+      "reason": "Young trees and shrubs.",
+      "weight": 0.1,
+      "items": [
+        "minecraft:acacia_sapling",
+        "minecraft:azalea",
+        "minecraft:birch_sapling",
+        "minecraft:cherry_sapling",
+        "minecraft:dark_oak_sapling",
+        "minecraft:flowering_azalea",
+        "minecraft:jungle_sapling",
+        "minecraft:mangrove_propagule",
+        "minecraft:oak_sapling",
+        "minecraft:pale_oak_sapling",
+        "minecraft:spruce_sapling"
+      ]
+    },
+    {
+      "reason": "Seeds and plant starts.",
+      "weight": 0.01,
+      "items": [
+        "minecraft:beetroot_seeds",
+        "minecraft:melon_seeds",
+        "minecraft:pitcher_pod",
+        "minecraft:pumpkin_seeds",
+        "minecraft:torchflower_seeds",
+        "minecraft:wheat_seeds"
+      ]
+    },
+    {
+      "reason": "Small flowers and soft plants.",
+      "weight": 0.02,
+      "items": [
+        "minecraft:allium",
+        "minecraft:azure_bluet",
+        "minecraft:blue_orchid",
+        "minecraft:cornflower",
+        "minecraft:dandelion",
+        "minecraft:lily_of_the_valley",
+        "minecraft:orange_tulip",
+        "minecraft:oxeye_daisy",
+        "minecraft:pink_tulip",
+        "minecraft:poppy",
+        "minecraft:red_tulip",
+        "minecraft:white_tulip",
+        "minecraft:wither_rose",
+        "minecraft:torchflower",
+        "minecraft:open_eyeblossom",
+        "minecraft:closed_eyeblossom",
+        "minecraft:cactus_flower",
+        "minecraft:pink_petals",
+        "minecraft:wildflowers",
+        "minecraft:short_grass",
+        "minecraft:short_dry_grass",
+        "minecraft:fern",
+        "minecraft:seagrass",
+        "minecraft:nether_sprouts",
+        "minecraft:crimson_roots",
+        "minecraft:warped_roots",
+        "minecraft:hanging_roots",
+        "minecraft:glow_lichen",
+        "minecraft:sculk_vein"
+      ]
+    },
+    {
+      "reason": "Larger flowers and soft plants.",
+      "weight": 0.05,
+      "items": [
+        "minecraft:sunflower",
+        "minecraft:lilac",
+        "minecraft:rose_bush",
+        "minecraft:peony",
+        "minecraft:pitcher_plant",
+        "minecraft:tall_grass",
+        "minecraft:tall_dry_grass",
+        "minecraft:large_fern",
+        "minecraft:bush",
+        "minecraft:dead_bush",
+        "minecraft:firefly_bush",
+        "minecraft:spore_blossom",
+        "minecraft:small_dripleaf",
+        "minecraft:big_dripleaf",
+        "minecraft:lily_pad",
+        "minecraft:vine",
+        "minecraft:weeping_vines",
+        "minecraft:twisting_vines",
+        "minecraft:pale_hanging_moss",
+        "minecraft:crimson_fungus",
+        "minecraft:warped_fungus"
+      ]
+    },
+    {
+      "reason": "Bulky plants and roots.",
+      "weight": 0.5,
+      "items": [
+        "minecraft:cactus",
+        "minecraft:mangrove_roots",
+        "minecraft:chorus_plant",
+        "minecraft:chorus_flower",
+        "minecraft:moss_block",
+        "minecraft:pale_moss_block"
+      ]
+    },
+    {
+      "reason": "Fungal and organic building blocks.",
+      "weight": 1,
+      "items": [
+        "minecraft:brown_mushroom_block",
+        "minecraft:red_mushroom_block",
+        "minecraft:mushroom_stem",
+        "minecraft:warped_wart_block",
+        "minecraft:shroomlight"
+      ]
+    },
+    {
+      "reason": "Snow material.",
+      "weight": 0.1,
+      "items": [
+        "minecraft:snowball"
+      ]
+    },
+    {
+      "reason": "Ice material anchor; compression remains inferred.",
+      "weight": 1,
+      "items": [
+        "minecraft:ice"
+      ]
+    },
+    {
+      "reason": "Sponge dry/wet states require explicit weights.",
+      "weight": 0.5,
+      "items": [
+        "minecraft:sponge"
+      ]
+    },
+    {
+      "reason": "Absorbed water allowance.",
+      "weight": 2.5,
+      "items": [
+        "minecraft:wet_sponge"
+      ]
+    },
+    {
+      "reason": "Dripstone fragments.",
+      "weight": 1,
+      "items": [
+        "minecraft:pointed_dripstone"
+      ]
+    },
+    {
+      "reason": "Coral blocks have no crafting source.",
+      "weight": 3,
+      "items": [
+        "minecraft:brain_coral_block",
+        "minecraft:bubble_coral_block",
+        "minecraft:dead_brain_coral_block",
+        "minecraft:dead_bubble_coral_block",
+        "minecraft:dead_fire_coral_block",
+        "minecraft:dead_horn_coral_block",
+        "minecraft:dead_tube_coral_block",
+        "minecraft:fire_coral_block",
+        "minecraft:horn_coral_block",
+        "minecraft:tube_coral_block"
+      ]
+    },
+    {
+      "reason": "Coral organisms and fans.",
+      "weight": 0.1,
+      "items": [
+        "minecraft:brain_coral",
+        "minecraft:brain_coral_fan",
+        "minecraft:bubble_coral",
+        "minecraft:bubble_coral_fan",
+        "minecraft:dead_brain_coral",
+        "minecraft:dead_brain_coral_fan",
+        "minecraft:dead_bubble_coral",
+        "minecraft:dead_bubble_coral_fan",
+        "minecraft:dead_fire_coral",
+        "minecraft:dead_fire_coral_fan",
+        "minecraft:dead_horn_coral",
+        "minecraft:dead_horn_coral_fan",
+        "minecraft:dead_tube_coral",
+        "minecraft:dead_tube_coral_fan",
+        "minecraft:fire_coral",
+        "minecraft:fire_coral_fan",
+        "minecraft:horn_coral",
+        "minecraft:horn_coral_fan",
+        "minecraft:tube_coral",
+        "minecraft:tube_coral_fan"
+      ]
+    },
+    {
+      "reason": "Aquatic plants and eggs.",
+      "weight": 0.1,
+      "items": [
+        "minecraft:sea_pickle",
+        "minecraft:frogspawn"
+      ]
+    },
+    {
+      "reason": "Sculk building material.",
+      "weight": 2,
+      "items": [
+        "minecraft:sculk",
+        "minecraft:sculk_catalyst",
+        "minecraft:sculk_sensor",
+        "minecraft:sculk_shrieker"
+      ]
+    },
+    {
+      "reason": "Froglights have no recipe.",
+      "weight": 2,
+      "items": [
+        "minecraft:ochre_froglight",
+        "minecraft:pearlescent_froglight",
+        "minecraft:verdant_froglight"
+      ]
+    },
+    {
+      "reason": "Hive acquired with silk touch.",
+      "weight": 2,
+      "items": [
+        "minecraft:bee_nest"
+      ]
+    },
+    {
+      "reason": "Webs are a small thread mass.",
+      "weight": 0.2,
+      "items": [
+        "minecraft:cobweb"
+      ]
+    },
+    {
+      "reason": "Organic drops.",
+      "weight": 0.1,
+      "items": [
+        "minecraft:rotten_flesh",
+        "minecraft:spider_eye",
+        "minecraft:ink_sac",
+        "minecraft:glow_ink_sac",
+        "minecraft:honeycomb"
+      ]
+    },
+    {
+      "reason": "Small rare drops.",
+      "weight": 0.25,
+      "items": [
+        "minecraft:ender_pearl",
+        "minecraft:ghast_tear",
+        "minecraft:nether_star",
+        "minecraft:phantom_membrane",
+        "minecraft:rabbit_foot",
+        "minecraft:armadillo_scute",
+        "minecraft:turtle_scute"
+      ]
+    },
+    {
+      "reason": "Shells and horns.",
+      "weight": 1,
+      "items": [
+        "minecraft:nautilus_shell",
+        "minecraft:goat_horn"
+      ]
+    },
+    {
+      "reason": "Shulker shells determine empty box weight; contents add normally.",
+      "weight": 2,
+      "items": [
+        "minecraft:shulker_shell"
+      ]
+    },
+    {
+      "reason": "Rare mineral/treasure drops.",
+      "weight": 0.5,
+      "items": [
+        "minecraft:echo_shard",
+        "minecraft:heart_of_the_sea"
+      ]
+    },
+    {
+      "reason": "Dragon egg trophy.",
+      "weight": 6,
+      "items": [
+        "minecraft:dragon_egg"
+      ]
+    },
+    {
+      "reason": "Skulls and heads.",
+      "weight": 2,
+      "items": [
+        "minecraft:creeper_head",
+        "minecraft:dragon_head",
+        "minecraft:piglin_head",
+        "minecraft:player_head",
+        "minecraft:skeleton_skull",
+        "minecraft:wither_skeleton_skull",
+        "minecraft:zombie_head"
+      ]
+    },
+    {
+      "reason": "Pottery sherds.",
+      "weight": 0.25,
+      "items": [
+        "minecraft:angler_pottery_sherd",
+        "minecraft:archer_pottery_sherd",
+        "minecraft:arms_up_pottery_sherd",
+        "minecraft:blade_pottery_sherd",
+        "minecraft:brewer_pottery_sherd",
+        "minecraft:burn_pottery_sherd",
+        "minecraft:danger_pottery_sherd",
+        "minecraft:explorer_pottery_sherd",
+        "minecraft:flow_pottery_sherd",
+        "minecraft:friend_pottery_sherd",
+        "minecraft:guster_pottery_sherd",
+        "minecraft:heart_pottery_sherd",
+        "minecraft:heartbreak_pottery_sherd",
+        "minecraft:howl_pottery_sherd",
+        "minecraft:miner_pottery_sherd",
+        "minecraft:mourner_pottery_sherd",
+        "minecraft:plenty_pottery_sherd",
+        "minecraft:prize_pottery_sherd",
+        "minecraft:scrape_pottery_sherd",
+        "minecraft:sheaf_pottery_sherd",
+        "minecraft:shelter_pottery_sherd",
+        "minecraft:skull_pottery_sherd",
+        "minecraft:snort_pottery_sherd"
+      ]
+    },
+    {
+      "reason": "Music discs and fragments.",
+      "weight": 0.1,
+      "items": [
+        "minecraft:disc_fragment_5",
+        "minecraft:music_disc_11",
+        "minecraft:music_disc_13",
+        "minecraft:music_disc_5",
+        "minecraft:music_disc_blocks",
+        "minecraft:music_disc_cat",
+        "minecraft:music_disc_chirp",
+        "minecraft:music_disc_creator",
+        "minecraft:music_disc_creator_music_box",
+        "minecraft:music_disc_far",
+        "minecraft:music_disc_lava_chicken",
+        "minecraft:music_disc_mall",
+        "minecraft:music_disc_mellohi",
+        "minecraft:music_disc_otherside",
+        "minecraft:music_disc_pigstep",
+        "minecraft:music_disc_precipice",
+        "minecraft:music_disc_relic",
+        "minecraft:music_disc_stal",
+        "minecraft:music_disc_strad",
+        "minecraft:music_disc_tears",
+        "minecraft:music_disc_wait",
+        "minecraft:music_disc_ward"
+      ]
+    },
+    {
+      "reason": "Patterns and reusable templates are light documents; copying recipes are not their physical mass.",
+      "weight": 0.05,
+      "items": [
+        "minecraft:bolt_armor_trim_smithing_template",
+        "minecraft:bordure_indented_banner_pattern",
+        "minecraft:coast_armor_trim_smithing_template",
+        "minecraft:creeper_banner_pattern",
+        "minecraft:dune_armor_trim_smithing_template",
+        "minecraft:eye_armor_trim_smithing_template",
+        "minecraft:field_masoned_banner_pattern",
+        "minecraft:flow_armor_trim_smithing_template",
+        "minecraft:flow_banner_pattern",
+        "minecraft:flower_banner_pattern",
+        "minecraft:globe_banner_pattern",
+        "minecraft:guster_banner_pattern",
+        "minecraft:host_armor_trim_smithing_template",
+        "minecraft:mojang_banner_pattern",
+        "minecraft:netherite_upgrade_smithing_template",
+        "minecraft:piglin_banner_pattern",
+        "minecraft:raiser_armor_trim_smithing_template",
+        "minecraft:rib_armor_trim_smithing_template",
+        "minecraft:sentry_armor_trim_smithing_template",
+        "minecraft:shaper_armor_trim_smithing_template",
+        "minecraft:silence_armor_trim_smithing_template",
+        "minecraft:skull_banner_pattern",
+        "minecraft:snout_armor_trim_smithing_template",
+        "minecraft:spire_armor_trim_smithing_template",
+        "minecraft:tide_armor_trim_smithing_template",
+        "minecraft:vex_armor_trim_smithing_template",
+        "minecraft:ward_armor_trim_smithing_template",
+        "minecraft:wayfinder_armor_trim_smithing_template",
+        "minecraft:wild_armor_trim_smithing_template"
+      ]
+    },
+    {
+      "reason": "Trial keys.",
+      "weight": 0.1,
+      "items": [
+        "minecraft:trial_key",
+        "minecraft:ominous_trial_key"
+      ]
+    },
+    {
+      "reason": "Totem artifact.",
+      "weight": 1,
+      "items": [
+        "minecraft:totem_of_undying"
+      ]
+    },
+    {
+      "reason": "Thin glass vessel; sand-to-glass recipes do not model vessel thickness.",
+      "weight": 0.5,
+      "items": [
+        "minecraft:glass_bottle"
+      ]
+    },
+    {
+      "reason": "Filled glass vessels and brewing results.",
+      "weight": 1,
+      "items": [
+        "minecraft:potion",
+        "minecraft:splash_potion",
+        "minecraft:lingering_potion",
+        "minecraft:dragon_breath",
+        "minecraft:experience_bottle",
+        "minecraft:ominous_bottle",
+        "minecraft:honey_bottle"
+      ]
+    },
+    {
+      "reason": "Filled buckets include a water or milk allowance over the six-pound bucket.",
+      "weight": 8,
+      "items": [
+        "minecraft:water_bucket",
+        "minecraft:milk_bucket"
+      ]
+    },
+    {
+      "reason": "Lava allowance.",
+      "weight": 10,
+      "items": [
+        "minecraft:lava_bucket"
+      ]
+    },
+    {
+      "reason": "Powdered-snow allowance.",
+      "weight": 7,
+      "items": [
+        "minecraft:powder_snow_bucket"
+      ]
+    },
+    {
+      "reason": "Fish buckets include their contents.",
+      "weight": 8.5,
+      "items": [
+        "minecraft:cod_bucket",
+        "minecraft:salmon_bucket",
+        "minecraft:pufferfish_bucket",
+        "minecraft:tropical_fish_bucket"
+      ]
+    },
+    {
+      "reason": "Axolotl bucket includes the animal.",
+      "weight": 9,
+      "items": [
+        "minecraft:axolotl_bucket"
+      ]
+    },
+    {
+      "reason": "Tadpole bucket includes the animal.",
+      "weight": 8.25,
+      "items": [
+        "minecraft:tadpole_bucket"
+      ]
+    },
+    {
+      "reason": "Component-dependent and remainder-bearing recipes need explicit outputs.",
+      "weight": 2,
+      "items": [
+        "minecraft:cake"
+      ]
+    },
+    {
+      "reason": "Dynamic stew recipe includes its bowl.",
+      "weight": 0.875,
+      "items": [
+        "minecraft:suspicious_stew"
+      ]
+    },
+    {
+      "reason": "An enchanted book retains the ordinary book mass at baseline.",
+      "weight": 1.3,
+      "items": [
+        "minecraft:enchanted_book"
+      ]
+    },
+    {
+      "reason": "Decorative gold food uses a coating allowance rather than ingot mass.",
+      "weight": 1,
+      "items": [
+        "minecraft:golden_apple"
+      ]
+    },
+    {
+      "reason": "Decorative gold food coating allowance.",
+      "weight": 0.5,
+      "items": [
+        "minecraft:golden_carrot",
+        "minecraft:glistering_melon_slice"
+      ]
+    },
+    {
+      "reason": "Rare enchanted food.",
+      "weight": 2,
+      "items": [
+        "minecraft:enchanted_golden_apple"
+      ]
+    },
+    {
+      "reason": "Equipment or fixture without a supported crafting recipe.",
+      "weight": 3,
+      "items": [
+        "minecraft:chainmail_helmet"
+      ]
+    },
+    {
+      "reason": "Equipment or fixture without a supported crafting recipe.",
+      "weight": 8,
+      "items": [
+        "minecraft:chainmail_chestplate"
+      ]
+    },
+    {
+      "reason": "Equipment or fixture without a supported crafting recipe.",
+      "weight": 6,
+      "items": [
+        "minecraft:chainmail_leggings"
+      ]
+    },
+    {
+      "reason": "Equipment or fixture without a supported crafting recipe.",
+      "weight": 3,
+      "items": [
+        "minecraft:chainmail_boots"
+      ]
+    },
+    {
+      "reason": "Equipment or fixture without a supported crafting recipe.",
+      "weight": 4,
+      "items": [
+        "minecraft:elytra"
+      ]
+    },
+    {
+      "reason": "Equipment or fixture without a supported crafting recipe.",
+      "weight": 6,
+      "items": [
+        "minecraft:trident"
+      ]
+    },
+    {
+      "reason": "Equipment or fixture without a supported crafting recipe.",
+      "weight": 12,
+      "items": [
+        "minecraft:bell"
+      ]
+    },
+    {
+      "reason": "Equipment or fixture without a supported crafting recipe.",
+      "weight": 16,
+      "items": [
+        "minecraft:copper_horse_armor"
+      ]
+    },
+    {
+      "reason": "Equipment or fixture without a supported crafting recipe.",
+      "weight": 20,
+      "items": [
+        "minecraft:iron_horse_armor"
+      ]
+    },
+    {
+      "reason": "Equipment or fixture without a supported crafting recipe.",
+      "weight": 32,
+      "items": [
+        "minecraft:golden_horse_armor"
+      ]
+    },
+    {
+      "reason": "Equipment or fixture without a supported crafting recipe.",
+      "weight": 15,
+      "items": [
+        "minecraft:diamond_horse_armor"
+      ]
+    },
+    {
+      "reason": "Equipment or fixture without a supported crafting recipe.",
+      "weight": 10,
+      "items": [
+        "minecraft:copper_nautilus_armor"
+      ]
+    },
+    {
+      "reason": "Equipment or fixture without a supported crafting recipe.",
+      "weight": 12,
+      "items": [
+        "minecraft:iron_nautilus_armor"
+      ]
+    },
+    {
+      "reason": "Equipment or fixture without a supported crafting recipe.",
+      "weight": 20,
+      "items": [
+        "minecraft:golden_nautilus_armor"
+      ]
+    },
+    {
+      "reason": "Equipment or fixture without a supported crafting recipe.",
+      "weight": 10,
+      "items": [
+        "minecraft:diamond_nautilus_armor"
+      ]
+    },
+    {
+      "reason": "Smithing exception: baseline diamond equipment plus four pounds; templates are not consumed mass.",
+      "weight": 11.5,
+      "items": [
+        "minecraft:netherite_helmet"
+      ]
+    },
+    {
+      "reason": "Smithing exception: baseline diamond equipment plus four pounds; templates are not consumed mass.",
+      "weight": 16,
+      "items": [
+        "minecraft:netherite_chestplate"
+      ]
+    },
+    {
+      "reason": "Smithing exception: baseline diamond equipment plus four pounds; templates are not consumed mass.",
+      "weight": 14.5,
+      "items": [
+        "minecraft:netherite_leggings"
+      ]
+    },
+    {
+      "reason": "Smithing exception: baseline diamond equipment plus four pounds; templates are not consumed mass.",
+      "weight": 10,
+      "items": [
+        "minecraft:netherite_boots"
+      ]
+    },
+    {
+      "reason": "Smithing exception: baseline diamond equipment plus four pounds; templates are not consumed mass.",
+      "weight": 9,
+      "items": [
+        "minecraft:netherite_pickaxe"
+      ]
+    },
+    {
+      "reason": "Smithing exception: baseline diamond equipment plus four pounds; templates are not consumed mass.",
+      "weight": 9,
+      "items": [
+        "minecraft:netherite_axe"
+      ]
+    },
+    {
+      "reason": "Smithing exception: baseline diamond equipment plus four pounds; templates are not consumed mass.",
+      "weight": 7.25,
+      "items": [
+        "minecraft:netherite_sword"
+      ]
+    },
+    {
+      "reason": "Smithing exception: baseline diamond equipment plus four pounds; templates are not consumed mass.",
+      "weight": 6,
+      "items": [
+        "minecraft:netherite_shovel"
+      ]
+    },
+    {
+      "reason": "Smithing exception: baseline diamond equipment plus four pounds; templates are not consumed mass.",
+      "weight": 7.5,
+      "items": [
+        "minecraft:netherite_hoe"
+      ]
+    },
+    {
+      "reason": "Smithing exception: baseline diamond equipment plus four pounds; templates are not consumed mass.",
+      "weight": 6,
+      "items": [
+        "minecraft:netherite_spear"
+      ]
+    },
+    {
+      "reason": "Smithing exception: baseline diamond equipment plus four pounds; templates are not consumed mass.",
+      "weight": 19,
+      "items": [
+        "minecraft:netherite_horse_armor"
+      ]
+    },
+    {
+      "reason": "Smithing exception: baseline diamond equipment plus four pounds; templates are not consumed mass.",
+      "weight": 14,
+      "items": [
+        "minecraft:netherite_nautilus_armor"
+      ]
+    },
+    {
+      "reason": "Damaged anvils retain the baseline anvil mass.",
+      "weight": 62,
+      "items": [
+        "minecraft:chipped_anvil",
+        "minecraft:damaged_anvil"
+      ]
+    },
+    {
+      "reason": "Ancient stone-like slab.",
+      "weight": 2,
+      "items": [
+        "minecraft:petrified_oak_slab"
+      ]
+    },
+    {
+      "reason": "Infested blocks retain their host material weight.",
+      "weight": 4,
+      "items": [
+        "minecraft:infested_chiseled_stone_bricks",
+        "minecraft:infested_cobblestone",
+        "minecraft:infested_cracked_stone_bricks",
+        "minecraft:infested_mossy_stone_bricks",
+        "minecraft:infested_stone",
+        "minecraft:infested_stone_bricks"
+      ]
+    },
+    {
+      "reason": "Infested deepslate retains its host weight.",
+      "weight": 5,
+      "items": [
+        "minecraft:infested_deepslate"
+      ]
+    },
+    {
+      "reason": "Gilded stone includes a small gold allowance.",
+      "weight": 4.5,
+      "items": [
+        "minecraft:gilded_blackstone"
+      ]
+    },
+    {
+      "reason": "Hydrated concrete: aggregate baseline plus a small dye allowance.",
+      "weight": 3.0025,
+      "items": [
+        "minecraft:black_concrete",
+        "minecraft:blue_concrete",
+        "minecraft:brown_concrete",
+        "minecraft:cyan_concrete",
+        "minecraft:gray_concrete",
+        "minecraft:green_concrete",
+        "minecraft:light_blue_concrete",
+        "minecraft:light_gray_concrete",
+        "minecraft:lime_concrete",
+        "minecraft:magenta_concrete",
+        "minecraft:orange_concrete",
+        "minecraft:pink_concrete",
+        "minecraft:purple_concrete",
+        "minecraft:red_concrete",
+        "minecraft:white_concrete",
+        "minecraft:yellow_concrete"
+      ]
+    },
+    {
+      "reason": "Oxidation does not change the baseline component mass.",
+      "weight": 18,
+      "items": [
+        "minecraft:exposed_copper",
+        "minecraft:oxidized_copper",
+        "minecraft:weathered_copper"
+      ]
+    },
+    {
+      "reason": "Oxidation does not change the baseline component mass.",
+      "weight": 0.75,
+      "items": [
+        "minecraft:exposed_copper_bars",
+        "minecraft:oxidized_copper_bars",
+        "minecraft:weathered_copper_bars"
+      ]
+    },
+    {
+      "reason": "Oxidation does not change the baseline component mass.",
+      "weight": 2.4444444,
+      "items": [
+        "minecraft:exposed_copper_chain",
+        "minecraft:oxidized_copper_chain",
+        "minecraft:weathered_copper_chain"
+      ]
+    },
+    {
+      "reason": "Oxidation does not change the baseline component mass.",
+      "weight": 20,
+      "items": [
+        "minecraft:exposed_copper_chest",
+        "minecraft:oxidized_copper_chest",
+        "minecraft:weathered_copper_chest"
+      ]
+    },
+    {
+      "reason": "Oxidation does not change the baseline component mass.",
+      "weight": 4,
+      "items": [
+        "minecraft:exposed_copper_door",
+        "minecraft:oxidized_copper_door",
+        "minecraft:weathered_copper_door"
+      ]
+    },
+    {
+      "reason": "Oxidation does not change the baseline component mass.",
+      "weight": 8,
+      "items": [
+        "minecraft:exposed_copper_trapdoor",
+        "minecraft:oxidized_copper_trapdoor",
+        "minecraft:weathered_copper_trapdoor"
+      ]
+    },
+    {
+      "reason": "Oxidation does not change the baseline component mass.",
+      "weight": 6,
+      "items": [
+        "minecraft:exposed_lightning_rod",
+        "minecraft:oxidized_lightning_rod",
+        "minecraft:weathered_lightning_rod"
+      ]
+    },
+    {
+      "reason": "Oxidation does not change the baseline component mass.",
+      "weight": 2.0208333,
+      "items": [
+        "minecraft:exposed_copper_lantern",
+        "minecraft:oxidized_copper_lantern",
+        "minecraft:weathered_copper_lantern"
+      ]
+    },
+    {
+      "reason": "Oxidation does not change the baseline component mass.",
+      "weight": 18,
+      "items": [
+        "minecraft:exposed_copper_golem_statue",
+        "minecraft:oxidized_copper_golem_statue",
+        "minecraft:weathered_copper_golem_statue"
+      ]
+    },
+    {
+      "reason": "Uncraftable copper statue.",
+      "weight": 18,
+      "items": [
+        "minecraft:copper_golem_statue"
+      ]
+    },
+    {
+      "reason": "Creative-only empty item.",
+      "weight": 0,
+      "items": [
+        "minecraft:air"
+      ]
+    },
+    {
+      "reason": "Pigment processing yield; color choice should not materially change carried weight.",
+      "weight": 0.02,
+      "items": [
+        "minecraft:white_dye",
+        "minecraft:orange_dye",
+        "minecraft:magenta_dye",
+        "minecraft:light_blue_dye",
+        "minecraft:yellow_dye",
+        "minecraft:lime_dye",
+        "minecraft:pink_dye",
+        "minecraft:gray_dye",
+        "minecraft:light_gray_dye",
+        "minecraft:cyan_dye",
+        "minecraft:purple_dye",
+        "minecraft:blue_dye",
+        "minecraft:brown_dye",
+        "minecraft:green_dye",
+        "minecraft:red_dye",
+        "minecraft:black_dye"
+      ]
+    },
+    {
+      "reason": "Anchor the bone-meal/block conversion cycle at one third of a bone.",
+      "weight": 0.0833333333,
+      "items": [
+        "minecraft:bone_meal"
+      ]
+    },
+    {
+      "reason": "Anchor the dried-kelp/block conversion cycle at the cooked ingredient weight.",
+      "weight": 0.05,
+      "items": [
+        "minecraft:dried_kelp"
+      ]
+    },
+    {
+      "reason": "Four honey bottles minus their four empty glass bottles; recipes with remainders are excluded.",
+      "weight": 2,
+      "items": [
+        "minecraft:honey_block"
+      ]
+    },
+    {
+      "reason": "Dyed bundles preserve their empty weight; component-preserving dye recipes are excluded.",
+      "weight": 1.05,
+      "items": [
+        "minecraft:white_bundle",
+        "minecraft:orange_bundle",
+        "minecraft:magenta_bundle",
+        "minecraft:light_blue_bundle",
+        "minecraft:yellow_bundle",
+        "minecraft:lime_bundle",
+        "minecraft:pink_bundle",
+        "minecraft:gray_bundle",
+        "minecraft:light_gray_bundle",
+        "minecraft:cyan_bundle",
+        "minecraft:purple_bundle",
+        "minecraft:blue_bundle",
+        "minecraft:brown_bundle",
+        "minecraft:green_bundle",
+        "minecraft:red_bundle",
+        "minecraft:black_bundle"
+      ]
+    },
+    {
+      "reason": "Dyed shulker boxes preserve their empty weight; component-preserving dye recipes are excluded.",
+      "weight": 8,
+      "items": [
+        "minecraft:white_shulker_box",
+        "minecraft:orange_shulker_box",
+        "minecraft:magenta_shulker_box",
+        "minecraft:light_blue_shulker_box",
+        "minecraft:yellow_shulker_box",
+        "minecraft:lime_shulker_box",
+        "minecraft:pink_shulker_box",
+        "minecraft:gray_shulker_box",
+        "minecraft:light_gray_shulker_box",
+        "minecraft:cyan_shulker_box",
+        "minecraft:purple_shulker_box",
+        "minecraft:blue_shulker_box",
+        "minecraft:brown_shulker_box",
+        "minecraft:green_shulker_box",
+        "minecraft:red_shulker_box",
+        "minecraft:black_shulker_box"
+      ]
+    },
+    {
+      "reason": "Writing preserves the writable book's baseline weight.",
+      "weight": 1.41,
+      "items": [
+        "minecraft:written_book"
+      ]
+    },
+    {
+      "reason": "Exploring preserves the empty map's baseline weight.",
+      "weight": 8.9,
+      "items": [
+        "minecraft:filled_map"
+      ]
+    },
+    {
+      "reason": "Fixed small payload allowance for component-dependent arrow and firework recipes.",
+      "weight": 0.1,
+      "items": [
+        "minecraft:tipped_arrow",
+        "minecraft:firework_star"
+      ]
+    }
+  ]
+}

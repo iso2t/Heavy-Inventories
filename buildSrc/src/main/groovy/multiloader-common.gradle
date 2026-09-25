@@ -111,3 +111,52 @@ publishing {
         }
     }
 }
+
+// One authoring catalog, emitted as ordinary overridable datapack resources in every module.
+def catalog = rootProject.layout.projectDirectory.file('common/src/main/weight-defaults.json')
+def generated = layout.buildDirectory.dir('generated/weight-defaults')
+def generateWeights = tasks.register('generateWeightDefaults') {
+    group = 'build'
+    description = 'Generates per-item datapack resources from the curated default weight catalog.'
+    inputs.file(catalog)
+    outputs.dir(generated)
+    doLast {
+        def source = new groovy.json.JsonSlurper().parse(catalog.asFile, 'UTF-8')
+        if (source.version != 1 || source.unit != 'lb' || !(source.groups instanceof List)) {
+            throw new GradleException('Invalid default weight catalog')
+        }
+        def values = new TreeMap<String, Object>()
+        source.groups.each { group ->
+            if (!(group.weight instanceof Number) || !group.reason || !(group.items instanceof List) || group.items.empty) {
+                throw new GradleException('Each default group needs a reason, numeric weight, and items')
+            }
+            def decimal = new BigDecimal(group.weight.toString())
+            if (decimal < 0 || decimal > 1000000000 || (decimal > 0 && decimal.floatValue() == 0)) {
+                throw new GradleException("Invalid default weight: ${group.weight}")
+            }
+            group.items.each { id ->
+                if (!(id instanceof String) || !(id ==~ '[a-z0-9_.-]+:[a-z0-9_./-]+')
+                        || id.replace(':', '/').split('/', -1).any { it.empty || it == '.' || it == '..' }) {
+                    throw new GradleException("Invalid default item ID: ${id}")
+                }
+                if (values.putIfAbsent(id, group.weight) != null) throw new GradleException("Duplicate default: ${id}")
+            }
+        }
+        def output = generated.get().asFile
+        if (!output.canonicalPath.startsWith(layout.buildDirectory.get().asFile.canonicalPath + File.separator)) {
+            throw new GradleException('Generated output must stay within the module build directory')
+        }
+        // This is a dedicated generated directory; remove stale definitions after catalog deletions.
+        project.delete(output)
+        values.each { id, weight ->
+            def parts = id.split(':', 2)
+            def target = new File(output, "data/${parts[0]}/heavyinventories/weights/${parts[1]}.json")
+            target.parentFile.mkdirs()
+            target.setText(groovy.json.JsonOutput.toJson([weight: weight]) + '\n', 'UTF-8')
+        }
+    }
+}
+tasks.named('processResources') {
+    dependsOn generateWeights
+    from(generated)
+}

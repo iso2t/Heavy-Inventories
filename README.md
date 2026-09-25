@@ -96,7 +96,7 @@ Client display preferences and colors are available through `/heavyinventories c
 
 ### Item weights in datapacks
 
-Item weights are world-scoped server data; clients receive the resolved table. In an enabled datapack with valid `pack.mcmeta` metadata for your Minecraft version, add:
+Item weights are world-scoped server data; clients receive the resolved table. Both mod jars include gameplay-scaled material defaults, with ordinary crafted weights inferred from recipes. For example, stone weighs 4, an iron ingot 2, and an arrow 0.09 pounds. See [the default weight scale and exceptions](docs/DEFAULT_WEIGHTS_PROPOSAL.md). In an enabled datapack with valid `pack.mcmeta` metadata for your Minecraft version, add:
 
 ```text
 data/minecraft/heavyinventories/weights/feather.json
@@ -112,11 +112,15 @@ The highest-priority pack replaces the whole resource. Use `{"infer": true}` to 
 
 Definitions must contain exactly one supported field. Duplicate/unknown fields, malformed JSON, numeric strings, negative/non-finite values, values above 1,000,000,000, and positive values too small for float storage are rejected. Valid definitions for unregistered items are ignored with a warning.
 
-**Current development-stage reload behavior:** restart the world/server to apply pack edits, or run Minecraft's `/reload`, wait for completion, then run `/heavyinventories reload` to rebuild gameplay weights from the newly loaded resources. Automatic adoption after vanilla reload is the next implementation step. The mod command alone reloads server settings and rebuilds from already loaded datapacks/recipes; it does not reread edited pack files.
+Run Minecraft's `/reload` to apply datapack edits. After Minecraft finishes loading recipes and tags, Heavy Inventories automatically rebuilds the complete weight table and updates connected players' inventory totals and tooltips. No reconnect or second command is needed. Vanilla reload retains the active server settings; use `/heavyinventories reload` to reread the server configuration file and rebuild from already loaded datapacks/recipes. The mod command does not reread edited pack files.
 
-Invalid weight candidates retain the active table during explicit rebuilds. Invalid weight data at first startup produces a complete fallback-only table and an error log. Invalid server settings at startup use default settings independently.
+Invalid weight candidates retain the previous complete table and revision, and notify operators with the cause. A failed Minecraft resource reload does not apply new weights. This protects Heavy Inventories' state; it does not roll back unrelated data accepted by Minecraft. Invalid weight data at first startup produces a complete fallback-only table and an error log. Invalid server settings at startup use default settings independently.
 
-Legacy `weights/*.json` files are preserved but **no longer read for gameplay**. Their presence produces a migration warning. A one-time conversion tool is planned; for now, move selected entries into ordinary per-item datapack resources.
+Legacy `weights/*.json` files are preserved but **no longer read for gameplay**. To convert them, run `/heavyinventories convert legacy <pack_name>` as an operator (or from the server console). This reads only that legacy directory and writes `weight-packs/<pack_name>.zip`; it does not read dump reports, install the ZIP, enable a pack, or change gameplay.
+
+All inputs must pass validation before a ZIP is published. Existing output files are never replaced. Use a name of 1–64 lowercase letters, digits, underscores, or hyphens. Duplicate entries/fields, malformed numbers, unsafe paths, and invalid weights fail conversion. Entries without a weight are counted and skipped; density and other legacy metadata are not converted. Valid IDs for absent mods are preserved as optional definitions.
+
+Review the generated ZIP, then copy it into the intended world's `datapacks` folder. Run `/reload` to discover it, use `/datapack list available` to check its status, and enable it with `/datapack enable "file/<pack_name>.zip" last` if needed. Normal datapack priority applies. The generated metadata targets the server's current Minecraft data-pack version. Keep ordinary derived items unspecified so future ingredient changes can propagate.
 
 ### Commands
 
@@ -125,16 +129,30 @@ Legacy `weights/*.json` files are preserved but **no longer read for gameplay**.
 | `/heavyinventories reload` | Operator: reload settings and rebuild weights from currently loaded datapacks/recipes |
 | `/heavyinventories reload weight` | Alias for the full reload |
 | `/heavyinventories reload players` | Operator: refresh player totals on the next tick |
-| `/heavyinventories dump <namespace>` | Operator: export active gameplay weights to a unique file in `weight-exports/` |
+| `/heavyinventories dump <namespace>` | Operator: export active weights and their sources to a unique report in `weight-exports/` |
+| `/heavyinventories convert legacy <pack_name>` | Operator: convert legacy weight files into a reviewable ZIP in `weight-packs/` |
 | `/heavyinventories config client` | Open local display preferences |
 | `/heavyinventories config server` | View server settings; editing requires permission |
 | `/heavyinventories config common` | Reserved screen; there are currently no common settings |
 
-**Dump does not change gameplay.** It is a review file, not an installable datapack. Copy only deliberate fixed values into per-item resources: making every inferred result explicit would prevent ingredient changes from propagating. Export provenance and legacy conversion are planned in the command/migration step.
+**Dump does not change gameplay.** Reports identify their format, version, stored unit (`lb`), and active weight revision. The `items` object uses full registry IDs:
+
+```json
+{
+  "minecraft:arrow": {
+    "weight": 0.09,
+    "source": "recipe"
+  }
+}
+```
+
+Each item's `source` is `explicit`, `recipe`, or `fallback`. A fixed datapack value of 0.1 is still explicit; it is not classified by comparing the number with the fallback. Winning definitions also include `definition.pack`, `definition.resource`, and `definition.mode` (`weight` or `infer`). Recipe-derived values can depend on fallback ingredients. Development-only session replacements are labeled `session`.
+
+Reports describe the active snapshot even after a failed reload; they are neither legacy converter input nor installable datapacks. Copy only deliberate fixed weights into per-item resources: making every inferred result explicit would freeze recipe chains.
 
 ## Limits and planned work
 
-- Datapack gameplay resolution is active at startup and explicit rebuilds on both loaders. Automatic vanilla-reload adoption, legacy conversion, export provenance, and bundled material defaults remain planned. See [the datapack checks](docs/TESTING.md#datapack-gameplay-resolution).
+- Datapack gameplay resolution is active at startup and after successful resource reloads on both loaders. Bundled material defaults, legacy conversion, and provenance reports are available. See [the datapack checks](docs/TESTING.md#datapack-gameplay-resolution).
 - Recipe inference supports vanilla shaped/shapeless crafting, smelting, blasting, smoking, campfire cooking, and stonecutting with static outputs. Custom/dynamic recipes, component-dependent results, and crafting remainders are excluded; explicit datapack values cover exceptions.
 - This version does not implement a stamina system, carrying-capacity training, or a supported dropped-item density mechanic.
 - Custom backpack/Ender storage, third-party movement mods, and resource-pack compatibility have not been verified.
@@ -155,7 +173,7 @@ bash ./gradlew clean build
 .\gradlew.bat clean build
 ```
 
-The build runs common regression tests and checks metadata, mixins, services, enchantment resources, and test-harness exclusion in both loader jars. Distributable jars are under `fabric/build/libs/` and `neoforge/build/libs/`; do not install sources, javadoc, or lifecycle-test jars.
+The build runs common regression tests and checks metadata, mixins, services, enchantment resources, bundled weight definitions, and test-harness exclusion in both loader jars. Distributable jars are under `fabric/build/libs/` and `neoforge/build/libs/`; do not install sources, javadoc, or lifecycle-test jars.
 
 The GitHub Actions workflow builds/tests on Linux and Windows and uploads reports and mod artifacts. It does not publish releases or start Minecraft. [docs/TESTING.md](docs/TESTING.md) describes opt-in local runtime checks and their evidence.
 
