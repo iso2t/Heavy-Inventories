@@ -32,6 +32,7 @@ public class GraphicsRenderer {
         int lineH = instance.font.lineHeight;
 
         var holder = PlayerHolder.getOrCreate(instance.player);
+        if (!holder.hasServerState()) return;
 
         // Bottom line (numbers)
         String main = String.format("%.1f/%.1f %s (%.1f%%)", holder.getWeight(), holder.getMaxWeight(), measurement.getSub(), holder.getEncumberedPercentage());

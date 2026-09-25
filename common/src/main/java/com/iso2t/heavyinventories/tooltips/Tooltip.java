@@ -3,7 +3,8 @@ package com.iso2t.heavyinventories.tooltips;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.client.Minecraft;
-import com.iso2t.heavyinventories.api.weight.CalculateWeight;
+import com.iso2t.heavyinventories.client.ClientWeightData;
+import net.minecraft.core.registries.BuiltInRegistries;
 import com.iso2t.heavyinventories.config.ConfigOptions;
 
 import java.util.List;
@@ -17,7 +18,8 @@ public class Tooltip {
      * @return The list of tooltips with the weight tooltips added.
      */
     public static List<Component> addTooltips(List<Component> tooltip, ItemStack stack) {
-        float weight = CalculateWeight.from(new ItemStack(stack.getItem(), 1));
+        Float weight = ClientWeightData.weight(BuiltInRegistries.ITEM.getKey(stack.getItem()));
+        if (weight == null || stack.isEmpty()) return tooltip;
 
         tooltip.add(Component.translatable("tooltip.heavyinventories.item_weight", weight, ConfigOptions.WEIGHT_MEASURE.getSub()));
         if (stack.getCount() > 1) tooltip.add(Component.translatable("tooltip.heavyinventories.item_stack_weight", weight * stack.getCount(), ConfigOptions.WEIGHT_MEASURE.getSub()));

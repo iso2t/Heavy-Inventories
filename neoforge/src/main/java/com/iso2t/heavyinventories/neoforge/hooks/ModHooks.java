@@ -1,56 +1,27 @@
 package com.iso2t.heavyinventories.neoforge.hooks;
 
+import com.iso2t.heavyinventories.api.events.PlayerEvents;
+import com.iso2t.heavyinventories.command.ModCommands;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEquipmentChangeEvent;
-import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
-import com.iso2t.heavyinventories.api.events.PlayerEvents;
-import com.iso2t.heavyinventories.command.ModCommands;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 public class ModHooks {
-
-
-    public static void hookPlayer(PlayerTickEvent.Pre event) {
-        PlayerEvents.onPlayerTick(event.getEntity());
+    public static void hookServerStart(net.neoforged.neoforge.event.server.ServerAboutToStartEvent event) {
+        com.iso2t.heavyinventories.server.ServerWeightState.start(event.getServer());
     }
-
-    public static void hookPlayerClone(PlayerEvent.Clone event) {
-        PlayerEvents.clone(event.getOriginal(), event.getEntity());
+    public static void hookServerTick(ServerTickEvent.Post event) {
+        event.getServer().getPlayerList().getPlayers().forEach(PlayerEvents::onPlayerTick);
     }
-
-    public static void hookPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
-        PlayerEvents.playerChangedDimension(event.getEntity());
-    }
-
-    public static void hookPlayerPickupItem(ItemEntityPickupEvent.Post event) {
-        PlayerEvents.onPickupItem(event.getPlayer());
-    }
-
-    public static void hookOnCraft(PlayerEvent.ItemCraftedEvent event) {
-        PlayerEvents.onCraft(event.getEntity());
-    }
-
-    public static void hookOnSmelt(PlayerEvent.ItemSmeltedEvent event) {
-        PlayerEvents.onSmelt(event.getEntity());
-    }
-
-    public static void hookPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
-        PlayerEvents.logout(event.getEntity());
-    }
-
 
     public static void hookPlayerEquip(LivingEquipmentChangeEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
-        if(!event.getSlot().isArmor()) return;
-
-        //PlayerEvents.onEquipItem(player);
+        if (!event.getSlot().isArmor()) return;
         PlayerEvents.onUnequipItem(player);
     }
 
     public static void hookCommands(RegisterCommandsEvent event) {
         ModCommands.registerCommands(event.getDispatcher());
     }
-
 }

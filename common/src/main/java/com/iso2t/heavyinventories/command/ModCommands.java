@@ -16,6 +16,8 @@ import net.minecraft.server.permissions.Permissions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import com.iso2t.heavyinventories.HeavyInventories;
+import com.iso2t.heavyinventories.server.ServerWeightState;
+import com.iso2t.heavyinventories.config.ServerSettings;
 import com.iso2t.heavyinventories.api.player.PlayerWeightCache;
 import com.iso2t.heavyinventories.api.weight.CalculateWeight;
 import com.iso2t.heavyinventories.api.weight.WeightCache;
@@ -41,14 +43,11 @@ public class ModCommands {
                         .then(Commands.literal("reload")
                                 .executes(ModCommands::executeReloadCommand)
                                 .then(Commands.literal("weight")
-                                        .executes(context -> {
-                                            WeightCache.clearAll();
-                                            return Command.SINGLE_SUCCESS;
-                                        })
+                                        .executes(ModCommands::executeReloadCommand)
                                 )
                                 .then(Commands.literal("players")
                                         .executes(context -> {
-                                            PlayerWeightCache.clearAll();
+                                            PlayerWeightCache.clearAll(context.getSource().getServer());
                                             return Command.SINGLE_SUCCESS;
                                         })
                                 )
@@ -88,16 +87,32 @@ public class ModCommands {
             return 0;
         }
         ItemStack stack = context.getSource().getPlayer().getItemInHand(context.getSource().getPlayer().getUsedItemHand());
+        try { ServerSettings.validateItemWeight(number); }
+        catch (IllegalArgumentException e) {
+            context.getSource().sendFailure(Component.literal(e.getMessage()));
+            return 0;
+        }
+        if (stack.isEmpty()) {
+            context.getSource().sendFailure(Component.literal("Hold an item to set its weight."));
+            return 0;
+        }
         WeightOverride.put(stack.getItem(), number);
+        if (executeReloadCommand(context) == 0) return 0;
         context.getSource().sendSuccess(() -> Component.translatable("command.heavyinventories.command_set.success", number), true);
         return Command.SINGLE_SUCCESS;
     }
 
     protected static int executeReloadCommand(CommandContext<CommandSourceStack> context) {
-        WeightCache.clearAll();
-        PlayerWeightCache.clearAll();
-        CalculateWeight.clearRecursiveCache();
-        return Command.SINGLE_SUCCESS;
+        try {
+            ServerWeightState.of(context.getSource().getServer()).reload(context.getSource().getServer());
+            WeightCache.clearAll();
+            CalculateWeight.clearRecursiveCache();
+            context.getSource().sendSuccess(() -> Component.translatable("config.heavyinventories.reloaded"), true);
+            return Command.SINGLE_SUCCESS;
+        } catch (java.io.IOException | IllegalArgumentException e) {
+            context.getSource().sendFailure(Component.translatable("config.heavyinventories.failed", e.getMessage()));
+            return 0;
+        }
     }
 
     protected static int executeDumpCommand(CommandContext<CommandSourceStack> context) {
@@ -116,6 +131,7 @@ public class ModCommands {
 
         var level = context.getSource().getLevel();
         WeightOverride.putDumpFile(items, blocks, level);
+        if (executeReloadCommand(context) == 0) return 0;
 
         context.getSource().sendSuccess(() -> Component.literal("Done!"), true);
         return Command.SINGLE_SUCCESS;

@@ -1,5 +1,9 @@
 package com.iso2t.heavyinventories.neoforge.client;
 
+import com.iso2t.heavyinventories.api.player.PlayerHolder;
+import com.iso2t.heavyinventories.client.ClientWeightData;
+import com.iso2t.heavyinventories.network.PlayerWeightPayload;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import com.iso2t.heavyinventories.api.movement.ModifyPlayerMove;
 import com.iso2t.heavyinventories.config.ConfigOptions;
 import com.iso2t.heavyinventories.gui.GraphicsRenderer;
@@ -18,9 +22,17 @@ public final class NeoForgeClientHooks {
     private NeoForgeClientHooks() {}
 
     public static void register() {
+        NeoForge.EVENT_BUS.addListener(NeoForgeClientHooks::logout);
         NeoForge.EVENT_BUS.addListener(NeoForgeClientHooks::hookTooltip);
         NeoForge.EVENT_BUS.addListener(NeoForgeClientHooks::hookPlayerMove);
         NeoForge.EVENT_BUS.addListener(NeoForgeClientHooks::hookGui);
+    }
+
+    private static void logout(ClientPlayerNetworkEvent.LoggingOut event) { ClientWeightData.clear(); }
+
+    public static void receiveWeight(PlayerWeightPayload packet) {
+        var player = Minecraft.getInstance().player;
+        if (player != null) PlayerHolder.getOrCreate(player).accept(packet);
     }
 
     private static void hookTooltip(ItemTooltipEvent event) {

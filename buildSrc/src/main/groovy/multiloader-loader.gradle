@@ -83,6 +83,10 @@ def verifyModJar = tasks.register('verifyModJar') {
             }
 
             zip.entries().each { entry ->
+                if (entry.name.startsWith('com/iso2t/heavyinventories/test/')
+                        || entry.name == 'heavyinventories.lifecycle-test.mixins.json') {
+                    throw new GradleException("Test harness leaked into distributable jar: ${entry.name}")
+                }
                 if (entry.name.endsWith('.mixins.json')) {
                     def config = json.parseText(readEntry(entry.name))
                     ['mixins', 'client', 'server'].each { side ->

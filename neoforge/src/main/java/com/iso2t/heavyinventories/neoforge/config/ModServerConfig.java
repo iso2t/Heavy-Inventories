@@ -1,59 +1,52 @@
 package com.iso2t.heavyinventories.neoforge.config;
 
+import com.iso2t.heavyinventories.api.player.PlayerHolder;
+import com.iso2t.heavyinventories.config.ServerSettings;
+import com.iso2t.heavyinventories.network.ServerConfigUpdatePayload;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
-import me.shedaniel.clothconfig2.api.ConfigCategory;
-import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import com.iso2t.heavyinventories.config.ConfigFileManager;
-import com.iso2t.heavyinventories.config.ConfigOptions;
 
-/**
- * Server config screen for Fabric using Cloth Config.
- * Note: This is a client-side GUI for viewing/editing server config.
- * Actual server config values should be synced from the server.
- */
+/** Displays the current server's values; saving is a permission-checked request to that server. */
 public class ModServerConfig {
-
     private static ConfigBuilder builder;
-    private static boolean entriesInitialized = false;
 
     public static void init() {
-        if (builder == null) {
-            builder = ConfigBuilder.create().setParentScreen(null).setTitle(Component.translatable("title.heavyinventories.config.server"));
+        builder = ConfigBuilder.create().setParentScreen(null)
+                .setTitle(Component.translatable("title.heavyinventories.config.server"));
+        var category = builder.getOrCreateCategory(Component.translatable("category.heavyinventories.general"));
+        var entries = builder.entryBuilder();
+        var player = Minecraft.getInstance().player;
+        if (player == null || !PlayerHolder.getOrCreate(player).hasServerState()) {
+            category.addEntry(entries.startTextDescription(Component.translatable("config.heavyinventories.unavailable")).build());
+            return;
         }
-
-        builder.setSavingRunnable(ModServerConfig::saveConfig);
-
-        // Only add entries once to prevent duplication
-        if (!entriesInitialized) {
-            ConfigCategory general = builder.getOrCreateCategory(Component.translatable("category.heavyinventories.general"));
-            ConfigEntryBuilder entryBuilder = builder.entryBuilder();
-
-            general.addEntry(entryBuilder.startFloatField(Component.translatable("option.heavyinventories.starting_max_weight"), ConfigOptions.PLAYER_STARTING_WEIGHT)
-                    .setDefaultValue(1000f)
-                    .setMin(0)
-                    .setMax(Float.MAX_VALUE)
-                    .setTooltip(Component.translatable("option.heavyinventories.starting_max_weight.tooltip"))
-                    .setSaveConsumer(newValue -> ConfigOptions.PLAYER_STARTING_WEIGHT = newValue)
-                    .build());
-            
-            entriesInitialized = true;
-        }
-    }
-
-    /**
-     * Save the config.
-     * Note: Server config changes may need to be sent to the server.
-     */
-    private static void saveConfig() {
-        ConfigFileManager.saveServerConfig();
+        var holder = PlayerHolder.getOrCreate(player);
+        float initial = holder.getBaseMaxWeight();
+        long revision = holder.serverRevision();
+        float[] edited = {initial};
+        var field = entries.startFloatField(Component.translatable("option.heavyinventories.starting_max_weight"), initial)
+                .setDefaultValue(ServerSettings.DEFAULT.startingWeight())
+                .setMin(Float.MIN_VALUE).setMax(ServerSettings.MAX_VALUE)
+                .setErrorSupplier(value -> {
+                    try { new ServerSettings(value); return java.util.Optional.empty(); }
+                    catch (IllegalArgumentException e) { return java.util.Optional.of(Component.literal(e.getMessage())); }
+                })
+                .setSaveConsumer(value -> edited[0] = value).build();
+        field.setEditable(holder.canEditServerConfig());
+        category.addEntry(field);
+        category.addEntry(entries.startTextDescription(Component.translatable(
+                holder.canEditServerConfig() ? "config.heavyinventories.edit_help" : "config.heavyinventories.read_only")).build());
+        builder.setSavingRunnable(() -> {
+            if (edited[0] == initial) return;
+            var request = new ServerConfigUpdatePayload(edited[0], revision);
+            var connection = Minecraft.getInstance().getConnection();
+            if (connection != null) connection.send(new net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket(request));
+        });
     }
 
     public static ConfigBuilder getBuilder() {
-        if (builder == null) {
-            init();
-        }
+        if (builder == null) init();
         return builder;
     }
 }
-

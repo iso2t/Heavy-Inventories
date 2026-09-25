@@ -91,16 +91,10 @@ public final class CalculateWeight {
     }
 
     public static float from(Player player) {
-        float weight = 0;
-        var inventory = player.getInventory();
-
-        // Inventory
-        weight += (float) inventory.getNonEquipmentItems().stream().mapToDouble(CalculateWeight::from).sum();
-        // TODO: Armor
-        //weight += (float) inventory.armor.stream().mapToDouble(CalculateWeight::from).sum();
-        // TODO: Offhand
-        //weight += (float) inventory.offhand.stream().mapToDouble(CalculateWeight::from).sum();
-        return Format.format(weight);
+        if (player.level().isClientSide()) return com.iso2t.heavyinventories.api.player.PlayerHolder.getOrCreate(player).getWeight();
+        var definitions = com.iso2t.heavyinventories.server.ServerWeightState.of(player.level().getServer());
+        // Preserve the existing main-inventory accounting until Step 5.
+        return (float) player.getInventory().getNonEquipmentItems().stream().mapToDouble(definitions::weight).sum();
     }
 
     /**

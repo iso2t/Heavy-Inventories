@@ -1,0 +1,50 @@
+// Lifecycle regression harness. Use only with disposable local test worlds:
+// ./gradlew.bat :fabric:runServer -I gradle/lifecycle-smoke.gradle
+// ./gradlew.bat :fabric:runClient -I gradle/lifecycle-smoke.gradle "-PlifecycleClientWorld=New World"
+// Substitute neoforge for the other loader. Each process runs assertions and stops itself.
+// Client tests replace inventory, respawn the player, and change dimensions in the named save.
+// Optionally prepend -I gradle/packaged-smoke.gradle to test the production mod jar.
+// EULA acceptance and localhost server properties must already be configured.
+// Separate-process authority tests: add -PauthorityMultiplayer to both launches,
+// prepend -I gradle/packaged-smoke.gradle, and add -PsmokeMultiplayer to the client.
+// These tests replace the test player's inventory and temporarily edit/restore server config and op status.
+gradle.projectsEvaluated {
+    if (gradle.rootProject.findProject(':fabric') == null) return
+    [gradle.rootProject.project(':fabric'), gradle.rootProject.project(':neoforge')].each { modProject ->
+        def testSources = modProject.sourceSets.create('lifecycleTest') {
+            java.srcDir gradle.rootProject.file('common/src/lifecycleTest/java')
+            resources.srcDir gradle.rootProject.file('common/src/lifecycleTest/resources')
+            compileClasspath += modProject.sourceSets.main.output + modProject.sourceSets.main.compileClasspath
+        }
+        def testJar = modProject.tasks.register('lifecycleTestJar', Jar) {
+            archiveClassifier = 'lifecycle-test'
+            from testSources.output
+        }
+        ['runServer', 'runClient'].each { runName ->
+            modProject.tasks.named(runName) {
+                if (modProject.hasProperty('authorityMultiplayer')) {
+                    systemProperty 'heavyinventories.test.multiplayer', 'true'
+                }
+                dependsOn testJar
+                classpath += modProject.files(testJar.flatMap { it.archiveFile })
+                if (runName == 'runServer') {
+                    standardInput = System.in
+                    if (modProject.name == 'fabric') {
+                        doFirst {
+                            if (!args.contains('--nogui')) args '--nogui'
+                        }
+                    }
+                }
+                if (runName == 'runClient') {
+                    doFirst {
+                        if (modProject.hasProperty('authorityMultiplayer')) return
+                        if (!modProject.hasProperty('lifecycleClientWorld')) {
+                            throw new GradleException('Specify -PlifecycleClientWorld=<disposable save folder>; this test replaces inventory and respawns the player.')
+                        }
+                        args '--quickPlaySingleplayer', modProject.property('lifecycleClientWorld').toString()
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,87 +1,71 @@
 package com.iso2t.heavyinventories.api.player;
 
+import com.iso2t.heavyinventories.api.weight.CalculateWeight;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import com.iso2t.heavyinventories.api.weight.CalculateWeight;
 
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.DoubleSupplier;
 
 /**
- * Caches a player's total carried weight. Recompute only when "dirty"
- * or when an inventory fingerprint changes.
+ * One entity's inventory snapshot and total. No UUID map or global player references.
+ * All access runs on the owning entity's game thread.
  */
 public final class PlayerWeightCache {
+    static final int FALLBACK_TICKS = 20;
+    private final List<ItemStack> snapshot = new ArrayList<>();
+    private Object level;
+    private long lastComputedTick;
+    private float weight;
+    private boolean dirty = true;
 
-    private static final Map<UUID, Entry> CACHE = new ConcurrentHashMap<>();
-
-    private PlayerWeightCache() {
-    }
+    PlayerWeightCache() {}
 
     public static float getOrCompute(Player player) {
-        var id = player.getUUID();
-        var entry = CACHE.computeIfAbsent(id, k -> new Entry());
-
-        int fp = fingerprint(player);
-        if (!entry.dirty && entry.lastFingerprint == fp) {
-            return entry.weight;
-        }
-
-        float w = CalculateWeight.from(player);
-        entry.weight = w;
-        entry.lastFingerprint = fp;
-        entry.dirty = false;
-        return w;
+        if (player.level().isClientSide()) return PlayerHolder.getOrCreate(player).getWeight();
+        return PlayerHolder.getOrCreate(player).weightCache().compute(
+                player.getInventory(), player.level(), player.tickCount, () -> CalculateWeight.from(player));
     }
 
-    /**
-     * Mark a player's cache entry as dirty (recompute next read).
-     */
+    /** Invalidation never reads partially updated inventories or calls back into holder.update(). */
     public static void markDirty(Player player) {
-        CACHE.computeIfAbsent(player.getUUID(), k -> new Entry()).dirty = true;
-        PlayerHolder.getOrCreate(player).update();
+        PlayerHolder.getOrCreate(player).weightCache().invalidate();
     }
 
-    /**
-     * Clear all (e.g., on datapack/config reload).
-     */
-    public static void clearAll() {
-        CACHE.clear();
+    /** Invalidate only this server's live entities, never integrated-client state. */
+    public static void clearAll(MinecraftServer server) {
+        server.getPlayerList().getPlayers().forEach(PlayerWeightCache::markDirty);
     }
 
-    /**
-     * Remove one player (e.g., on logout).
-     */
-    public static void remove(Player player) {
-        CACHE.remove(player.getUUID());
+    void invalidate() {
+        dirty = true;
     }
 
-    private static final class Entry {
-        volatile float weight = 0f;
-        volatile int lastFingerprint = 0;
-        volatile boolean dirty = true;
+    float compute(Container inventory, Object currentLevel, long tick, DoubleSupplier calculate) {
+        if (dirty || level != currentLevel || tick < lastComputedTick
+                || tick - lastComputedTick >= FALLBACK_TICKS || inventoryChanged(inventory)) {
+            float updatedWeight = (float) calculate.getAsDouble();
+            snapshot.clear();
+            for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+                snapshot.add(inventory.getItem(slot).copy());
+            }
+            weight = updatedWeight;
+            level = currentLevel;
+            lastComputedTick = tick;
+            dirty = false;
+        }
+        return weight;
     }
 
-    /**
-     * Lightweight inventory fingerprint. Cheap integer that changes when
-     * item type, count, or simple damage changes across main, armor, offhand.
-     * (If you need NBT/components sensitivity, extend the hash.)
-     */
-    private static int fingerprint(Player p) {
-        int h = 1;
-        for (ItemStack s : p.getInventory().getNonEquipmentItems()) h = mix(h, s);
-        // TODO: :( for (ItemStack s : p.getInventory().armor) h = mix(h, s);
-        // TODO: :( for (ItemStack s : p.getInventory().offhand) h = mix(h, s);
-        return h;
-    }
-
-    private static int mix(int h, ItemStack s) {
-        if (s.isEmpty()) return h * 31 + 1;
-
-        int x = System.identityHashCode(s.getItem());
-        x = 31 * x + s.getCount();
-        if (s.isDamageableItem()) x = 31 * x + s.getDamageValue();
-        return 31 * h + x;
+    private boolean inventoryChanged(Container inventory) {
+        if (snapshot.size() != inventory.getContainerSize()) return true;
+        for (int slot = 0; slot < snapshot.size(); slot++) {
+            // Includes count and all data components, rather than a lossy item/damage hash.
+            if (!ItemStack.matches(snapshot.get(slot), inventory.getItem(slot))) return true;
+        }
+        return false;
     }
 }

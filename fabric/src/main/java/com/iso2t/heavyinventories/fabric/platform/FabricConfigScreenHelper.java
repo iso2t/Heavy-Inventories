@@ -13,6 +13,11 @@ import com.iso2t.heavyinventories.HeavyInventories;
 import com.iso2t.heavyinventories.fabric.client.FabricClientHooks;
 import com.iso2t.heavyinventories.platform.services.IConfigScreenHelper;
 
+import com.iso2t.heavyinventories.network.PlayerWeightPayload;
+import com.iso2t.heavyinventories.network.ItemWeightsPayload;
+import com.iso2t.heavyinventories.network.ServerConfigUpdatePayload;
+import com.iso2t.heavyinventories.server.ServerConfiguration;
+
 public class FabricConfigScreenHelper implements IConfigScreenHelper {
 
     public static final Identifier OPEN_CONFIG_PACKET_ID = Identifier.fromNamespaceAndPath(HeavyInventories.MOD_ID, "open_config");
@@ -43,6 +48,11 @@ public class FabricConfigScreenHelper implements IConfigScreenHelper {
     public static void registerPayloadType() {
         if (!payloadRegistered) {
             PayloadTypeRegistry.clientboundPlay().register(OPEN_CONFIG_PACKET_TYPE, STREAM_CODEC);
+            PayloadTypeRegistry.clientboundPlay().register(PlayerWeightPayload.TYPE, PlayerWeightPayload.CODEC);
+            PayloadTypeRegistry.clientboundPlay().register(ItemWeightsPayload.TYPE, ItemWeightsPayload.CODEC);
+            PayloadTypeRegistry.serverboundPlay().register(ServerConfigUpdatePayload.TYPE, ServerConfigUpdatePayload.CODEC);
+            ServerPlayNetworking.registerGlobalReceiver(ServerConfigUpdatePayload.TYPE,
+                    (packet, context) -> ServerConfiguration.update(context.player(), packet));
             payloadRegistered = true;
             
         }

@@ -6,6 +6,10 @@ import net.fabricmc.loader.api.FabricLoader;
 import java.nio.file.Path;
 
 public class FabricPlatformHelper implements IPlatformHelper {
+    @Override
+    public void sendToPlayer(net.minecraft.server.level.ServerPlayer player, net.minecraft.network.protocol.common.custom.CustomPacketPayload payload) {
+        net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(player, payload);
+    }
 
     @Override
     public String getPlatformName() {

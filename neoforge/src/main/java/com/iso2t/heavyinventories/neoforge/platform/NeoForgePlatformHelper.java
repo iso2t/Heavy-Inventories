@@ -8,6 +8,10 @@ import net.neoforged.fml.loading.FMLPaths;
 import java.nio.file.Path;
 
 public class NeoForgePlatformHelper implements IPlatformHelper {
+    @Override
+    public void sendToPlayer(net.minecraft.server.level.ServerPlayer player, net.minecraft.network.protocol.common.custom.CustomPacketPayload payload) {
+        player.connection.send(payload);
+    }
 
     @Override
     public String getPlatformName() {

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "heavyinventories_lifecycle_test",
+  "version": "1.0.0",
+  "name": "Heavy Inventories Lifecycle Tests",
+  "environment": "*",
+  "mixins": ["heavyinventories.lifecycle-test.mixins.json"],
+  "depends": {"heavyinventories": "*"}
+}

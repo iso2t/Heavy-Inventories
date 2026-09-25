@@ -112,56 +112,32 @@ public class ConfigFileManager {
         }
     }
 
-    /**
-     * Loads server config from file.
-     */
-    public static void loadServerConfig() {
-        Path configFile = getConfigDirectory().resolve(SERVER_CONFIG_FILE);
-
-        if (!Files.exists(configFile)) {
-            return;
-        }
-
-        try (Reader reader = Files.newBufferedReader(configFile, StandardCharsets.UTF_8)) {
-            JsonObject root = GSON.fromJson(reader, JsonObject.class);
-            if (root == null) return;
-
-            if (root.has("startingWeight")) {
-                ConfigOptions.PLAYER_STARTING_WEIGHT = root.get("startingWeight").getAsInt();
-            }
-
-        } catch (IOException | JsonParseException e) {
-            HeavyInventories.LOGGER.error("Failed to load server config: {}", e.getMessage());
+    public static ServerSettings readServerConfig(Path path) throws IOException {
+        if (!Files.exists(path)) return ServerSettings.DEFAULT;
+        try (var reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+            return ServerSettings.parse(GSON.fromJson(reader, JsonObject.class));
+        } catch (RuntimeException e) {
+            throw new IllegalArgumentException("Invalid server config " + path + ": " + e.getMessage(), e);
         }
     }
 
-    /**
-     * Saves server config to file.
-     */
-    public static void saveServerConfig() {
-        Path configFile = getConfigDirectory().resolve(SERVER_CONFIG_FILE);
-        JsonObject root = new JsonObject();
-
-        root.addProperty("startingWeight", ConfigOptions.PLAYER_STARTING_WEIGHT);
-
+    /** Writes validated settings before the running server applies them; failed writes preserve the old file. */
+    public static void writeServerConfig(Path path, ServerSettings settings) throws IOException {
+        ensureParentDirectories(path);
+        Path temp = Files.createTempFile(path.getParent(), path.getFileName().toString(), ".tmp");
         try {
-            ensureParentDirectories(configFile);
-            Path temp = Files.createTempFile(configFile.getParent(), configFile.getFileName().toString(), ".tmp");
-
-            try (Writer writer = Files.newBufferedWriter(temp, StandardCharsets.UTF_8)) {
-                GSON.toJson(root, writer);
+            var json = new JsonObject();
+            json.addProperty("startingWeight", settings.startingWeight());
+            try (var writer = Files.newBufferedWriter(temp, StandardCharsets.UTF_8)) {
+                GSON.toJson(json, writer);
             }
-
-            Files.move(temp, configFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-            HeavyInventories.LOGGER.info("Server config saved successfully");
-        } catch (IOException e) {
-            HeavyInventories.LOGGER.error("Failed to save server config: {}", e.getMessage());
-            // Fallback: try direct write
-            try (Writer writer = Files.newBufferedWriter(configFile, StandardCharsets.UTF_8)) {
-                GSON.toJson(root, writer);
-            } catch (IOException ignored) {
-                HeavyInventories.LOGGER.error("Fallback save also failed");
+            try {
+                Files.move(temp, path, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            } catch (java.nio.file.AtomicMoveNotSupportedException e) {
+                Files.move(temp, path, StandardCopyOption.REPLACE_EXISTING);
             }
+        } finally {
+            Files.deleteIfExists(temp);
         }
     }
 

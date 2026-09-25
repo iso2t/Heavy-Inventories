@@ -1,13 +1,14 @@
 package com.iso2t.heavyinventories.fabric.client;
 
-import com.iso2t.heavyinventories.api.events.PlayerEvents;
-import com.iso2t.heavyinventories.api.movement.ModifyPlayerMove;
-import com.iso2t.heavyinventories.fabric.callbacks.PlayerInputCallback;
+import com.iso2t.heavyinventories.api.player.PlayerHolder;
+import com.iso2t.heavyinventories.client.ClientWeightData;
+import com.iso2t.heavyinventories.network.PlayerWeightPayload;
+import com.iso2t.heavyinventories.network.ItemWeightsPayload;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import com.iso2t.heavyinventories.fabric.config.ModClientConfig;
 import com.iso2t.heavyinventories.fabric.config.ModCommonConfig;
 import com.iso2t.heavyinventories.fabric.config.ModServerConfig;
 import com.iso2t.heavyinventories.fabric.platform.FabricConfigScreenHelper;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 
@@ -16,10 +17,13 @@ public final class FabricClientHooks {
     private FabricClientHooks() {}
 
     public static void register() {
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (client.player != null) PlayerEvents.onPlayerTick(client.player);
+        ClientPlayConnectionEvents.INIT.register((handler, client) -> ClientWeightData.clear());
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> ClientWeightData.clear());
+        ClientPlayNetworking.registerGlobalReceiver(PlayerWeightPayload.TYPE, (packet, context) -> {
+            var player = context.player();
+            PlayerHolder.getOrCreate(player).accept(packet);
         });
-        PlayerInputCallback.EVENT.register(ModifyPlayerMove::hook);
+        ClientPlayNetworking.registerGlobalReceiver(ItemWeightsPayload.TYPE, (packet, context) -> ClientWeightData.accept(packet));
         ClientPlayNetworking.registerGlobalReceiver(FabricConfigScreenHelper.OPEN_CONFIG_PACKET_TYPE,
                 (packet, context) -> context.client().execute(() -> openConfig(packet.configType())));
     }

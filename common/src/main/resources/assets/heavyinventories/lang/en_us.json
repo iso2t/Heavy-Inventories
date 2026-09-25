@@ -8,28 +8,32 @@
   "option.heavyinventories.enable_gui_overlay": "Enable GUI Overlay",
   "option.heavyinventories.enable_gui_overlay.tooltip": "Show/hide the GUI overlay.",
   "option.heavyinventories.starting_max_weight": "Starting Max Weight",
-  "option.heavyinventories.starting_max_weight.tooltip": "The starting max weight for new players.",
+  "option.heavyinventories.starting_max_weight.tooltip": "Base carrying capacity for all players on this server.",
   "option.heavyinventories.normal_text_color": "Standard Text Color",
   "option.heavyinventories.normal_text_color.tooltip": "The standard text color for the GUI.",
   "option.heavyinventories.encumbered_text_color": "Encumbered Text Color",
   "option.heavyinventories.encumbered_text_color.tooltip": "The text color for encumbered GUI.",
   "option.heavyinventories.over_encumbered_text_color": "Over Encumbered Text Color",
   "option.heavyinventories.over_encumbered_text_color.tooltip": "The text color for over encumbered GUI.",
-
   "tooltip.heavyinventories.item_weight": "Weight: %s %s",
   "tooltip.heavyinventories.item_stack_weight": "§8Stack Weight: %s %s",
   "tooltip.heavyinventories.item_max_stack_weight": "§8Max Stack Weight: %s %s",
   "tooltip.heavyinventories.hold_shift": "§8Hold §r§e[SHIFT] §r§8for more info",
-
   "chat.heavyinventories.no_jump": "You cannot jump while %s!",
   "chat.heavyinventories.encumbered": "Encumbered",
   "chat.heavyinventories.over_encumbered": "Over Encumbered",
-
   "command.heavyinventories.command_set.failure": "Failed to set weight to %s!",
   "command.heavyinventories.command_set.success": "Successfully set weight to %s!",
   "command.heavyinventories.failure": "Failed to execute command!",
-
   "enchantment.heavyinventories.bracing": "Bracing",
   "enchantment.heavyinventories.reinforced": "Reinforced",
-  "enchantment.heavyinventories.surefooted": "Surefooted"
+  "enchantment.heavyinventories.surefooted": "Surefooted",
+  "config.heavyinventories.denied": "Only server operators can change server settings.",
+  "config.heavyinventories.stale": "Server settings changed while this screen was open. Reopen it and try again.",
+  "config.heavyinventories.saved": "Server settings saved. The change applies to all players.",
+  "config.heavyinventories.failed": "Server settings were not applied: %s",
+  "config.heavyinventories.reloaded": "Server settings and item weights reloaded.",
+  "config.heavyinventories.unavailable": "Join a Heavy Inventories server to view its settings.",
+  "config.heavyinventories.edit_help": "Saving sends your changes to the server. Operator permission is checked there; accepted changes apply to all players.",
+  "config.heavyinventories.read_only": "These are the server's settings. Only server operators can change them."
 }

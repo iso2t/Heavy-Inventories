@@ -1,18 +1,16 @@
 package com.iso2t.heavyinventories.api.player;
 
 import lombok.Getter;
-import lombok.Setter;
+import com.iso2t.heavyinventories.server.ServerWeightState;
+import com.iso2t.heavyinventories.config.ServerSettings;
+import com.iso2t.heavyinventories.network.PlayerWeightPayload;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import com.iso2t.heavyinventories.api.util.Functions;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * This is a wrapper for a player, used to store their weight and max weight.
- * We still need to register data attachments to the player entity to store this information.
- * Data attachments are specific per loader.
+ * Transient state owned by one player entity, on one logical side.
+ * Never copied during respawn or persisted: the new entity rebuilds it from inventory/effects.
  */
 public class PlayerHolder {
 
@@ -25,18 +23,24 @@ public class PlayerHolder {
     private static final float ENCUMBERED_SINK_MULT = 1.5f;  // +50% gravity in fluids
     private static final float OVER_ENC_SINK_MULT = 3.0f;  // +200% gravity in fluids
 
-    private static List<PlayerHolder> PLAYERS = new ArrayList<>();
-    private static float STARTING_WEIGHT = 1000f;
+    private long definitionsRevision = -1;
+    private boolean receivedState;
+    private boolean syncedEncumbered;
+    private boolean syncedOverEncumbered;
+    private boolean canEditServerConfig;
+    private long serverRevision;
+    private PlayerWeightPayload lastSent;
+    private long lastSentTick;
+    private long lastDefinitionsSent = -1;
+
+    private final PlayerWeightCache weightCache = new PlayerWeightCache();
 
 	@Getter
 	private final Player player;
 
-	@Setter
 	@Getter
     private float weight;
     private float maxWeight;
-    private boolean encumbered;
-    private boolean overEncumbered;
 
     // ENCHANTMENT EFFECTS
 	@Getter
@@ -53,9 +57,7 @@ public class PlayerHolder {
     public PlayerHolder(Player player) {
         this.player = player;
         this.weight = 0;
-        this.maxWeight = STARTING_WEIGHT;
-        this.encumbered = false;
-        this.overEncumbered = false;
+        this.maxWeight = ServerSettings.DEFAULT.startingWeight();
         this.bracingOffset = 0f;
         this.reinforcedOffset = 0f;
     }
@@ -64,9 +66,21 @@ public class PlayerHolder {
      * Main player update method.
      */
     public void update() {
-        setWeight(PlayerWeightCache.getOrCompute(getPlayer()));
-        this.encumbered = isEncumbered();
-        this.overEncumbered = isOverEncumbered();
+        if (player.level().isClientSide()) return;
+        var state = ServerWeightState.of(player.level().getServer());
+        if (definitionsRevision != state.revision()) {
+            float nextBase = state.settings().startingWeight();
+            bracingOffset = (float) ((double) bracingOffset / maxWeight * nextBase);
+            reinforcedOffset = (float) ((double) reinforcedOffset / maxWeight * nextBase);
+            maxWeight = nextBase;
+            definitionsRevision = state.revision();
+            weightCache.invalidate();
+        }
+        weight = PlayerWeightCache.getOrCompute(player);
+    }
+
+    PlayerWeightCache weightCache() {
+        return weightCache;
     }
 
     /**
@@ -82,10 +96,6 @@ public class PlayerHolder {
         return maxWeight;
     }
 
-	public void addWeightOffset(float offset) {
-        bracingOffset += offset;
-    }
-
 	/**
      * Checks if the player is encumbered.
      * The weight percentage is compared to 90% through 99.9%.
@@ -93,6 +103,7 @@ public class PlayerHolder {
      * @return True if the player is encumbered, false otherwise.
      */
     public boolean isEncumbered() {
+        if (player.level().isClientSide()) return receivedState && syncedEncumbered;
         if (getPlayer().isCreative()) return false;
 
         // Allow the percentage range to be 100%-110% with strength potion.
@@ -108,6 +119,7 @@ public class PlayerHolder {
      * @return True if the player is over encumbered, false otherwise.
      */
     public boolean isOverEncumbered() {
+        if (player.level().isClientSide()) return receivedState && syncedOverEncumbered;
         if (getPlayer().isCreative()) return false;
 
         // Allow the percentage range to be 115%-125% with strength potion.
@@ -125,7 +137,7 @@ public class PlayerHolder {
     }
 
     public float getEncumberedPercentage() {
-        return ((getWeight() / getMaxWeight()) * 100);
+        return (float) Math.min(Float.MAX_VALUE, ((double) getWeight() / getMaxWeight()) * 100);
     }
 
     /**
@@ -150,20 +162,16 @@ public class PlayerHolder {
         if (level < 0) level = 0;
         if (level == bracingAppliedLevel) return;
 
-        addWeightOffset(-bracingOffset);
 
         float base = getBaseMaxWeight();
         float pct = Math.min(perLevelPct * level, capPct);
         float offset = (base * pct);
 
-        addWeightOffset(offset);
         bracingOffset = offset;
         bracingAppliedLevel = level;
     }
 
     public void clearBracing() {
-        // remove any previous bonus
-        addWeightOffset(-bracingOffset);
         bracingOffset = 0f;
         bracingAppliedLevel = 0;
     }
@@ -172,19 +180,16 @@ public class PlayerHolder {
         if (level < 0) level = 0;
         if (level == reinforcedAppliedLevel) return;
 
-        addWeightOffset(-reinforcedOffset);
 
         float base = getBaseMaxWeight();
         float pct = Math.min(perLevelPct * level, capPct);
         float offset = (base * pct);
 
-        addWeightOffset(offset);
         reinforcedOffset = offset;
         reinforcedAppliedLevel = level;
     }
 
     public void clearReinforced() {
-        addWeightOffset(-reinforcedOffset);
         reinforcedOffset = 0f;
         reinforcedAppliedLevel = 0;
     }
@@ -204,15 +209,6 @@ public class PlayerHolder {
         this.sureFootedAppliedLevel = 0;
     }
 
-	/**
-     * Gets a list of all players.
-     *
-     * @return The list of players.
-     */
-    public static List<PlayerHolder> getPlayers() {
-        return PLAYERS;
-    }
-
     /**
      * Gets a player holder for the given player.
      *
@@ -220,19 +216,44 @@ public class PlayerHolder {
      * @return The player holder.
      */
     public static PlayerHolder getOrCreate(Player player) {
-        for (PlayerHolder playerHolder : PLAYERS) {
-            if (playerHolder.getPlayer().getUUID().equals(player.getUUID())) {
-                return playerHolder;
-            }
-        }
-
-        PlayerHolder playerHolder = new PlayerHolder(player);
-        PLAYERS.add(playerHolder);
-        return playerHolder;
+        return ((PlayerStateAccess) player).heavyinventories$getHolder();
     }
 
-    public static void setWeightStarting(float startingWeight) {
-        PlayerHolder.STARTING_WEIGHT = startingWeight;
+    public boolean hasServerState() { return !player.level().isClientSide() || receivedState; }
+    public boolean canEditServerConfig() { return canEditServerConfig; }
+    public long serverRevision() { return serverRevision; }
+
+    public void accept(PlayerWeightPayload snapshot) {
+        if (!player.level().isClientSide() || player.getId() != snapshot.entityId()
+                || !player.level().dimension().identifier().equals(snapshot.dimension())) return;
+        weight = snapshot.weight();
+        maxWeight = snapshot.baseCapacity();
+        bracingOffset = snapshot.bracing();
+        reinforcedOffset = snapshot.reinforced();
+        sureFootedMult = snapshot.surefooted();
+        syncedEncumbered = snapshot.encumbered();
+        syncedOverEncumbered = snapshot.overEncumbered();
+        canEditServerConfig = snapshot.canEdit();
+        serverRevision = snapshot.revision();
+        receivedState = true;
+    }
+
+    public void synchronize(net.minecraft.server.level.ServerPlayer target) {
+        if (target.connection == null) return;
+        var state = ServerWeightState.of(target.level().getServer());
+        var platform = com.iso2t.heavyinventories.platform.Services.PLATFORM;
+        if (lastDefinitionsSent != state.revision()) {
+            state.packets().forEach(packet -> platform.sendToPlayer(target, packet));
+            lastDefinitionsSent = state.revision();
+        }
+        var snapshot = new PlayerWeightPayload(target.getId(), target.level().dimension().identifier(),
+                weight, maxWeight, bracingOffset, reinforcedOffset, sureFootedMult, isEncumbered(), isOverEncumbered(),
+                com.iso2t.heavyinventories.server.ServerConfiguration.canEdit(target), state.revision());
+        if (!snapshot.equals(lastSent) || target.tickCount - lastSentTick >= 20) {
+            platform.sendToPlayer(target, snapshot);
+            lastSent = snapshot;
+            lastSentTick = target.tickCount;
+        }
     }
 
 }

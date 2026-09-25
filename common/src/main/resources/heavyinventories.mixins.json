@@ -4,6 +4,8 @@
   "package": "com.iso2t.heavyinventories.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
+    "ServerWeightStateMixin",
+    "PlayerStateMixin",
     "LivingEntityFallDamageMixin",
     "LivingEntityFluidGravityMixin",
     "LivingEntityFluidTravelMixin",
