@@ -22,7 +22,8 @@ def require(condition: bool, message: str) -> None:
 
 def git(*args: str, root: Path) -> str:
     result = subprocess.run(["git", *args], cwd=root, capture_output=True, text=True)
-    require(result.returncode == 0, f"Git command failed: {' '.join(args)}")
+    error = result.stderr.strip()
+    require(result.returncode == 0, f"Git command failed: {' '.join(args)}{f' ({error})' if error else ''}")
     return result.stdout.strip()
 
 
@@ -33,7 +34,7 @@ def release_branches(root: Path) -> list[str]:
 
     data = json.loads(policy.read_text(encoding="utf-8"))
     branches = data.get("release_branches")
-    require(isinstance(branches, list) and branches, "No trusted release branches configured")
+    require(isinstance(branches, list), "Invalid release branch configuration")
 
     validated: list[str] = []
     for branch in branches:
