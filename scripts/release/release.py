@@ -35,6 +35,8 @@ def release_branches(root: Path) -> list[str]:
         return []
 
     data = json.loads(policy.read_text(encoding="utf-8"))
+    if "release_branches" not in data:
+        return []
     branches = data.get("release_branches")
     require(isinstance(branches, list), "Invalid release branch configuration")
 
