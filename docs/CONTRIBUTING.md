@@ -22,4 +22,4 @@ Record user-visible changes in [Unreleased](../changelogs/UNRELEASED.md) as work
 
 The version-specific file will supply the same release body to CurseForge, Modrinth, and GitHub Releases. Keep build logs and internal test details in testing documentation, and keep the README as the project introduction. Published changelogs should describe the original build; add later changes to the next version.
 
-The [publishing plan](PUBLISHING_PLAN.md) defines the manual release trigger and the implementation checklist. The [setup guide](PUBLISHING.md) covers tokens, repository secrets and variables, changelogs, and the manual Publish action. Publishing remains gated by repository configuration and an explicit manual publish run.
+The [publishing plan](PUBLISHING_PLAN.md) defines the manual release trigger and the implementation checklist. The [setup guide](PUBLISHING.md) covers tokens, repository secrets and variables, changelogs, and the manual Publish action. The manual workflow defaults to dry-run; uncheck its preview checkbox to publish.

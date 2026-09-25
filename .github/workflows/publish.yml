@@ -1,127 +1,57 @@
 name: Publish release
-run-name: Publish ${{ github.ref_name }} (${{ inputs.mode }})
+run-name: Publish ${{ github.ref_name }}${{ inputs.dry_run && ' (dry run)' || '' }}
 
 on:
   workflow_dispatch:
     inputs:
-      mode:
-        description: dry-run previews only; preflight reads APIs; publish uploads
-        type: choice
-        options: [dry-run, preflight, publish]
-        default: dry-run
-      recovery:
-        description: Recovery evidence JSON only after inspecting an ambiguous upload
-        type: string
-        default: '{}'
+      dry_run:
+        description: Build and preview without uploading
+        type: boolean
+        default: true
 
 permissions:
-  contents: read
+  contents: write
 
-# One shared group for live attempts. Do not interrupt a partially completed upload.
 concurrency:
-  group: ${{ inputs.mode == 'publish' && 'publish-live' || format('publish-preview-{0}', github.run_id) }}
+  group: publish-release
   cancel-in-progress: false
 
 jobs:
-  resolve:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    outputs:
-      tag: ${{ steps.resolve.outputs.tag }}
-      sha: ${{ steps.resolve.outputs.sha }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          # Freeze the selected branch at the commit that started this run.
-          ref: ${{ github.sha }}
-          fetch-depth: 0
-          persist-credentials: false
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
-        with:
-          python-version: '3.13'
-      - name: Read version and changelog from the selected commit
-        id: resolve
-        run: python scripts/release/release.py resolve
-
-  build:
-    needs: resolve
-    uses: ./.github/workflows/build-reusable.yml
-    with:
-      ref: ${{ needs.resolve.outputs.sha }}
-      release_tag: ${{ needs.resolve.outputs.tag }}
-
-  preview:
-    needs: [resolve, build]
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          ref: ${{ needs.resolve.outputs.sha }}
-          persist-credentials: false
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
-        with:
-          python-version: '3.13'
-      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
-        with:
-          name: release-bundle
-          path: build/release/bundle
-      - name: Preview destinations without credentials or network access
-        env:
-          CURSEFORGE_PROJECT_ID: ${{ vars.CURSEFORGE_PROJECT_ID }}
-          MODRINTH_PROJECT_ID: ${{ vars.MODRINTH_PROJECT_ID }}
-        run: python scripts/release/release.py preview
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: release-preview
-          path: build/release/publish-preview.json
-          if-no-files-found: error
-          retention-days: 30
-
   publish:
-    needs: [resolve, build, preview]
-    if: inputs.mode != 'dry-run'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-    permissions:
-      contents: write
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: ${{ needs.resolve.outputs.sha }}
+          ref: ${{ github.sha }}
           persist-credentials: false
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
         with:
-          python-version: '3.13'
-      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6
         with:
-          name: release-bundle
-          path: build/release/bundle
-      - name: Check publication gate
-        if: inputs.mode == 'publish'
+          cache-provider: basic
+          cache-read-only: true
+      - name: Build and publish
+        run: bash ./gradlew build publishMods --stacktrace --no-daemon --max-workers=2 --console=plain
         env:
-          PUBLISH_ENABLED: ${{ vars.PUBLISH_ENABLED }}
-        run: |
-          if [ "$PUBLISH_ENABLED" != "true" ]; then
-            echo 'Publishing disabled. Review the release-bundle and release-preview artifacts; enable PUBLISH_ENABLED and use manual publish when ready.'
-            exit 1
-          fi
-      - name: Preflight or publish the verified release
-        env:
-          RELEASE_MODE: ${{ inputs.mode }}
-          PUBLISH_ENABLED: ${{ vars.PUBLISH_ENABLED }}
+          PUBLISH_DRY_RUN: ${{ inputs.dry_run }}
+          CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY || secrets.CURSEFORGE_TOKEN }}
           CURSEFORGE_PROJECT_ID: ${{ vars.CURSEFORGE_PROJECT_ID }}
-          MODRINTH_PROJECT_ID: ${{ vars.MODRINTH_PROJECT_ID }}
-          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          MODRINTH_PROJECT_ID: ${{ vars.MODRINTH_PROJECT_ID }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_RECOVERY: ${{ inputs.recovery || '{}' }}
-        run: python scripts/release/release.py "$RELEASE_MODE"
-      - name: Preserve local upload receipts
-        if: always()
+      - name: Save jars and publishing previews
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: publication-receipts
-          path: build/release/receipts/
-          if-no-files-found: ignore
-          retention-days: 90
+          name: publishing-artifacts
+          if-no-files-found: error
+          path: |
+            fabric/build/libs/*.jar
+            neoforge/build/libs/*.jar
+            !**/*-sources.jar
+            !**/*-javadoc.jar
+            !**/*-dev.jar
+            !**/*-lifecycle-test.jar
+            build/publishMods/

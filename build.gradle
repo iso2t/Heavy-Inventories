@@ -3,24 +3,64 @@ plugins {
     id 'net.fabricmc.fabric-loom' version '1.15.5' apply false
     // see https://projects.neoforged.net/neoforged/moddevgradle for new versions
     id 'net.neoforged.moddev' version '2.0.141' apply false
+    id 'me.modmuss50.mod-publish-plugin' version '2.2.0'
 }
 
-// Read the actual distributable task outputs; never select release jars with a glob.
-tasks.register('releaseArtifacts') {
-    group = 'distribution'
-    description = 'Writes the exact verified loader artifact paths for release packaging.'
-    dependsOn ':fabric:verifyModJar', ':neoforge:verifyModJar'
-    def destination = layout.buildDirectory.file('release/artifacts.json')
-    outputs.file(destination)
-    // The manifest describes task outputs from this invocation, including renamed versions.
-    outputs.upToDateWhen { false }
-    doLast {
-        def artifacts = ['fabric', 'neoforge'].collectEntries { loader ->
-            def archive = project(":" + loader).tasks.named('jar').get().archiveFile.get().asFile
-            [(loader): rootDir.toPath().relativize(archive.toPath()).toString().replace('\\', '/')]
-        }
-        def output = destination.get().asFile
-        output.parentFile.mkdirs()
-        output.setText(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(artifacts)) + '\n', 'UTF-8')
+def releaseVersion = project.version.toString()
+
+publishMods {
+    // Local invocations preview by default. The manual workflow explicitly selects live publishing.
+    dryRun = providers.environmentVariable('PUBLISH_DRY_RUN').map { it.toBoolean() }.orElse(true)
+    version = releaseVersion
+    changelog = providers.fileContents(layout.projectDirectory.file("changelogs/${releaseVersion}.md")).asText
+    type = releaseVersion.contains('-alpha') ? ALPHA : releaseVersion.contains('-') ? BETA : STABLE
+    displayName = "Heavy Inventories ${releaseVersion}"
+
+    def cfOptions = curseforgeOptions {
+        accessToken = providers.environmentVariable('CURSEFORGE_API_KEY')
+                .orElse(providers.environmentVariable('CURSEFORGE_TOKEN'))
+        projectId = providers.environmentVariable('CURSEFORGE_PROJECT_ID')
+        minecraftVersions.add(minecraft_version)
+        client = true
+        server = true
     }
+    def mrOptions = modrinthOptions {
+        accessToken = providers.environmentVariable('MODRINTH_TOKEN')
+        projectId = providers.environmentVariable('MODRINTH_PROJECT_ID')
+        minecraftVersions.add(minecraft_version)
+    }
+
+    ['fabric': 'Fabric', 'neoforge': 'NeoForge'].each { loader, label ->
+        curseforge("curseforge${label}") {
+            from cfOptions
+            file project(":${loader}")
+            modLoaders.add(loader)
+            displayName = "Heavy Inventories ${releaseVersion} (${label})"
+            requires('cloth-config')
+            if (loader == 'fabric') requires('fabric-api')
+        }
+        modrinth("modrinth${label}") {
+            from mrOptions
+            file project(":${loader}")
+            modLoaders.add(loader)
+            version = "${releaseVersion}+${loader}"
+            displayName = "Heavy Inventories ${releaseVersion} (${label})"
+            requires { id = '9s6osm5g' } // Cloth Config; only clients need it on NeoForge.
+            if (loader == 'fabric') requires { id = 'P7dR8mSH' }
+        }
+    }
+
+    github {
+        accessToken = providers.environmentVariable('GITHUB_TOKEN')
+        repository = providers.environmentVariable('GITHUB_REPOSITORY').orElse('iso2t/Heavy-Inventories')
+        commitish = providers.environmentVariable('GITHUB_SHA').orElse('26.1')
+        tagName = "v${releaseVersion}"
+        file project(':fabric')
+        additionalFile project(':neoforge')
+    }
+}
+
+// Every upload waits for tests and both packaged-jar checks, even when called directly.
+tasks.withType(me.modmuss50.mpp.PublishModTask).configureEach {
+    dependsOn ':common:check', ':fabric:build', ':neoforge:build'
 }

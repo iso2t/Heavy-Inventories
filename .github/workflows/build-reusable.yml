@@ -6,9 +6,6 @@ on:
       ref:
         type: string
         default: ''
-      release_tag:
-        type: string
-        default: ''
 
 permissions:
   contents: read
@@ -26,15 +23,6 @@ jobs:
         with:
           persist-credentials: false
           ref: ${{ inputs.ref }}
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
-        with:
-          python-version: '3.13'
-      - name: Test release tooling and validate notes
-        env:
-          RELEASE_TAG: ${{ inputs.release_tag }}
-        run: |
-          python -m unittest discover -s scripts/release/tests -v
-          python scripts/release/release.py validate
       - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
         with:
           distribution: temurin
@@ -45,10 +33,10 @@ jobs:
           cache-read-only: true
       - name: Build, test, and verify packaged resources (Linux)
         if: runner.os == 'Linux'
-        run: bash ./gradlew clean build releaseArtifacts --no-daemon --max-workers=2 --console=plain
+        run: bash ./gradlew clean build --no-daemon --max-workers=2 --console=plain
       - name: Build, test, and verify packaged resources (Windows)
         if: runner.os == 'Windows'
-        run: .\gradlew.bat clean build releaseArtifacts --no-daemon --max-workers=2 --console=plain
+        run: .\gradlew.bat clean build --no-daemon --max-workers=2 --console=plain
       - name: Compile runtime regression harness (Linux)
         if: runner.os == 'Linux'
         run: bash ./gradlew :fabric:lifecycleTestClasses :neoforge:lifecycleTestClasses -I gradle/lifecycle-smoke.gradle --no-daemon --max-workers=2 --console=plain
@@ -78,16 +66,3 @@ jobs:
             !**/*-javadoc.jar
             !**/*-dev.jar
             !**/*-lifecycle-test.jar
-      - name: Package canonical release bundle (Linux)
-        if: runner.os == 'Linux' && inputs.release_tag != ''
-        env:
-          RELEASE_TAG: ${{ inputs.release_tag }}
-        run: python scripts/release/release.py package
-      - name: Upload canonical release bundle
-        if: runner.os == 'Linux' && inputs.release_tag != ''
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: release-bundle
-          path: build/release/bundle/
-          if-no-files-found: error
-          retention-days: 30
