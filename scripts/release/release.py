@@ -10,6 +10,8 @@ import re
 import subprocess
 import sys
 
+TAG_PATTERN = re.compile(r"v[0-9]+(?:\.[0-9]+){2,3}(?:-(?:alpha|beta|rc)\.[1-9][0-9]*)?$")
+
 
 class ReleaseError(Exception):
     """Raised when release validation fails."""
@@ -59,7 +61,7 @@ def resolve_branch_ref(root: Path, branch: str) -> str:
 
 
 def resolve(root: Path, tag: str) -> str:
-    require(tag.startswith("v"), "Release tag must start with v")
+    require(TAG_PATTERN.fullmatch(tag) is not None, "Release tag must match vX.Y.Z[-alpha.N|-beta.N|-rc.N]")
     sha = git("rev-parse", "--verify", f"refs/tags/{tag}^{{commit}}", root=root)
 
     branches = release_branches(root)
