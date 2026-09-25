@@ -1,9 +1,11 @@
 package com.iso2t.heavyinventories.fabric.core;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.resource.v1.DataResourceLoader;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.MinecraftServer;
 import com.iso2t.heavyinventories.server.ServerWeightState;
+import com.iso2t.heavyinventories.server.weight.WeightPackReloadListener;
 import com.iso2t.heavyinventories.ModBase;
 import com.iso2t.heavyinventories.fabric.enchantments.ModEnchantmentEffects;
 import com.iso2t.heavyinventories.fabric.hooks.ModHooks;
@@ -18,7 +20,8 @@ public abstract class HeavyInventoriesFabricBase extends ModBase {
 
     public HeavyInventoriesFabricBase() {
         super();
-        ServerLifecycleEvents.SERVER_STARTING.register(ServerWeightState::start);
+        DataResourceLoader.get().registerReloadListener(WeightPackReloadListener.ID, new WeightPackReloadListener());
+        ServerLifecycleEvents.SERVER_STARTED.register(ServerWeightState::start);
 
         ServerLifecycleEvents.SERVER_STARTED.register(server -> currentServer = server);
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> currentServer = null);

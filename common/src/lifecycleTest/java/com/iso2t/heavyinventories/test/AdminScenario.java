@@ -38,17 +38,18 @@ public final class AdminScenario {
             Files.writeString(file, valid);
             player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.STONE));
             player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.DIRT));
-            require(execute(player, "set weight 4.25") == 1, "Valid set failed");
-            require(state.unitWeight(Identifier.parse("minecraft:stone")) == 4.25f, "Set did not apply");
-            require(state.unitWeight(Identifier.parse("minecraft:dirt")) == 3f, "Set changed wrong item");
-            require(JsonFiles.readObject(file).getAsJsonObject("stone").get("density").getAsInt() == 7, "Set removed unrelated data");
-            long revision = state.revision();
+            state.reload(server);
+            float stone = state.unitWeight(Identifier.parse("minecraft:stone"));
             Files.writeString(file, "{");
-            require(execute(player, "set weight 9") == 0, "Set accepted malformed file");
-            require(execute(player, "reload") == 0, "Reload accepted malformed file");
-            require(Files.readString(file).equals("{") && state.revision() == revision, "Failure changed file/session");
+            require(execute(player, "reload") == 1, "Malformed legacy file still affects gameplay");
+            require(state.unitWeight(Identifier.parse("minecraft:stone")) == stone, "Legacy file changed weight");
+            long revision = state.revision();
+            Files.writeString(config, "{");
+            require(execute(player, "reload") == 0, "Reload accepted malformed configuration");
+            require(state.revision() == revision, "Failed configuration changed session");
+            Files.writeString(config, "{\"startingWeight\":1000,\"walkingMode\":\"at_ninety_percent\"}");
             Files.writeString(file, valid);
-            for (String command : new String[]{"set weight -1", "set weight NaN", "set weight 1e100", "config invalid", "dump ../escape"})
+            for (String command : new String[]{"config invalid", "dump ../escape"})
                 require(execute(player, command) == 0, "Invalid command succeeded: " + command);
             require(state.revision() == revision, "Invalid command changed state");
             require(execute(player, "dump minecraft") == 1, "Export command failed");
@@ -56,14 +57,13 @@ public final class AdminScenario {
             try (var paths = Files.list(directory)) {
                 var added = paths.filter(path -> !oldExports.contains(path)).toList();
                 require(added.size() == 1, "Dump did not create exactly one export");
-                require(JsonFiles.readObject(added.getFirst()).has("stone"), "Export omitted registered items");
+                require(JsonFiles.readObject(added.getFirst()).getAsJsonObject("stone").get("weight").getAsFloat() == stone, "Export differs from active gameplay");
             }
-            require(execute(player, "reload") == 1 && state.unitWeight(Identifier.parse("minecraft:stone")) == 2f, "Reload did not apply reviewed values");
+            require(execute(player, "reload") == 1 && state.unitWeight(Identifier.parse("minecraft:stone")) == stone, "Reload read legacy overrides");
             player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-            require(execute(player, "set weight 9") == 0, "Empty hand accepted");
             server.getPlayerList().deop(profile);
-            require(execute(player, "set weight 9") == 0 && execute(player, "dump minecraft") == 0, "Non-operator could write");
-            HeavyInventories.LOGGER.info("ADMIN TOOLS PASSED: main-hand unit edits, persistence, malformed-file preservation, failed/invalid command results, export-only dumps, reload, permission checks");
+            require(execute(player, "reload") == 0 && execute(player, "dump minecraft") == 0, "Non-operator could write");
+            HeavyInventories.LOGGER.info("ADMIN TOOLS PASSED: ignored legacy files, failed configuration retention, invalid commands, active-table export, reload, permission checks");
         } catch (java.io.IOException e) { throw new RuntimeException(e); }
         finally {
             restore(file, original);

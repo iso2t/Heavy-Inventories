@@ -1,8 +1,10 @@
 package com.iso2t.heavyinventories.server;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.iso2t.heavyinventories.HeavyInventories;
+import com.iso2t.heavyinventories.api.resource.IResourceList;
+import com.iso2t.heavyinventories.api.weight.RecipeWeights;
+import com.iso2t.heavyinventories.server.weight.ResolvedWeights;
+import com.iso2t.heavyinventories.server.weight.WeightPackAccess;
 import com.iso2t.heavyinventories.config.ConfigFileManager;
 import com.iso2t.heavyinventories.config.ServerSettings;
 import com.iso2t.heavyinventories.network.ItemWeightsPayload;
@@ -13,7 +15,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.ItemStack;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +24,7 @@ import java.util.Map;
 public final class ServerWeightState {
     private ServerSettings settings = ServerSettings.DEFAULT;
     private Map<Identifier, Float> weights = Map.of();
-    private Map<Identifier, Float> overrides = Map.of();
+    private Map<Identifier, Float> explicitWeights = Map.of();
     private List<ItemWeightsPayload> packets = List.of();
     private long revision;
 
@@ -31,86 +32,70 @@ public final class ServerWeightState {
         return ((ServerStateAccess) server).heavyinventories$getWeightState();
     }
 
+    /** Called after recipes, tags and the overworld are ready, before players join. */
     public static void start(MinecraftServer server) {
         var state = of(server);
-        try { state.reload(server); }
+        var settings = ServerSettings.DEFAULT;
+        try { settings = readSettings(); }
         catch (IOException | IllegalArgumentException e) {
-            HeavyInventories.LOGGER.error("Invalid Heavy Inventories server files; using defaults for this session", e);
-            state.replace(ServerSettings.DEFAULT, defaults());
+            HeavyInventories.LOGGER.error("Invalid Heavy Inventories settings; using default settings for this session", e);
         }
+        ResolvedWeights resolved;
+        try { resolved = resolveLoaded(server); }
+        catch (IllegalArgumentException | IllegalStateException e) {
+            HeavyInventories.LOGGER.error("Invalid Heavy Inventories weight data; using fallback weights for this session", e);
+            resolved = new ResolvedWeights(defaults(), Map.of());
+        }
+        state.replace(settings, resolved.weights(), resolved.explicitWeights());
+        warnLegacyFiles();
+        HeavyInventories.LOGGER.info("Initialized {} item weights ({} explicit datapack anchors)",
+                state.weights.size(), state.explicitWeights.size());
     }
 
+    /** Rebuild from currently loaded resources; reading edited pack files requires Minecraft's resource reload. */
     public void reload(MinecraftServer server) throws IOException {
-        Path gameDir = Services.PLATFORM.getGameDirectory();
-        // Read and validate everything before changing the active session.
-        var newSettings = ConfigFileManager.readServerConfig(gameDir.resolve("config/heavyinventories-server.json"));
-        var newOverrides = loadOverrides(gameDir.resolve("weights"));
-        var newWeights = defaults();
-        newWeights.putAll(newOverrides);
-        replace(newSettings, newWeights, newOverrides);
-        // Holders observe the revision on their next tick, including players joining after startup.
+        var newSettings = readSettings();
+        var resolved = resolveLoaded(server);
+        // Prepare everything before publishing settings, definitions, packets and revision together.
+        replace(newSettings, resolved.weights(), resolved.explicitWeights());
+    }
+
+    private static ServerSettings readSettings() throws IOException {
+        return ConfigFileManager.readServerConfig(Services.PLATFORM.getGameDirectory().resolve("config/heavyinventories-server.json"));
+    }
+
+    private static ResolvedWeights resolveLoaded(MinecraftServer server) {
+        var data = ((WeightPackAccess) server.getResourceManager()).heavyinventories$getWeightPackData()
+                .orElseThrow(() -> new IllegalStateException("Weight datapack listener did not supply a candidate"));
+        if (server.overworld() == null) throw new IllegalStateException("World must be ready before resolving recipe weights");
+        return ResolvedWeights.resolve(data, IResourceList.snapshot(server.overworld()), BuiltInRegistries.ITEM.keySet());
     }
 
     private static Map<Identifier, Float> defaults() {
         var values = new HashMap<Identifier, Float>();
-        BuiltInRegistries.ITEM.forEach(item -> values.put(BuiltInRegistries.ITEM.getKey(item), 0.1f));
+        BuiltInRegistries.ITEM.forEach(item -> values.put(BuiltInRegistries.ITEM.getKey(item), RecipeWeights.FALLBACK));
         return values;
     }
 
-    public static Map<Identifier, Float> loadWeights(Path directory) throws IOException {
-        var values = defaults();
-        values.putAll(loadOverrides(directory));
-        return values;
-    }
-
-    public static Map<Identifier, Float> loadOverrides(Path directory) throws IOException {
-        var values = defaults();
-        var overrides = new HashMap<Identifier, Float>();
-        var namespaces = new HashMap<String, JsonObject>();
-        for (var id : values.keySet()) {
-            if (!namespaces.containsKey(id.getNamespace())) {
-                var file = directory.resolve(id.getNamespace() + ".json");
-                JsonObject root = com.iso2t.heavyinventories.api.files.WriteFile.readWeights(file);
-                namespaces.put(id.getNamespace(), root);
-            }
-            var root = namespaces.get(id.getNamespace());
-            if (root.has(id.getPath())) {
-                var entry = root.get(id.getPath());
-                if (!entry.isJsonObject()) throw new IllegalArgumentException("Invalid weight entry " + id);
-                var value = entry.getAsJsonObject().get("weight");
-                if (value != null) {
-                    if (!value.isJsonPrimitive() || !value.getAsJsonPrimitive().isNumber())
-                        throw new IllegalArgumentException("Invalid weight value " + id);
-                    overrides.put(id, ServerSettings.validateItemWeight(value.getAsFloat()));
-                }
-            }
+    private static void warnLegacyFiles() {
+        var directory = Services.PLATFORM.getGameDirectory().resolve("weights");
+        if (!Files.isDirectory(directory)) return;
+        try (var files = Files.list(directory)) {
+            long count = files.filter(path -> path.getFileName().toString().endsWith(".json")).count();
+            if (count > 0) HeavyInventories.LOGGER.warn(
+                    "Ignoring {} legacy weight JSON files in {}. Convert entries to data/<namespace>/heavyinventories/weights/<item>.json in a world datapack; original files were preserved.",
+                    count, directory);
+        } catch (IOException e) {
+            HeavyInventories.LOGGER.warn("Could not inspect legacy weight directory {}; it is not used for gameplay", directory, e);
         }
-        return Map.copyOf(overrides);
-    }
-
-    /** Validate the complete candidate before touching disk or the running session. */
-    public void setWeight(Identifier id, float value) throws IOException {
-        ServerSettings.validateItemWeight(value);
-        Path gameDir = Services.PLATFORM.getGameDirectory();
-        var nextSettings = ConfigFileManager.readServerConfig(gameDir.resolve("config/heavyinventories-server.json"));
-        var nextOverrides = new HashMap<>(loadOverrides(gameDir.resolve("weights")));
-        nextOverrides.put(id, value);
-        var nextWeights = defaults();
-        nextWeights.putAll(nextOverrides);
-        Path path = com.iso2t.heavyinventories.api.files.FileValidator.validate(id.getNamespace());
-        var root = com.iso2t.heavyinventories.api.files.WriteFile.readWeights(path);
-        root = com.iso2t.heavyinventories.api.files.WriteFile.withValue(root, id.getPath(),
-                com.iso2t.heavyinventories.api.files.DataType.WEIGHT, value);
-        com.iso2t.heavyinventories.api.files.JsonFiles.writeObject(path, root);
-        replace(nextSettings, nextWeights, Map.copyOf(nextOverrides));
     }
 
     /** Also used by runtime tests to supply deterministic session definitions without changing files. */
     public void replace(ServerSettings settings, Map<Identifier, Float> values) {
-        replace(settings, values, overrides);
+        replace(settings, values, explicitWeights);
     }
 
-    private void replace(ServerSettings settings, Map<Identifier, Float> values, Map<Identifier, Float> overrides) {
+    private void replace(ServerSettings settings, Map<Identifier, Float> values, Map<Identifier, Float> explicitWeights) {
         values.values().forEach(ServerSettings::validateItemWeight);
         var entries = values.entrySet().stream().map(e -> new ItemWeightsPayload.Entry(e.getKey(), e.getValue())).toList();
         int chunks = Math.max(1, (entries.size() + ItemWeightsPayload.CHUNK_SIZE - 1) / ItemWeightsPayload.CHUNK_SIZE);
@@ -120,18 +105,21 @@ public final class ServerWeightState {
             next.add(new ItemWeightsPayload(revision + 1, i, chunks,
                     entries.subList(from, Math.min(from + ItemWeightsPayload.CHUNK_SIZE, entries.size()))));
         }
+        var nextExplicit = Map.copyOf(explicitWeights);
+        var nextWeights = Map.copyOf(values);
+        var nextPackets = List.copyOf(next);
         this.settings = settings;
-        this.overrides = overrides;
-        weights = Map.copyOf(values);
-        packets = List.copyOf(next);
+        this.explicitWeights = nextExplicit;
+        weights = nextWeights;
+        packets = nextPackets;
         revision++;
     }
 
     public float weight(ItemStack stack) {
         return com.iso2t.heavyinventories.api.weight.StackWeight.of(stack, this::unitWeight).weight();
     }
-    public float unitWeight(Identifier item) { return weights.getOrDefault(item, 0.1f); }
-    public Map<Identifier, Float> overrides() { return overrides; }
+    public float unitWeight(Identifier item) { return weights.getOrDefault(item, RecipeWeights.FALLBACK); }
+    public Map<Identifier, Float> explicitWeights() { return explicitWeights; }
     public ServerSettings settings() { return settings; }
     public long revision() { return revision; }
     public List<ItemWeightsPayload> packets() { return packets; }

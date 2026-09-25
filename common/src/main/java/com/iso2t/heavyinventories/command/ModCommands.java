@@ -2,7 +2,6 @@ package com.iso2t.heavyinventories.command;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -14,10 +13,8 @@ import net.minecraft.commands.Commands;
 import net.minecraft.server.permissions.PermissionCheck;
 import net.minecraft.server.permissions.Permissions;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
 import com.iso2t.heavyinventories.HeavyInventories;
 import com.iso2t.heavyinventories.server.ServerWeightState;
-import com.iso2t.heavyinventories.config.ServerSettings;
 import com.iso2t.heavyinventories.api.player.PlayerWeightCache;
 import com.iso2t.heavyinventories.api.weight.WeightCache;
 import com.iso2t.heavyinventories.api.weight.WeightOverride;
@@ -31,13 +28,6 @@ public class ModCommands {
     public static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
                 Commands.literal("heavyinventories")
-                        .then(Commands.literal("set").requires(Commands.hasPermission(new PermissionCheck.Require(Permissions.COMMANDS_GAMEMASTER)))
-                                .then(Commands.literal("weight")
-                                        .then(RequiredArgumentBuilder.<CommandSourceStack, Float>argument("weight_argument", FloatArgumentType.floatArg(0, ServerSettings.MAX_VALUE))
-                                                .executes(ModCommands::executeSetWeightCommand)
-                                        )
-                                )
-                        )
                         .then(Commands.literal("reload").requires(Commands.hasPermission(new PermissionCheck.Require(Permissions.COMMANDS_GAMEMASTER)))
                                 .executes(ModCommands::executeReloadCommand)
                                 .then(Commands.literal("weight")
@@ -82,40 +72,13 @@ public class ModCommands {
         return Command.SINGLE_SUCCESS;
     }
 
-    protected static int executeSetWeightCommand(CommandContext<CommandSourceStack> context) {
-        float number = FloatArgumentType.getFloat(context, "weight_argument");
-
-        if (context.getSource().getPlayer() == null) {
-            context.getSource().sendFailure(Component.translatable("command.heavyinventories.command_set.failure", number));
-            return 0;
-        }
-        ItemStack stack = context.getSource().getPlayer().getMainHandItem();
-        try { ServerSettings.validateItemWeight(number); }
-        catch (IllegalArgumentException e) {
-            context.getSource().sendFailure(Component.literal(e.getMessage()));
-            return 0;
-        }
-        if (stack.isEmpty()) {
-            context.getSource().sendFailure(Component.literal("Hold an item to set its weight."));
-            return 0;
-        }
-        try {
-            ServerWeightState.of(context.getSource().getServer()).setWeight(net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem()), number);
-        } catch (java.io.IOException | IllegalArgumentException e) {
-            context.getSource().sendFailure(Component.translatable("command.heavyinventories.write_failed", e.getMessage()));
-            return 0;
-        }
-        context.getSource().sendSuccess(() -> Component.translatable("command.heavyinventories.command_set.success", number), true);
-        return Command.SINGLE_SUCCESS;
-    }
-
     protected static int executeReloadCommand(CommandContext<CommandSourceStack> context) {
         try {
             ServerWeightState.of(context.getSource().getServer()).reload(context.getSource().getServer());
             WeightCache.clearAll();
             context.getSource().sendSuccess(() -> Component.translatable("config.heavyinventories.reloaded"), true);
             return Command.SINGLE_SUCCESS;
-        } catch (java.io.IOException | IllegalArgumentException e) {
+        } catch (java.io.IOException | IllegalArgumentException | IllegalStateException e) {
             context.getSource().sendFailure(Component.translatable("config.heavyinventories.failed", e.getMessage()));
             return 0;
         }

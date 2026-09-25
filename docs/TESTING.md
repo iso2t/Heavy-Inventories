@@ -102,10 +102,49 @@ The workflow YAML was parsed locally; triggers, Windows/Linux matrix, and commit
 
 Remaining non-fatal warnings include missing Javadoc/deprecated APIs, Gradle features slated for removal in Gradle 10, Fabric development/mixin compatibility notices, and offline profile/Realms authentication warnings. Runtime assertions produced no Heavy Inventories injection or classloading failure. The temporary mounted-entity scenario can emit an unknown-passenger warning because the test boat is created and discarded within one server tick.
 
+## Datapack loading stage
+
+Step 2 introduced the datapack loader on both loaders. Step 3 now supplies gameplay weights as described below. It reads one winning resource per item from `data/<item_namespace>/heavyinventories/weights/<item_path>.json`. The supported forms are `{"weight": 0.053125}` and `{"infer": true}`. Pack priority replaces a whole resource; an inference marker can replace a lower pack's fixed value, and zero is an explicit weight.
+
+Parsing rejects unknown/duplicate fields, malformed JSON, invalid numeric types/ranges, and positive values that would become zero in float storage. Definitions are limited to 4096 characters each and 100,000 winning resources per load. Errors include the resource and pack; valid resources for unregistered items are skipped with warnings. An invalid candidate exposes no partial definitions. Each resource-manager generation owns its immutable candidate, keeping separate reloads/worlds isolated.
+
+The loader registers with Fabric's `DataResourceLoader` and NeoForge's `AddServerReloadListenersEvent`. Startup and actual server resource reloads were verified locally on both packaged loaders. Step 3 adds startup/explicit-rebuild gameplay adoption, invalid-candidate retention, and synchronization through the existing definition packets. Automatic adoption after vanilla reload remains Step 4.
+
+Run the dedicated datapack scenario against the already prepared disposable test servers:
+
+```powershell
+.\gradlew.bat :fabric:runServer -I gradle/lifecycle-smoke.gradle -PpackagedSmoke -PdatapackSmoke --console=plain *> build/fabric-datapacks.log
+.\scripts\assert-runtime.ps1 -Log build/fabric-datapacks.log -Mode Datapack
+```
+
+Repeat with `neoforge`. The scenario creates unique fixture packs, reloads them with ordered overrides, deliberately supplies a malformed winning definition, repairs/removes overrides, restores the original pack selection, and deletes its fixture directories. It checks that resource loading alone stages the candidate, then explicitly rebuilds gameplay weights and checks propagation and failure retention. A failed or forcibly interrupted test may leave its named fixture packs behind; use disposable worlds and inspect them before reuse.
+
+The expected invalid-input phase logs a weight error with the arrow resource and fixture pack name; that diagnostic alone is not a crash. Require both `DATAPACK LOADING PASSED` and `DATAPACK GAMEPLAY PASSED` and a successful build using the assertion script. Local evidence: `build/datapack-step2-servers.log` (both loaders), `datapack-step2-tests.log`, `datapack-step2-harness.log`, and `datapack-step2-build.log`. The Step 2 common suite contained **56 tests**, including nine new parser/resource-manager tests and the two display-precision tests added after Step 8.
+
+## Datapack gameplay resolution
+
+Step 3 resolves a complete table for registered items from winning fixed definitions, supported recipes, and fallback. Inference markers contribute no fixed anchor. Startup runs after the world, recipes, and tags exist. Legacy namespace JSON files no longer affect gameplay. Dumps use the active gameplay table.
+
+The dedicated scenario checks fresh-start arrow inference, zero, fixed/infer precedence, ingredient propagation after explicit rebuild, invalid-candidate retention, override removal, and complete restoration after disabling fixture packs. It uses existing disposable local servers and restores their pack selections.
+
+The integrated client scenario additionally checks the startup arrow definition on both sides, single/64-arrow tooltip formatting, and a 3.4-pound server inventory total. It reruns inventory/container, lifecycle, movement, config, admin, HUD, and Cloth checks. Admin coverage confirms malformed legacy files are ignored, failed configuration reloads preserve state, exports match gameplay.
+
+```powershell
+.\gradlew.bat :fabric:runServer :neoforge:runServer -I gradle/lifecycle-smoke.gradle -PpackagedSmoke -PdatapackSmoke --offline --console=plain *> build/datapack-step3-servers.log
+.\scripts\assert-runtime.ps1 -Log build/datapack-step3-servers.log -Mode Datapack
+.\gradlew.bat :fabric:runClient :neoforge:runClient -I gradle/lifecycle-smoke.gradle -PpackagedSmoke '-PlifecycleClientWorld=New World' --offline --console=plain *> build/datapack-step3-clients.log
+.\scripts\assert-runtime.ps1 -Log build/datapack-step3-clients.log -Mode Client
+.\gradlew.bat build --offline --console=plain *> build/datapack-step3-build.log
+```
+
+Both packaged dedicated servers and integrated clients passed locally on 2026-09-24, including two occurrences each of the new datapack/server and client completion markers. The common suite contains **62 passing tests**, including six new resolution tests. The full build and both production-jar verification tasks passed. Logs above are local ignored evidence; no release was published.
+
+Current boundary: Minecraft resource reload stages definitions; restart or explicitly rebuild with `/heavyinventories reload` after `/reload` finishes to adopt edited pack data. Automatic vanilla-reload adoption is Step 4. Legacy conversion and export provenance are Step 5; curated material defaults are Step 6. Separate multiplayer reconnect checks were not repeated for Step 3; the earlier Step 8 record remains historical evidence. Startup with invalid datapack data has a fallback-only recovery branch, but that startup failure path was not separately exercised in these runtime runs.
+
 ## Compatibility boundaries
 
 - Tests use vanilla assets plus loader/Cloth resources. Custom resource packs, HUD replacements, shader/rendering mods, third-party movement changes, and unusual GUI/font combinations are not covered.
 - Vanilla containers and standard item-content components are covered. Custom backpack APIs, external inventories, and Ender storage are outside the implemented scope.
 - Shared physics affects client movement using server-derived state. This is not an anti-cheat guarantee against modified clients.
-- Datapack weight defaults/overrides, conditional custom enchantment effects, density, and stamina are not implemented features of this release.
+- Datapack gameplay resolution is active at startup/explicit rebuild; automatic vanilla-reload adoption and bundled material defaults remain pending. Conditional custom enchantment effects, density, and stamina also remain unimplemented.
 - Matching client/server Heavy Inventories builds are required. Broader Minecraft/loader version ranges in metadata do not imply that all versions in those ranges were tested.

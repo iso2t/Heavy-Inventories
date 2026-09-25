@@ -27,8 +27,6 @@
   "chat.heavyinventories.no_jump": "You cannot jump while %s!",
   "chat.heavyinventories.encumbered": "Encumbered",
   "chat.heavyinventories.over_encumbered": "Over Encumbered",
-  "command.heavyinventories.command_set.failure": "Failed to set weight to %s!",
-  "command.heavyinventories.command_set.success": "Saved and applied unit weight: %s lbs.",
   "command.heavyinventories.failure": "Failed to execute command!",
   "enchantment.heavyinventories.bracing": "Bracing",
   "enchantment.heavyinventories.reinforced": "Reinforced",
@@ -37,7 +35,7 @@
   "config.heavyinventories.stale": "Server settings changed while this screen was open. Reopen it and try again.",
   "config.heavyinventories.saved": "Server settings saved. The change applies to all players.",
   "config.heavyinventories.failed": "Server settings were not applied: %s",
-  "config.heavyinventories.reloaded": "Server settings and item weights reloaded.",
+  "config.heavyinventories.reloaded": "Server settings reloaded; item weights rebuilt from currently loaded datapacks and recipes. For edited pack files, run /reload first, then this command.",
   "config.heavyinventories.unavailable": "Join a Heavy Inventories server to view its settings.",
   "config.heavyinventories.edit_help": "Saving sends your changes to the server. Operator permission is checked there; accepted changes apply to all players.",
   "config.heavyinventories.read_only": "These are the server's settings. Only server operators can change them.",
@@ -49,5 +47,5 @@
   "command.heavyinventories.config.no_player": "Open a config screen from a player.",
   "command.heavyinventories.config.success": "Requested the %s config screen.",
   "command.heavyinventories.write_failed": "Weight was not changed: %s",
-  "command.heavyinventories.exported": "Exported weights to %s. Gameplay is unchanged. Review the file, merge it into weights/<namespace>.json, then run /heavyinventories reload."
+  "command.heavyinventories.exported": "Exported active weights to %s. Gameplay is unchanged. This is a review export, not an installable datapack."
 }

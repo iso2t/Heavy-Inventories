@@ -1,47 +1,40 @@
 package com.iso2t.heavyinventories.server;
 
-import net.minecraft.SharedConstants;
+import com.iso2t.heavyinventories.config.ServerSettings;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.Bootstrap;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Locale;
+import java.util.HashMap;
+import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ServerWeightStateTest {
-    @TempDir Path directory;
     private static final Identifier STONE = Identifier.parse("minecraft:stone");
 
-    @BeforeAll static void bootstrap() {
-        SharedConstants.tryDetectVersion();
-        Bootstrap.bootStrap();
+    @Test void publishedWeightsAndPacketsAreImmutableSnapshots() {
+        var state = new ServerWeightState();
+        var input = new HashMap<>(Map.of(STONE, 2.375f));
+        state.replace(new ServerSettings(1000), input);
+        var firstPackets = state.packets();
+        input.put(STONE, 9f);
+        assertEquals(2.375f, state.unitWeight(STONE));
+        assertEquals(2.375f, firstPackets.getFirst().entries().getFirst().weight());
+        assertThrows(UnsupportedOperationException.class, () -> state.weights().clear());
+        state.replace(new ServerSettings(2000), input);
+        assertEquals(9f, state.unitWeight(STONE));
+        assertEquals(2.375f, firstPackets.getFirst().entries().getFirst().weight());
+        assertEquals(2, state.revision());
     }
 
-    @Test void legacyOverridesPreserveDecimalsIndependentOfLocale() throws Exception {
-        Files.writeString(directory.resolve("minecraft.json"), "{\"stone\":{\"weight\":2.375}}");
-        var original = Locale.getDefault();
-        try {
-            Locale.setDefault(Locale.GERMANY);
-            var weights = ServerWeightState.loadWeights(directory);
-            assertEquals(2.375f, weights.get(STONE));
-            assertEquals(0.1f, weights.get(Identifier.parse("minecraft:dirt")));
-            var overrides = ServerWeightState.loadOverrides(directory);
-            assertEquals(2.375f, overrides.get(STONE));
-            assertFalse(overrides.containsKey(Identifier.parse("minecraft:dirt")),
-                    "Fallback values must not become explicit recipe anchors");
-        } finally { Locale.setDefault(original); }
-    }
-
-    @Test void malformedOverridesAreRejectedWithoutReplacingFiles() throws Exception {
-        var file = directory.resolve("minecraft.json");
-        for (String data : new String[]{"[1]", "{", "{\"stone\":3}", "{\"stone\":{\"weight\":-1}}",
-                "{\"stone\":{\"weight\":1e100}}", "{\"stone\":{\"weight\":\"2\"}}"}) {
-            Files.writeString(file, data);
-            assertThrows(IllegalArgumentException.class, () -> ServerWeightState.loadWeights(directory));
-            assertEquals(data, Files.readString(file));
+    @Test void invalidCandidateCannotPartiallyReplaceState() {
+        var state = new ServerWeightState();
+        state.replace(new ServerSettings(1000), Map.of(STONE, 2f));
+        var packets = state.packets();
+        for (float invalid : new float[]{-1, Float.NaN, Float.POSITIVE_INFINITY}) {
+            assertThrows(IllegalArgumentException.class, () -> state.replace(new ServerSettings(2000), Map.of(STONE, invalid)));
+            assertEquals(1000, state.settings().startingWeight());
+            assertEquals(2f, state.unitWeight(STONE));
+            assertEquals(1, state.revision());
+            assertSame(packets, state.packets());
         }
     }
 }

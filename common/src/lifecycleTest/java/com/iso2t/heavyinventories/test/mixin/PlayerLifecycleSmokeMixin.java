@@ -36,6 +36,10 @@ public abstract class PlayerLifecycleSmokeMixin {
 
     @Inject(method = "tickServer", at = @At("TAIL"))
     private void heavyinventories$testLifecycle(BooleanSupplier haveTime, CallbackInfo ci) {
+        if (Boolean.getBoolean("heavyinventories.test.datapacks")) {
+            com.iso2t.heavyinventories.test.DatapackLoadingScenario.tick((MinecraftServer) (Object) this);
+            return;
+        }
         if (Boolean.getBoolean("heavyinventories.test.multiplayer")) {
             com.iso2t.heavyinventories.test.NetworkAuthorityScenario.serverTick((MinecraftServer) (Object) this);
             return;

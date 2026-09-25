@@ -8,6 +8,7 @@
 // Separate-process authority tests: add -PauthorityMultiplayer to both launches,
 // add -PpackagedSmoke to both and -PsmokeMultiplayer to the client.
 // These tests replace the test player's inventory and temporarily edit/restore server config and op status.
+// Dedicated datapack-only checks: use -PdatapackSmoke -PpackagedSmoke (creates/restores fixture packs).
 gradle.projectsEvaluated {
     if (gradle.rootProject.findProject(':fabric') == null) return
     [gradle.rootProject.project(':fabric'), gradle.rootProject.project(':neoforge')].each { modProject ->
@@ -22,6 +23,9 @@ gradle.projectsEvaluated {
         }
         ['runServer', 'runClient'].each { runName ->
             modProject.tasks.named(runName) {
+                if (runName == 'runServer' && modProject.hasProperty('datapackSmoke')) {
+                    systemProperty 'heavyinventories.test.datapacks', 'true'
+                }
                 if (modProject.hasProperty('authorityMultiplayer')) {
                     systemProperty 'heavyinventories.test.multiplayer', 'true'
                 }

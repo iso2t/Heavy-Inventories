@@ -19,6 +19,7 @@ public abstract class HeavyInventoriesNeoForgeBase extends ModBase {
 
     public HeavyInventoriesNeoForgeBase(ModContainer modContainer, IEventBus modEventBus) {
         super();
+        NeoForge.EVENT_BUS.addListener(ModHooks::hookReloadListeners);
         NeoForge.EVENT_BUS.addListener(ModHooks::hookServerStart);
 
         NeoForge.EVENT_BUS.addListener(ModHooks::hookServerTick);

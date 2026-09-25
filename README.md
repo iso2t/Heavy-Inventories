@@ -21,7 +21,7 @@ Fabric requires Fabric API and Cloth Config. NeoForge requires Cloth Config on c
 
 ## Weight and capacity
 
-Gameplay currently uses explicit server JSON overrides and a **0.1-pound fallback per item**. Recipes are used only for the export command. The defaults are a temporary balance baseline, not a complete realistic material-weight model.
+Gameplay resolves **datapack weights → supported recipes → a 0.1-pound fallback** on server startup. Fixed datapack values are anchors: ingredient changes propagate through recipe chains, while explicit output weights stay fixed. Recipes account for output counts and use the lowest valid alternative, with bounded cycle handling. Curated material defaults are still planned; these estimates are not yet a realistic material-weight model.
 
 Carried weight includes:
 
@@ -42,6 +42,8 @@ Default base capacity is **1000 pounds**. Bonuses add percentages of that base:
 For example, base 1000 + Bracing X + Reinforced V + Strength II gives capacity **2450**. Effects and equipment are read again each server tick; removed equipment/effects leave no stored bonus.
 
 Pounds are the stored unit. The local display preference can convert numbers to kilograms (`pounds × 0.45359237`) or show raw values without a suffix. This never changes gameplay, command inputs, or percentages.
+
+Displays use up to two decimal places, without trailing zeros. Values below 0.01 use one meaningful digit: `0.053125` displays as `0.05`, while `0.0053125` displays as `0.005`. Positive values below 0.000001 display as `<0.000001`. Formatting happens after unit conversion; stack totals use the underlying weights before rounding.
 
 ## Encumbrance
 
@@ -92,39 +94,48 @@ Operators can also open `/heavyinventories config server` and edit both values. 
 
 Client display preferences and colors are available through `/heavyinventories config client` and stored in `config/heavyinventories-client.json`.
 
-### Item overrides
+### Item weights in datapacks
 
-For example, `weights/minecraft.json`:
+Item weights are world-scoped server data; clients receive the resolved table. In an enabled datapack with valid `pack.mcmeta` metadata for your Minecraft version, add:
 
-```json
-{
-  "cobblestone": { "weight": 10.0 },
-  "feather": { "weight": 0.02 }
-}
+```text
+data/minecraft/heavyinventories/weights/feather.json
 ```
 
-Each key is the item path within that file's registry namespace. Weights describe one empty item in stored pounds; stack counts and container contents are added separately. Explicit zero is allowed. Invalid, negative, non-finite, or greater-than-1,000,000,000 values are rejected.
+```json
+{ "weight": 0.02 }
+```
 
-Run `/heavyinventories reload` to apply edited files. The whole active candidate is validated first. Failed reloads retain the current server snapshot, and malformed files are preserved for manual repair. If startup files are invalid, the server logs the failure and uses session defaults.
+This is an example override, not a bundled balance value. The resource namespace and path identify the item. A block uses its inventory item's ID. Each weight describes one empty item in pounds; counts and container contents are added separately.
+
+The highest-priority pack replaces the whole resource. Use `{"infer": true}` to remove a lower pack's fixed value and allow recipe inference, then fallback. Deleting an override reveals the lower-priority resource again. Explicit zero remains fixed.
+
+Definitions must contain exactly one supported field. Duplicate/unknown fields, malformed JSON, numeric strings, negative/non-finite values, values above 1,000,000,000, and positive values too small for float storage are rejected. Valid definitions for unregistered items are ignored with a warning.
+
+**Current development-stage reload behavior:** restart the world/server to apply pack edits, or run Minecraft's `/reload`, wait for completion, then run `/heavyinventories reload` to rebuild gameplay weights from the newly loaded resources. Automatic adoption after vanilla reload is the next implementation step. The mod command alone reloads server settings and rebuilds from already loaded datapacks/recipes; it does not reread edited pack files.
+
+Invalid weight candidates retain the active table during explicit rebuilds. Invalid weight data at first startup produces a complete fallback-only table and an error log. Invalid server settings at startup use default settings independently.
+
+Legacy `weights/*.json` files are preserved but **no longer read for gameplay**. Their presence produces a migration warning. A one-time conversion tool is planned; for now, move selected entries into ordinary per-item datapack resources.
 
 ### Commands
 
 | Command | Behavior |
 | --- | --- |
-| `/heavyinventories set weight <number>` | Operator: save and apply the main-hand item's unit weight in pounds |
-| `/heavyinventories reload` | Operator: reload server settings and item overrides |
+| `/heavyinventories reload` | Operator: reload settings and rebuild weights from currently loaded datapacks/recipes |
 | `/heavyinventories reload weight` | Alias for the full reload |
 | `/heavyinventories reload players` | Operator: refresh player totals on the next tick |
-| `/heavyinventories dump <namespace>` | Operator: export recipe-inferred weights to a unique file in `weight-exports/` |
+| `/heavyinventories dump <namespace>` | Operator: export active gameplay weights to a unique file in `weight-exports/` |
 | `/heavyinventories config client` | Open local display preferences |
 | `/heavyinventories config server` | View server settings; editing requires permission |
 | `/heavyinventories config common` | Reserved screen; there are currently no common settings |
 
-**Dump does not change gameplay.** Review the export, merge selected entries into `weights/<namespace>.json`, then reload. Recipe inference uses explicit overrides as anchors and accounts for output batches, alternatives, and cycles; it cannot infer realistic material differences on its own.
+**Dump does not change gameplay.** It is a review file, not an installable datapack. Copy only deliberate fixed values into per-item resources: making every inferred result explicit would prevent ingredient changes from propagating. Export provenance and legacy conversion are planned in the command/migration step.
 
 ## Limits and planned work
 
-- Bundled datapack defaults and player/modpack overrides are planned, **not implemented**.
+- Datapack gameplay resolution is active at startup and explicit rebuilds on both loaders. Automatic vanilla-reload adoption, legacy conversion, export provenance, and bundled material defaults remain planned. See [the datapack checks](docs/TESTING.md#datapack-gameplay-resolution).
+- Recipe inference supports vanilla shaped/shapeless crafting, smelting, blasting, smoking, campfire cooking, and stonecutting with static outputs. Custom/dynamic recipes, component-dependent results, and crafting remainders are excluded; explicit datapack values cover exceptions.
 - This version does not implement a stamina system, carrying-capacity training, or a supported dropped-item density mechanic.
 - Custom backpack/Ender storage, third-party movement mods, and resource-pack compatibility have not been verified.
 - Nested-content work is bounded to depth 16 and 4096 visited entries. Exceeding a limit marks the load over capacity and displays a calculation-limit message.

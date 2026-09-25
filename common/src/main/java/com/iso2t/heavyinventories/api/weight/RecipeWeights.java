@@ -4,7 +4,7 @@ import com.iso2t.heavyinventories.config.ServerSettings;
 import net.minecraft.resources.Identifier;
 import java.util.*;
 
-/** One immutable inference run for a dump. No process-wide cache or file access during calculation. */
+/** One immutable inference run. No process-wide cache or file access during calculation. */
 public final class RecipeWeights {
     public static final float FALLBACK = 0.1f;
     public static final int MAX_RECIPES = 100_000;
