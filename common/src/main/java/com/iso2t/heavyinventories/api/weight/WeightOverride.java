@@ -1,6 +1,8 @@
 package com.iso2t.heavyinventories.api.weight;
 
 import com.iso2t.heavyinventories.command.ModCommands;
+import com.iso2t.heavyinventories.api.resource.IResourceList;
+import com.iso2t.heavyinventories.server.ServerWeightState;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
@@ -40,13 +42,13 @@ public final class WeightOverride {
      * @see ModCommands
      */
     public static void putDumpFile(List<Item> items, List<Block> blocks, Level level) {
-        for (Item item : items) {
-            put(item, CalculateWeight.from(item, level));
-        }
-
-        for (Block block : blocks) {
-            put(block, CalculateWeight.from(block, level));
-        }
+        var inferred = RecipeWeights.resolve(IResourceList.snapshot(level), ServerWeightState.of(level.getServer()).overrides());
+        var targets = new java.util.TreeMap<Identifier, Item>(java.util.Comparator.comparing(Identifier::toString));
+        items.forEach(item -> targets.put(BuiltInRegistries.ITEM.getKey(item), item));
+        blocks.stream().map(Block::asItem).filter(item -> item != net.minecraft.world.item.Items.AIR)
+                .forEach(item -> targets.put(BuiltInRegistries.ITEM.getKey(item), item));
+        // Finish inference against the original snapshot before writing any generated values.
+        targets.forEach((id, item) -> put(item, inferred.getOrDefault(id, RecipeWeights.FALLBACK)));
     }
 
 }

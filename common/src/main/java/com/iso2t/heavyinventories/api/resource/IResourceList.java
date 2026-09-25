@@ -1,92 +1,60 @@
 package com.iso2t.heavyinventories.api.resource;
 
-import net.minecraft.world.item.crafting.RecipeType;
+import com.iso2t.heavyinventories.api.weight.RecipeWeights;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.item.crafting.display.SlotDisplayContext;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
-
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.List;
 
-/**
- * Extracts ingredients and static outputs from server recipes for weight inference.
- * Brewing, stonecutting, campfire cooking, and dynamic recipe outputs are not inferred.
- * Ingredient alternatives retain the existing first-matching-item policy.
- */
-public interface IResourceList {
+/** Snapshot only recipes with static outputs and no crafting remainders; custom/dynamic recipes are excluded. */
+public final class IResourceList {
+    private IResourceList() {}
 
-    /**
-     * @param ingredients ingredient items and their required counts
-     * @param outputCount number of items produced by the recipe
-     */
-    record RecipeData(HashMap<ItemLike, Integer> ingredients, int outputCount) {}
-
-    Collection<RecipeData> getResources();
-
-    static IResourceList getResourceList(ItemLike itemLike, Level level) {
-        Collection<RecipeData> resources = new ArrayList<>();
-        resources.addAll(getCraftingTableList(itemLike, level).getResources());
-        resources.addAll(getSmeltingList(itemLike, level).getResources());
-        resources.addAll(getBlastingList(itemLike, level).getResources());
-        resources.addAll(getSmokingList(itemLike, level).getResources());
-        resources.addAll(getSmithingList(itemLike, level).getResources());
-        return () -> resources;
-    }
-
-    static IResourceList getCraftingTableList(ItemLike itemLike, Level level) {
-        return getRecipesFor(itemLike, level, RecipeType.CRAFTING);
-    }
-
-    static IResourceList getSmeltingList(ItemLike itemLike, Level level) {
-        return getRecipesFor(itemLike, level, RecipeType.SMELTING);
-    }
-
-    static IResourceList getBlastingList(ItemLike itemLike, Level level) {
-        return getRecipesFor(itemLike, level, RecipeType.BLASTING);
-    }
-
-    static IResourceList getSmokingList(ItemLike itemLike, Level level) {
-        return getRecipesFor(itemLike, level, RecipeType.SMOKING);
-    }
-
-    static IResourceList getSmithingList(ItemLike itemLike, Level level) {
-        return getRecipesFor(itemLike, level, RecipeType.SMITHING);
-    }
-
-    private static IResourceList getRecipesFor(ItemLike itemLike, Level level, RecipeType<?> type) {
-        Collection<RecipeData> resources = new ArrayList<>();
+    public static List<RecipeWeights.Recipe> snapshot(Level level) {
         var server = level.getServer();
-        if (server == null) {
-            return () -> resources;
-        }
-
+        if (server == null) throw new IllegalArgumentException("Recipe inference requires a server");
+        var result = new ArrayList<RecipeWeights.Recipe>();
         var context = SlotDisplayContext.fromLevel(level);
+        int alternatives = 0;
         for (var holder : server.getRecipeManager().getRecipes()) {
             var recipe = holder.value();
-            if (recipe.getType() != type) continue;
-
+            // Exact vanilla classes: subclasses may introduce custom ingredients, outputs, or remainders.
+            var type = recipe.getClass();
+            if (type != ShapedRecipe.class && type != ShapelessRecipe.class
+                    && type != SmeltingRecipe.class && type != BlastingRecipe.class
+                    && type != SmokingRecipe.class && type != CampfireCookingRecipe.class
+                    && type != StonecutterRecipe.class) continue;
             var placement = recipe.placementInfo();
             if (placement.isImpossibleToPlace()) continue;
-
+            var slots = new ArrayList<List<Identifier>>();
+            boolean supported = true;
+            for (int index : placement.slotsToIngredientIndex()) {
+                if (index < 0) continue;
+                var choices = placement.ingredients().get(index).items().toList();
+                alternatives += choices.size();
+                if (alternatives > RecipeWeights.MAX_ALTERNATIVES) throw new IllegalArgumentException("Recipe snapshot exceeds ingredient limit");
+                if (choices.isEmpty() || choices.stream().anyMatch(item -> item.value().getCraftingRemainder() != null)) {
+                    supported = false;
+                    break;
+                }
+                slots.add(choices.stream().map(item -> BuiltInRegistries.ITEM.getKey(item.value())).toList());
+            }
+            if (!supported || slots.isEmpty()) continue;
             for (var display : recipe.display()) {
-                // Demo results (for example armor trims) are not fixed recipe outputs.
                 if (!(display.result() instanceof SlotDisplay.ItemStackSlotDisplay)
                         && !(display.result() instanceof SlotDisplay.ItemSlotDisplay)) continue;
                 var output = display.result().resolveForFirstStack(context);
-                if (output.isEmpty() || !output.is(itemLike.asItem())) continue;
-
-                HashMap<ItemLike, Integer> ingredients = new HashMap<>();
-                for (int index : placement.slotsToIngredientIndex()) {
-                    if (index < 0) continue;
-                    placement.ingredients().get(index).items().findFirst()
-                            .ifPresent(item -> ingredients.merge(item.value(), 1, Integer::sum));
-                }
-                resources.add(new RecipeData(ingredients, output.getCount()));
+                // A per-item definition cannot represent component-dependent results.
+                if (output.isEmpty() || !output.getComponentsPatch().isEmpty()) continue;
+                result.add(new RecipeWeights.Recipe(BuiltInRegistries.ITEM.getKey(output.getItem()), output.getCount(), slots));
+                if (result.size() > RecipeWeights.MAX_RECIPES) throw new IllegalArgumentException("Recipe snapshot exceeds recipe limit");
                 break;
             }
         }
-        return () -> resources;
+        return List.copyOf(result);
     }
 }

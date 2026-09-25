@@ -46,7 +46,7 @@ public final class ClientLifecycleScenario {
             return;
         }
         var server = client.getSingleplayerServer();
-        if (server == null || client.player == null || stage == 10) return;
+        if (server == null || client.player == null || stage == 11) return;
         require(++ticks < 1200, "Timed out at client lifecycle stage " + stage);
         switch (stage) {
             case 0 -> {
@@ -197,7 +197,24 @@ public final class ClientLifecycleScenario {
             case 9 -> {
                 if (!operation.isDone()) return;
                 operation.join();
+                operation = server.submit(() -> {
+                    WeightCalculationScenario.run(serverPlayer);
+                    return serverPlayer;
+                });
+                stage++;
+            }
+            case 10 -> {
+                if (!operation.isDone()) return;
+                operation.join();
+                if (!weightsMatch(client, 44f)) return;
+                var box = client.player.getInventory().getItem(0);
+                if (!box.is(Items.SHULKER_BOX)) return;
+                var tooltipWeight = com.iso2t.heavyinventories.api.weight.StackWeight.of(box, ClientWeightData::unitWeight);
+                require(tooltipWeight.complete() && tooltipWeight.weight() == 32f, "Client container contents disagree with server");
+                var tooltip = com.iso2t.heavyinventories.tooltips.Tooltip.addTooltips(new java.util.ArrayList<>(), box);
+                require(tooltip.stream().anyMatch(line -> line.getString().contains("32.0")), "Tooltip omits nested stack weight");
                 HeavyInventories.LOGGER.info("CLIENT LIFECYCLE SMOKE PASSED: server authority, inventory sync, respawn, dimension travel, operator network edit, permission/invalid/stale rejection, persistence, transactional reload, live bonus rebase");
+                HeavyInventories.LOGGER.info("CLIENT WEIGHT CALCULATION PASSED: equipment, cursor/crafting transfers, nested contents, component/definition updates, synchronized container tooltip, recipe output counts");
                 client.options.pauseOnLostFocus = pauseOnLostFocus;
                 stage++;
                 client.stop();

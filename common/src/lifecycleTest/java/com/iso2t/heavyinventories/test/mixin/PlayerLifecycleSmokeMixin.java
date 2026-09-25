@@ -97,7 +97,8 @@ public abstract class PlayerLifecycleSmokeMixin {
         require(replacementHolder.getWeight() == 0f, "Invalidation must not affect another entity");
 
 
-        HeavyInventories.LOGGER.info("LIFECYCLE SMOKE PASSED: entity ownership, same-UUID replacement, inventory mutation, copied inventory, level change, deferred invalidation");
+        com.iso2t.heavyinventories.test.WeightCalculationScenario.run(original);
+        HeavyInventories.LOGGER.info("LIFECYCLE SMOKE PASSED: entity ownership, same-UUID replacement, inventory mutation, copied inventory, level change, deferred invalidation, equipment/cursor/crafting accounting, nested contents, loaded recipe inference");
         server.halt(false);
     }
 

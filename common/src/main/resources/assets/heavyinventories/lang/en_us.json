@@ -15,6 +15,7 @@
   "option.heavyinventories.encumbered_text_color.tooltip": "The text color for encumbered GUI.",
   "option.heavyinventories.over_encumbered_text_color": "Over Encumbered Text Color",
   "option.heavyinventories.over_encumbered_text_color.tooltip": "The text color for over encumbered GUI.",
+  "tooltip.heavyinventories.calculation_limit": "Contents exceed the weight calculation limit; treated as over capacity.",
   "tooltip.heavyinventories.item_weight": "Weight: %s %s",
   "tooltip.heavyinventories.item_stack_weight": "§8Stack Weight: %s %s",
   "tooltip.heavyinventories.item_max_stack_weight": "§8Max Stack Weight: %s %s",

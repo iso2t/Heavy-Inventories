@@ -19,7 +19,6 @@ import com.iso2t.heavyinventories.HeavyInventories;
 import com.iso2t.heavyinventories.server.ServerWeightState;
 import com.iso2t.heavyinventories.config.ServerSettings;
 import com.iso2t.heavyinventories.api.player.PlayerWeightCache;
-import com.iso2t.heavyinventories.api.weight.CalculateWeight;
 import com.iso2t.heavyinventories.api.weight.WeightCache;
 import com.iso2t.heavyinventories.api.weight.WeightOverride;
 import com.iso2t.heavyinventories.helper.RegistryHelper;
@@ -106,7 +105,6 @@ public class ModCommands {
         try {
             ServerWeightState.of(context.getSource().getServer()).reload(context.getSource().getServer());
             WeightCache.clearAll();
-            CalculateWeight.clearRecursiveCache();
             context.getSource().sendSuccess(() -> Component.translatable("config.heavyinventories.reloaded"), true);
             return Command.SINGLE_SUCCESS;
         } catch (java.io.IOException | IllegalArgumentException e) {
@@ -130,7 +128,11 @@ public class ModCommands {
         context.getSource().sendSystemMessage(Component.literal("Found " + items.size() + " items and " + blocks.size() + " blocks."));
 
         var level = context.getSource().getLevel();
-        WeightOverride.putDumpFile(items, blocks, level);
+        try { WeightOverride.putDumpFile(items, blocks, level); }
+        catch (IllegalArgumentException e) {
+            context.getSource().sendFailure(Component.literal(e.getMessage()));
+            return 0;
+        }
         if (executeReloadCommand(context) == 0) return 0;
 
         context.getSource().sendSuccess(() -> Component.literal("Done!"), true);

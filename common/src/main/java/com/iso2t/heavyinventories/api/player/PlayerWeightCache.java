@@ -26,8 +26,9 @@ public final class PlayerWeightCache {
 
     public static float getOrCompute(Player player) {
         if (player.level().isClientSide()) return PlayerHolder.getOrCreate(player).getWeight();
+        var stacks = CalculateWeight.carriedStacks(player);
         return PlayerHolder.getOrCreate(player).weightCache().compute(
-                player.getInventory(), player.level(), player.tickCount, () -> CalculateWeight.from(player));
+                stacks, player.level(), player.tickCount, () -> CalculateWeight.from(player, stacks));
     }
 
     /** Invalidation never reads partially updated inventories or calls back into holder.update(). */
@@ -45,12 +46,18 @@ public final class PlayerWeightCache {
     }
 
     float compute(Container inventory, Object currentLevel, long tick, DoubleSupplier calculate) {
+        var stacks = new ArrayList<ItemStack>(inventory.getContainerSize());
+        for (int slot = 0; slot < inventory.getContainerSize(); slot++) stacks.add(inventory.getItem(slot));
+        return compute(stacks, currentLevel, tick, calculate);
+    }
+
+    float compute(List<ItemStack> stacks, Object currentLevel, long tick, DoubleSupplier calculate) {
         if (dirty || level != currentLevel || tick < lastComputedTick
-                || tick - lastComputedTick >= FALLBACK_TICKS || inventoryChanged(inventory)) {
+                || tick - lastComputedTick >= FALLBACK_TICKS || inventoryChanged(stacks)) {
             float updatedWeight = (float) calculate.getAsDouble();
             snapshot.clear();
-            for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
-                snapshot.add(inventory.getItem(slot).copy());
+            for (var stack : stacks) {
+                snapshot.add(stack.copy());
             }
             weight = updatedWeight;
             level = currentLevel;
@@ -60,11 +67,11 @@ public final class PlayerWeightCache {
         return weight;
     }
 
-    private boolean inventoryChanged(Container inventory) {
-        if (snapshot.size() != inventory.getContainerSize()) return true;
+    private boolean inventoryChanged(List<ItemStack> stacks) {
+        if (snapshot.size() != stacks.size()) return true;
         for (int slot = 0; slot < snapshot.size(); slot++) {
             // Includes count and all data components, rather than a lossy item/damage hash.
-            if (!ItemStack.matches(snapshot.get(slot), inventory.getItem(slot))) return true;
+            if (!ItemStack.matches(snapshot.get(slot), stacks.get(slot))) return true;
         }
         return false;
     }

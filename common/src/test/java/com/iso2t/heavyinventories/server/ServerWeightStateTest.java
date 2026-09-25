@@ -28,6 +28,10 @@ class ServerWeightStateTest {
             var weights = ServerWeightState.loadWeights(directory);
             assertEquals(2.375f, weights.get(STONE));
             assertEquals(0.1f, weights.get(Identifier.parse("minecraft:dirt")));
+            var overrides = ServerWeightState.loadOverrides(directory);
+            assertEquals(2.375f, overrides.get(STONE));
+            assertFalse(overrides.containsKey(Identifier.parse("minecraft:dirt")),
+                    "Fallback values must not become explicit recipe anchors");
         } finally { Locale.setDefault(original); }
     }
 

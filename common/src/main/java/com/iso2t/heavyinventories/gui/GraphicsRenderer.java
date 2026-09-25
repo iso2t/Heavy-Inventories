@@ -35,7 +35,9 @@ public class GraphicsRenderer {
         if (!holder.hasServerState()) return;
 
         // Bottom line (numbers)
-        String main = String.format("%.1f/%.1f %s (%.1f%%)", holder.getWeight(), holder.getMaxWeight(), measurement.getSub(), holder.getEncumberedPercentage());
+        String main = holder.getWeight() == com.iso2t.heavyinventories.api.weight.StackWeight.TOO_COMPLEX
+                ? Component.translatable("tooltip.heavyinventories.calculation_limit").getString()
+                : String.format("%.1f/%.1f %s (%.1f%%)", holder.getWeight(), holder.getMaxWeight(), measurement.getSub(), holder.getEncumberedPercentage());
 
         // Status line
         Component statusComp = getStatusComponent(holder);

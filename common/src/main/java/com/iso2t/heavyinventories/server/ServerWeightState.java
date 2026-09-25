@@ -23,6 +23,7 @@ import java.util.Map;
 public final class ServerWeightState {
     private ServerSettings settings = ServerSettings.DEFAULT;
     private Map<Identifier, Float> weights = Map.of();
+    private Map<Identifier, Float> overrides = Map.of();
     private List<ItemWeightsPayload> packets = List.of();
     private long revision;
 
@@ -43,8 +44,10 @@ public final class ServerWeightState {
         Path gameDir = Services.PLATFORM.getGameDirectory();
         // Read and validate everything before changing the active session.
         var newSettings = ConfigFileManager.readServerConfig(gameDir.resolve("config/heavyinventories-server.json"));
-        var newWeights = loadWeights(gameDir.resolve("weights"));
-        replace(newSettings, newWeights);
+        var newOverrides = loadOverrides(gameDir.resolve("weights"));
+        var newWeights = defaults();
+        newWeights.putAll(newOverrides);
+        replace(newSettings, newWeights, newOverrides);
         // Holders observe the revision on their next tick, including players joining after startup.
     }
 
@@ -56,6 +59,13 @@ public final class ServerWeightState {
 
     public static Map<Identifier, Float> loadWeights(Path directory) throws IOException {
         var values = defaults();
+        values.putAll(loadOverrides(directory));
+        return values;
+    }
+
+    public static Map<Identifier, Float> loadOverrides(Path directory) throws IOException {
+        var values = defaults();
+        var overrides = new HashMap<Identifier, Float>();
         var namespaces = new HashMap<String, JsonObject>();
         for (var id : values.keySet()) {
             if (!namespaces.containsKey(id.getNamespace())) {
@@ -80,15 +90,19 @@ public final class ServerWeightState {
                 if (value != null) {
                     if (!value.isJsonPrimitive() || !value.getAsJsonPrimitive().isNumber())
                         throw new IllegalArgumentException("Invalid weight value " + id);
-                    values.put(id, ServerSettings.validateItemWeight(value.getAsFloat()));
+                    overrides.put(id, ServerSettings.validateItemWeight(value.getAsFloat()));
                 }
             }
         }
-        return values;
+        return Map.copyOf(overrides);
     }
 
     /** Also used by runtime tests to supply deterministic session definitions without changing files. */
     public void replace(ServerSettings settings, Map<Identifier, Float> values) {
+        replace(settings, values, overrides);
+    }
+
+    private void replace(ServerSettings settings, Map<Identifier, Float> values, Map<Identifier, Float> overrides) {
         values.values().forEach(ServerSettings::validateItemWeight);
         var entries = values.entrySet().stream().map(e -> new ItemWeightsPayload.Entry(e.getKey(), e.getValue())).toList();
         int chunks = Math.max(1, (entries.size() + ItemWeightsPayload.CHUNK_SIZE - 1) / ItemWeightsPayload.CHUNK_SIZE);
@@ -99,15 +113,17 @@ public final class ServerWeightState {
                     entries.subList(from, Math.min(from + ItemWeightsPayload.CHUNK_SIZE, entries.size()))));
         }
         this.settings = settings;
+        this.overrides = overrides;
         weights = Map.copyOf(values);
         packets = List.copyOf(next);
         revision++;
     }
 
     public float weight(ItemStack stack) {
-        if (stack.isEmpty()) return 0;
-        return weights.getOrDefault(BuiltInRegistries.ITEM.getKey(stack.getItem()), 0.1f) * stack.getCount();
+        return com.iso2t.heavyinventories.api.weight.StackWeight.of(stack, this::unitWeight).weight();
     }
+    public float unitWeight(Identifier item) { return weights.getOrDefault(item, 0.1f); }
+    public Map<Identifier, Float> overrides() { return overrides; }
     public ServerSettings settings() { return settings; }
     public long revision() { return revision; }
     public List<ItemWeightsPayload> packets() { return packets; }

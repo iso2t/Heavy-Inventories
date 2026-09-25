@@ -11,6 +11,10 @@ public final class ClientWeightData {
     private ClientWeightData() {}
     public static void accept(ItemWeightsPayload payload) { DEFINITIONS.accept(payload); }
     public static Float weight(Identifier item) { return DEFINITIONS.weight(item); }
+    public static double unitWeight(Identifier item) {
+        var weight = weight(item);
+        return weight == null ? Double.NaN : weight;
+    }
     public static void clear() { DEFINITIONS.clear(); }
 
     /** Publishes a complete revision atomically, never a partly received item table. */

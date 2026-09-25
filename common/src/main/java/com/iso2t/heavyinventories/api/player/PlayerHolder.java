@@ -76,7 +76,10 @@ public class PlayerHolder {
             definitionsRevision = state.revision();
             weightCache.invalidate();
         }
-        weight = PlayerWeightCache.getOrCompute(player);
+        float nextWeight = PlayerWeightCache.getOrCompute(player);
+        if (nextWeight == com.iso2t.heavyinventories.api.weight.StackWeight.TOO_COMPLEX && nextWeight != weight)
+            player.sendSystemMessage(net.minecraft.network.chat.Component.translatable("tooltip.heavyinventories.calculation_limit"));
+        weight = nextWeight;
     }
 
     PlayerWeightCache weightCache() {
@@ -121,6 +124,7 @@ public class PlayerHolder {
     public boolean isOverEncumbered() {
         if (player.level().isClientSide()) return receivedState && syncedOverEncumbered;
         if (getPlayer().isCreative()) return false;
+        if (weight == com.iso2t.heavyinventories.api.weight.StackWeight.TOO_COMPLEX) return true;
 
         // Allow the percentage range to be 115%-125% with strength potion.
         if (hasStrength()) return getEncumberedPercentage() >= 115 && getEncumberedPercentage() < 125;

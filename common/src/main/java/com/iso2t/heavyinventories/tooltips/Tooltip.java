@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import com.iso2t.heavyinventories.client.ClientWeightData;
 import net.minecraft.core.registries.BuiltInRegistries;
 import com.iso2t.heavyinventories.config.ConfigOptions;
+import com.iso2t.heavyinventories.api.weight.StackWeight;
 
 import java.util.List;
 
@@ -21,12 +22,22 @@ public class Tooltip {
         Float weight = ClientWeightData.weight(BuiltInRegistries.ITEM.getKey(stack.getItem()));
         if (weight == null || stack.isEmpty()) return tooltip;
 
+        var single = StackWeight.of(stack.copyWithCount(1), ClientWeightData::unitWeight);
+        var total = StackWeight.of(stack, ClientWeightData::unitWeight);
+        if (!single.complete() || !total.complete()) {
+            tooltip.add(Component.translatable("tooltip.heavyinventories.calculation_limit"));
+            return tooltip;
+        }
+        weight = single.weight();
         tooltip.add(Component.translatable("tooltip.heavyinventories.item_weight", weight, ConfigOptions.WEIGHT_MEASURE.getSub()));
-        if (stack.getCount() > 1) tooltip.add(Component.translatable("tooltip.heavyinventories.item_stack_weight", weight * stack.getCount(), ConfigOptions.WEIGHT_MEASURE.getSub()));
+        if (stack.getCount() > 1) tooltip.add(Component.translatable("tooltip.heavyinventories.item_stack_weight", total.weight(), ConfigOptions.WEIGHT_MEASURE.getSub()));
 
         if (stack.getCount() < stack.getMaxStackSize()) {
             if (Minecraft.getInstance().hasShiftDown()) {
-                tooltip.add(Component.translatable("tooltip.heavyinventories.item_max_stack_weight", weight * stack.getMaxStackSize(), ConfigOptions.WEIGHT_MEASURE.getSub()));
+                var maximum = StackWeight.of(stack.copyWithCount(stack.getMaxStackSize()), ClientWeightData::unitWeight);
+                tooltip.add(maximum.complete()
+                        ? Component.translatable("tooltip.heavyinventories.item_max_stack_weight", maximum.weight(), ConfigOptions.WEIGHT_MEASURE.getSub())
+                        : Component.translatable("tooltip.heavyinventories.calculation_limit"));
             } else {
                 tooltip.add(Component.translatable("tooltip.heavyinventories.hold_shift"));
             }
