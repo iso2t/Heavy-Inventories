@@ -3,7 +3,17 @@
   "minVersion": "0.8",
   "package": "com.iso2t.heavyinventories.test.mixin",
   "compatibilityLevel": "JAVA_25",
-  "mixins": ["PlayerLifecycleSmokeMixin"],
-  "client": ["ClientLifecycleSmokeMixin"],
-  "injectors": {"defaultRequire": 1}
+  "mixins": [
+    "PlayerLifecycleSmokeMixin",
+    "FluidTestAccess",
+    "FluidTravelTestAccess"
+  ],
+  "client": [
+    "ClientLifecycleSmokeMixin",
+    "GuiFeedbackTestAccess",
+    "HudFeedbackSmokeMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }

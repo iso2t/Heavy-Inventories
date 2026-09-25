@@ -39,6 +39,8 @@ public final class ClientLifecycleScenario {
     private Path configPath;
     private byte[] originalConfig;
     private boolean originallyOp;
+    private int feedbackTicks;
+    private volatile boolean screenshotDone;
 
     public void tick(Minecraft client) {
         if (Boolean.getBoolean("heavyinventories.test.multiplayer")) {
@@ -46,7 +48,7 @@ public final class ClientLifecycleScenario {
             return;
         }
         var server = client.getSingleplayerServer();
-        if (server == null || client.player == null || stage == 11) return;
+        if (server == null || client.player == null || stage == 17) return;
         require(++ticks < 1200, "Timed out at client lifecycle stage " + stage);
         switch (stage) {
             case 0 -> {
@@ -154,7 +156,8 @@ public final class ClientLifecycleScenario {
                     ServerConfiguration.update(serverPlayer, new ServerConfigUpdatePayload(Float.NaN, revision));
                     ServerConfiguration.update(serverPlayer, new ServerConfigUpdatePayload(20.25f, revision - 1));
                     require(state.revision() == revision, "Invalid or stale edit changed settings");
-                    PlayerHolder.getOrCreate(serverPlayer).applyBracing(1, 0.1f, 1f);
+                    serverPlayer.getInventory().setItem(38, MovementScenario.enchanted(serverPlayer, Items.IRON_CHESTPLATE,
+                            com.iso2t.heavyinventories.api.enchantment.ModEnchantments.BRACING, 1));
                     return serverPlayer;
                 });
                 stage++;
@@ -212,9 +215,74 @@ public final class ClientLifecycleScenario {
                 var tooltipWeight = com.iso2t.heavyinventories.api.weight.StackWeight.of(box, ClientWeightData::unitWeight);
                 require(tooltipWeight.complete() && tooltipWeight.weight() == 32f, "Client container contents disagree with server");
                 var tooltip = com.iso2t.heavyinventories.tooltips.Tooltip.addTooltips(new java.util.ArrayList<>(), box);
-                require(tooltip.stream().anyMatch(line -> line.getString().contains("32.0")), "Tooltip omits nested stack weight");
+                require(tooltip.stream().anyMatch(line -> line.getString().contains(com.iso2t.heavyinventories.client.WeightDisplay.weight(32, com.iso2t.heavyinventories.config.ConfigOptions.WEIGHT_MEASURE))), "Tooltip omits nested stack weight");
                 HeavyInventories.LOGGER.info("CLIENT LIFECYCLE SMOKE PASSED: server authority, inventory sync, respawn, dimension travel, operator network edit, permission/invalid/stale rejection, persistence, transactional reload, live bonus rebase");
                 HeavyInventories.LOGGER.info("CLIENT WEIGHT CALCULATION PASSED: equipment, cursor/crafting transfers, nested contents, component/definition updates, synchronized container tooltip, recipe output counts");
+                operation = server.submit(() -> {
+                    MovementScenario.run(serverPlayer);
+                    return serverPlayer;
+                });
+                stage++;
+            }
+            case 11 -> {
+                if (!operation.isDone()) return;
+                operation.join();
+                var holder = PlayerHolder.getOrCreate(client.player);
+                if (holder.getMaxWeight() != 1200 || holder.getWeight() != 1500) return;
+                require(holder.getStrengthOffset() == 200, "Strength capacity did not synchronize");
+                require(holder.isOverEncumbered(), "Overload did not synchronize");
+                MovementScenario.checkImpulse(client.player, 0.2);
+                client.player.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);
+                client.player.jumpFromGround();
+                require(client.player.getDeltaMovement().y == 0, "Client allowed an overloaded jump");
+                FeedbackScenario.checkJump(client);
+                operation = server.submit(() -> {
+                    serverPlayer.removeAllEffects();
+                    serverPlayer.getInventory().clearContent();
+                    PlayerEvents.onPlayerTick(serverPlayer);
+                    return serverPlayer;
+                });
+                stage++;
+            }
+            case 12 -> {
+                if (!operation.isDone()) return;
+                operation.join();
+                if (!weightsMatch(client, 0)) return;
+                var holder = PlayerHolder.getOrCreate(client.player);
+                if (holder.getMaxWeight() != 1000) return;
+                MovementScenario.checkImpulse(client.player, 1);
+                HeavyInventories.LOGGER.info("CLIENT MOVEMENT PASSED: synchronized Strength/Surefooted, normalized movement, jump restriction, restoration after removal");
+                operation = server.submit(() -> { AdminScenario.run(serverPlayer); return serverPlayer; });
+                stage++;
+            }
+            case 13 -> {
+                if (!operation.isDone()) return;
+                operation.join();
+                FeedbackScenario.prepare(client);
+                stage++;
+            }
+            case 14 -> {
+                if (!FeedbackScenario.verifyVisibility(client)) return;
+                if (++feedbackTicks < 12) return;
+                require(FeedbackScenario.hudFrames > 0, "HUD was not registered or rendered");
+                screenshotDone = false;
+                net.minecraft.client.Screenshot.grab(Services.PLATFORM.getGameDirectory().toFile(), "step7-hud.png",
+                        client.getMainRenderTarget(), 1, message -> screenshotDone = true);
+                stage++;
+            }
+            case 15 -> {
+                if (!screenshotDone) return;
+                client.setScreen(com.iso2t.heavyinventories.client.ClientConfigScreen.create().build());
+                feedbackTicks = 0;
+                screenshotDone = false;
+                stage++;
+            }
+            case 16 -> {
+                if (++feedbackTicks == 12) net.minecraft.client.Screenshot.grab(Services.PLATFORM.getGameDirectory().toFile(), "step7-settings.png",
+                        client.getMainRenderTarget(), 1, message -> screenshotDone = true);
+                if (!screenshotDone) return;
+                FeedbackScenario.restore();
+                HeavyInventories.LOGGER.info("PLAYER FEEDBACK PASSED: registered HUD, local jump feedback/throttle, independent color edits, persistence, fresh settings screens, kilogram display");
                 client.options.pauseOnLostFocus = pauseOnLostFocus;
                 stage++;
                 client.stop();

@@ -47,7 +47,7 @@ public class NeoForgeConfigScreenHelper implements IConfigScreenHelper {
     public static class NetworkHandler {
         @SubscribeEvent
         public static void registerPayload(RegisterPayloadHandlersEvent event) {
-            PayloadRegistrar registrar = event.registrar("2");
+            PayloadRegistrar registrar = event.registrar("3");
             registrar.playToClient(PlayerWeightPayload.TYPE, PlayerWeightPayload.CODEC,
                     (packet, context) -> context.enqueueWork(() -> NeoForgeClientHooks.receiveWeight(packet)));
             registrar.playToClient(ItemWeightsPayload.TYPE, ItemWeightsPayload.CODEC,

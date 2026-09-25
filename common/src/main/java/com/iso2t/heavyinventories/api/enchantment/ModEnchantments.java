@@ -7,7 +7,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import com.iso2t.heavyinventories.HeavyInventories;
 
 public class ModEnchantments {
@@ -26,8 +25,7 @@ public class ModEnchantments {
                 Enchantment.dynamicCost(12, 7),
                 Enchantment.dynamicCost(25, 7),
                 2,
-                EquipmentSlotGroup.CHEST))
-                .withEffect(EnchantmentEffectComponents.TICK, new BracingEnchantmentEffect()));
+                EquipmentSlotGroup.CHEST)));
 
         register(context, REINFORCED, Enchantment.enchantment(Enchantment.definition(
                 items.getOrThrow(ItemTags.LEG_ARMOR_ENCHANTABLE),
@@ -36,8 +34,7 @@ public class ModEnchantments {
                 Enchantment.dynamicCost(8, 9),
                 Enchantment.dynamicCost(12, 10),
                 2,
-                EquipmentSlotGroup.LEGS))
-                .withEffect(EnchantmentEffectComponents.TICK, new ReinforcedEnchantmentEffect()));
+                EquipmentSlotGroup.LEGS)));
 
         register(context, SUREFOOTED, Enchantment.enchantment(Enchantment.definition(
                 items.getOrThrow(ItemTags.FOOT_ARMOR_ENCHANTABLE),
@@ -46,8 +43,7 @@ public class ModEnchantments {
                 Enchantment.dynamicCost(22, 11),
                 Enchantment.dynamicCost(27, 14),
                 2,
-                EquipmentSlotGroup.FEET))
-                .withEffect(EnchantmentEffectComponents.TICK, new SurefootedEnchantmentEffect()));
+                EquipmentSlotGroup.FEET)));
     }
 
     private static void register(BootstrapContext<Enchantment> registry, ResourceKey<Enchantment> key, Enchantment.Builder builder) {

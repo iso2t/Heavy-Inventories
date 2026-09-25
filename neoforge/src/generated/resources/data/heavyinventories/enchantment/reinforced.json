@@ -3,15 +3,7 @@
   "description": {
     "translate": "enchantment.heavyinventories.reinforced"
   },
-  "effects": {
-    "minecraft:tick": [
-      {
-        "effect": {
-          "type": "heavyinventories:reinforced"
-        }
-      }
-    ]
-  },
+  "effects": {},
   "max_cost": {
     "base": 12,
     "per_level_above_first": 10

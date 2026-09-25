@@ -17,6 +17,11 @@ public final class FabricClientHooks {
     private FabricClientHooks() {}
 
     public static void register() {
+        com.iso2t.heavyinventories.client.ClientFeedback.register();
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(
+                net.minecraft.resources.Identifier.fromNamespaceAndPath("heavyinventories", "weight"),
+                (graphics, delta) -> com.iso2t.heavyinventories.gui.GraphicsRenderer.renderGui(graphics,
+                        com.iso2t.heavyinventories.config.ConfigOptions.WEIGHT_MEASURE, Minecraft.getInstance()));
         ClientPlayConnectionEvents.INIT.register((handler, client) -> ClientWeightData.clear());
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> ClientWeightData.clear());
         ClientPlayNetworking.registerGlobalReceiver(PlayerWeightPayload.TYPE, (packet, context) -> {

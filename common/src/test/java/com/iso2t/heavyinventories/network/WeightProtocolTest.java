@@ -18,11 +18,11 @@ class WeightProtocolTest {
 
     @Test void codecsPreserveFractionalValuesAndState() {
         var state = new PlayerWeightPayload(23, Identifier.parse("minecraft:overworld"),
-                16.5f, 10.5f, 1.05f, 0.525f, 0.4f, false, true, true, 72);
+                16.5f, 10.5f, 1.05f, 0.525f, 2.1f, 0.4f, com.iso2t.heavyinventories.config.WalkingMode.AT_NINETY_PERCENT, false, true, true, 72);
         assertEquals(state, roundTrip(PlayerWeightPayload.CODEC, state));
         var definitions = chunk(72, 0, 1, STONE, 2.125f);
         assertEquals(definitions, roundTrip(ItemWeightsPayload.CODEC, definitions));
-        var edit = new ServerConfigUpdatePayload(1000.25f, 72);
+        var edit = new ServerConfigUpdatePayload(1000.25f, "at_ninety_percent", 72);
         assertEquals(edit, roundTrip(ServerConfigUpdatePayload.CODEC, edit));
     }
 

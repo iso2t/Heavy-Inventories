@@ -1,89 +1,151 @@
 # Heavy Inventories
 
-Heavy Inventories adds a realistic inventory weight system to Minecraft. Inspired by RPG games like TES, this mod adds a
-new layer of immersion to the game. Each item now has a weight associated with it, with effects on the players mobility,
-health, and stamina.
+Heavy Inventories adds carrying weight and encumbrance to Minecraft for RPG-style inventory decisions. Heavier loads reduce mobility; Strength and enchanted armor increase what you can carry.
 
-***
+This checkout targets **Minecraft 26.1 and Java 25**, with separate **Fabric** and **NeoForge** builds. Legacy Forge is not supported by this version.
 
-## How it works
+## Installation
 
-Heavy Inventories use to generate a weight file for each item in the game, namespaced by the owning mods modid. This is
-no
-longer the case. Each weight is calculated based on its crafting recipe, with a minimum weight of 0.1 (float).
+Use the jar for your loader on both the client and server, with matching Heavy Inventories builds.
 
-### Overriding weights
+| Component | Verified version |
+| --- | --- |
+| Minecraft | 26.1 |
+| Java | 25 |
+| Fabric Loader | 0.18.5 |
+| Fabric API | 0.144.0+26.1 |
+| NeoForge | 26.1.0.1-beta |
+| Cloth Config | 26.1.154, for the matching loader |
 
-Weights for each item can be overridden by adding a [modid].json file in the weights folder located at the root of your
-installation.
+Fabric requires Fabric API and Cloth Config. NeoForge requires Cloth Config on clients; its dedicated server does not require the settings UI. These are external dependencies, not bundled copies. The version table records the tested baseline, not a claim that every newer loader/mod version works.
 
-For example, to override cobblestone's weight from 0.1, create a minecraft.json file in the weights folder with the
-following contents:
+## Weight and capacity
+
+Gameplay currently uses explicit server JSON overrides and a **0.1-pound fallback per item**. Recipes are used only for the export command. The defaults are a temporary balance baseline, not a complete realistic material-weight model.
+
+Carried weight includes:
+
+- Main inventory, offhand, and equipped armor, once each at full weight.
+- The cursor stack and the player's personal 2×2 crafting inputs.
+- The item's own weight plus nested vanilla container and bundle contents.
+
+External chest inventories, Ender Chest storage, and custom backpack/storage APIs are not counted. Modded containers using Minecraft's standard `CONTAINER` or `BUNDLE_CONTENTS` item components use the same calculation, but third-party integrations have not been verified.
+
+Default base capacity is **1000 pounds**. Bonuses add percentages of that base:
+
+| Source | Bonus |
+| --- | --- |
+| Strength | +10% per effect level; Strength II adds +20% |
+| Bracing, on chest armor | +10% per level, through level X (+100%) |
+| Reinforced, on leggings | +5% per level, through level V (+25%) |
+
+For example, base 1000 + Bracing X + Reinforced V + Strength II gives capacity **2450**. Effects and equipment are read again each server tick; removed equipment/effects leave no stored bonus.
+
+Pounds are the stored unit. The local display preference can convert numbers to kilograms (`pounds × 0.45359237`) or show raw values without a suffix. This never changes gameplay, command inputs, or percentages.
+
+## Encumbrance
+
+The server compares carried weight with effective capacity:
+
+| Load | State |
+| --- | --- |
+| Below 90% | Below the encumbrance threshold |
+| 90% to below 100% | Encumbered |
+| 100% and above | Over encumbered |
+
+The server chooses one walking mode:
+
+- **Progressive**, the default: horizontal input scales by `sqrt(max(0, 1 - weight/capacity))`. At half capacity the multiplier is about 71%; at 90% it is about 32%.
+- **Begin at 90% capacity**: full horizontal input through 90%, then a linear decrease to zero at 100%.
+
+Surefooted on boots provides minimum walking multipliers:
+
+| Level | Encumbered floor | Overloaded floor |
+| --- | --- | --- |
+| I | 25% | 5% |
+| II | 25% | 10% |
+| III | 30% | 15% |
+| IV | 40% | 20% |
+
+Both encumbered states prevent ground jumping. Encumbered/overloaded horizontal swimming input is 75%/50%, sinking gravity is multiplied by 1.5/3, and fall damage by 1.5/3. Surefooted changes walking floors only.
+
+Creative and spectator players are exempt. Ability flight, gliding, and riding bypass movement penalties. Weight still displays when appropriate. The mod scales normalized horizontal input, preserving vanilla momentum, knockback, vertical input, and movement modifiers; these are not absolute speed limits or an anti-cheat system.
+
+The optional bottom-right HUD shows weight, effective capacity, percentage, and encumbrance status. Colors change at the actual 90% and 100% thresholds. Ground-jump denial appears briefly in the action bar, throttled to once per 40 client ticks. Item tooltips include current stack weight; hold Shift for maximum-stack weight.
+
+## Server configuration
+
+Paths are relative to the server's game directory, or the Minecraft instance directory in singleplayer. Singleplayer files are shared by worlds launched from that instance.
+
+Create or edit `config/heavyinventories-server.json`:
 
 ```json
 {
-  "cobblestone": {
-    "weight": 10.0
-  }
+  "startingWeight": 1000.0,
+  "walkingMode": "progressive"
 }
 ```
-This can also be done via in-game commands. While holding the item you want to change the weight of, run command:
 
-> /heavyinventories set weight <number>
-> 
-> The number can be an integer (10, 20, 30, etc) or a decimal (10.0, 20.0, 30.0, etc).
+Use `"at_ninety_percent"` for the alternative walking mode. Older files without `walkingMode` default to progressive. Capacity must be finite, greater than zero, and no greater than 1,000,000,000.
 
-## New features coming in Heavy Inventories 4
-We have removed much of the old logic of the old mod and have completely rewritten it into a modern system. This should
-help with performance and stability.
+Operators can also open `/heavyinventories config server` and edit both values. Saving sends a validated request to the server; accepted changes are written before they apply. Non-operators can view the server screen. Singleplayer requires command permission for server edits.
 
-### Whats changed?
+Client display preferences and colors are available through `/heavyinventories config client` and stored in `config/heavyinventories-client.json`.
 
-#### **Pumping Iron**
-Pumping iron use to be a mechanism that would allow a player to increase their carry weight be either finding a barbell or
-using an anvil. This has been removed completely.
+### Item overrides
 
-#### **Automatic weight file generation**
-The weight file generation has been removed completely. This saves on memory and CPU usage, as well as boasts performance
-by not requiring the mod to check the file system for every item weight that is not stored in the cache.
+For example, `weights/minecraft.json`:
 
-#### **Weight caching mechanism**
-The weight caching system as been reworked to the point where it is basically no longer the same system. The caching system
-works dynamically with the RAM for a seamless experience. Both item weights and Player weights are cached and updated
-dynamically.
+```json
+{
+  "cobblestone": { "weight": 10.0 },
+  "feather": { "weight": 0.02 }
+}
+```
 
-#### **Density**
-The density system has come to fruition. This system mainly affects entity items, and their ability to float in water / fall speed.
-> Please note that this system is still in development and may not work as expected.
+Each key is the item path within that file's registry namespace. Weights describe one empty item in stored pounds; stack counts and container contents are added separately. Explicit zero is allowed. Invalid, negative, non-finite, or greater-than-1,000,000,000 values are rejected.
 
-#### **Enchantments**
-Heavy Inventories added enchantments to be more inline with the existing content of the game to give a more immersive and 
-seamless experience.
+Run `/heavyinventories reload` to apply edited files. The whole active candidate is validated first. Failed reloads retain the current server snapshot, and malformed files are preserved for manual repair. If startup files are invalid, the server logs the failure and uses session defaults.
 
-- **Bracing**: when applied to a chestplate, the player can increase their max carry weight by up to 100% their base.
-- **Reinforced**: when applied to leggings, the player can increase their max carry weight by up to 25% of their base.
-- **Surefooted**: when applied to boots, the slowness effect is reduced by up to 40% while encumbered.
+### Commands
 
-#### **Potion effects**
-The effects of Heavy Inventories can be mitigated by using certain potions.
+| Command | Behavior |
+| --- | --- |
+| `/heavyinventories set weight <number>` | Operator: save and apply the main-hand item's unit weight in pounds |
+| `/heavyinventories reload` | Operator: reload server settings and item overrides |
+| `/heavyinventories reload weight` | Alias for the full reload |
+| `/heavyinventories reload players` | Operator: refresh player totals on the next tick |
+| `/heavyinventories dump <namespace>` | Operator: export recipe-inferred weights to a unique file in `weight-exports/` |
+| `/heavyinventories config client` | Open local display preferences |
+| `/heavyinventories config server` | View server settings; editing requires permission |
+| `/heavyinventories config common` | Reserved screen; there are currently no common settings |
 
-- **Strength**: when applied to a player (while in effect), the upper limit of the players carry weight is changed to:
-  - 100%-110% for normal encumbrance.
-  - 115%-125% for over encumbrance.
+**Dump does not change gameplay.** Review the export, merge selected entries into `weights/<namespace>.json`, then reload. Recipe inference uses explicit overrides as anchors and accounts for output batches, alternatives, and cycles; it cannot infer realistic material differences on its own.
 
-#### GUI System
-The GUI system has moved on from the original bar-type rendering to an on-screen text based system. Ideas are welcome for
-improvements to the GUI.
+## Limits and planned work
 
-#### **Mod loaders**
-Heavy Inventories moved from being specific to Forge, to a more agnostic model, supporting NeoForge, Fabric, and Forge.
+- Bundled datapack defaults and player/modpack overrides are planned, **not implemented**.
+- This version does not implement a stamina system, carrying-capacity training, or a supported dropped-item density mechanic.
+- Custom backpack/Ender storage, third-party movement mods, and resource-pack compatibility have not been verified.
+- Nested-content work is bounded to depth 16 and 4096 visited entries. Exceeding a limit marks the load over capacity and displays a calculation-limit message.
+- Enchantment bonuses use the three supplied enchantment identities and their equipment slots. Legacy effect codecs still decode old data but no longer execute tick effects; datapacks reusing them for other enchantments or conditional effects need redesign.
+- Clients require matching updated packet formats; this version does not support older Heavy Inventories network peers.
+- NeoForge is pinned to a beta baseline. See the recorded checks and limits in [testing documentation](docs/TESTING.md).
 
-***
+## Building and contributing
 
-## Contributing
-We are always looking for new contributors to help us improve this mod, especially with fresh new ideas and translations!
-The source code is available on [GitHub](https://github.com/SuperScary/Heavy-Inventories).
+Use JDK 25 and the included Gradle 9.5.0 wrapper:
 
-## Mod Integration
-Heavy Inventories does not specifically integrate with any other mods. We have done our best to ensure that Heavy Inventories
-will work with other mods, but we cannot guarantee that it will work perfectly.
+```sh
+# Linux/macOS
+bash ./gradlew clean build
+
+# Windows PowerShell
+.\gradlew.bat clean build
+```
+
+The build runs common regression tests and checks metadata, mixins, services, enchantment resources, and test-harness exclusion in both loader jars. Distributable jars are under `fabric/build/libs/` and `neoforge/build/libs/`; do not install sources, javadoc, or lifecycle-test jars.
+
+The GitHub Actions workflow builds/tests on Linux and Windows and uploads reports and mod artifacts. It does not publish releases or start Minecraft. [docs/TESTING.md](docs/TESTING.md) describes opt-in local runtime checks and their evidence.
+
+Source and issue tracking: [SuperScary/Heavy-Inventories](https://github.com/SuperScary/Heavy-Inventories). Contributions and translations are welcome. Licensed under [MIT](LICENSE.md).

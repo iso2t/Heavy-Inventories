@@ -70,16 +70,7 @@ public final class ServerWeightState {
         for (var id : values.keySet()) {
             if (!namespaces.containsKey(id.getNamespace())) {
                 var file = directory.resolve(id.getNamespace() + ".json");
-                JsonObject root = new JsonObject();
-                if (Files.exists(file)) {
-                    try (var reader = Files.newBufferedReader(file)) {
-                        var parsed = JsonParser.parseReader(reader);
-                        if (!parsed.isJsonObject()) throw new IllegalArgumentException("Expected object in " + file);
-                        root = parsed.getAsJsonObject();
-                    } catch (com.google.gson.JsonParseException e) {
-                        throw new IllegalArgumentException("Invalid weight file " + file, e);
-                    }
-                }
+                JsonObject root = com.iso2t.heavyinventories.api.files.WriteFile.readWeights(file);
                 namespaces.put(id.getNamespace(), root);
             }
             var root = namespaces.get(id.getNamespace());
@@ -95,6 +86,23 @@ public final class ServerWeightState {
             }
         }
         return Map.copyOf(overrides);
+    }
+
+    /** Validate the complete candidate before touching disk or the running session. */
+    public void setWeight(Identifier id, float value) throws IOException {
+        ServerSettings.validateItemWeight(value);
+        Path gameDir = Services.PLATFORM.getGameDirectory();
+        var nextSettings = ConfigFileManager.readServerConfig(gameDir.resolve("config/heavyinventories-server.json"));
+        var nextOverrides = new HashMap<>(loadOverrides(gameDir.resolve("weights")));
+        nextOverrides.put(id, value);
+        var nextWeights = defaults();
+        nextWeights.putAll(nextOverrides);
+        Path path = com.iso2t.heavyinventories.api.files.FileValidator.validate(id.getNamespace());
+        var root = com.iso2t.heavyinventories.api.files.WriteFile.readWeights(path);
+        root = com.iso2t.heavyinventories.api.files.WriteFile.withValue(root, id.getPath(),
+                com.iso2t.heavyinventories.api.files.DataType.WEIGHT, value);
+        com.iso2t.heavyinventories.api.files.JsonFiles.writeObject(path, root);
+        replace(nextSettings, nextWeights, Map.copyOf(nextOverrides));
     }
 
     /** Also used by runtime tests to supply deterministic session definitions without changing files. */

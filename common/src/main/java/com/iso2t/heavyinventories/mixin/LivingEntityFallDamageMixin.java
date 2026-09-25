@@ -18,8 +18,6 @@ public abstract class LivingEntityFallDamageMixin {
         if (!(self instanceof Player player)) return damageMultiplier;
 
         var holder = PlayerHolder.getOrCreate(player);
-        if (holder.isOverEncumbered()) return damageMultiplier * 3.0f;
-        else if (holder.isEncumbered()) return damageMultiplier * 1.5f;
-        else return damageMultiplier;
+        return damageMultiplier * holder.getFallDamageMultiplier();
     }
 }

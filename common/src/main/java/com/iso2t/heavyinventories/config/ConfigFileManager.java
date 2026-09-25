@@ -1,176 +1,46 @@
 package com.iso2t.heavyinventories.config;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
+import com.iso2t.heavyinventories.api.files.JsonFiles;
 import com.iso2t.heavyinventories.platform.Services;
 import com.iso2t.heavyinventories.HeavyInventories;
-import com.iso2t.heavyinventories.api.util.MeasuringSystem;
-
 import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 
-/**
- * Manages saving and loading of config files on either loader and physical side.
- * Client config is saved to .minecraft/config/heavyinventories-client.json
- */
-public class ConfigFileManager {
+public final class ConfigFileManager {
+    private ConfigFileManager() {}
 
-    private static final Gson GSON = new GsonBuilder()
-            .setPrettyPrinting()
-            .create();
-
-    private static final String CLIENT_CONFIG_FILE = "heavyinventories-client.json";
-    @SuppressWarnings("unused")
-    private static final String SERVER_CONFIG_FILE = "heavyinventories-server.json";
-    @SuppressWarnings("unused")
-    private static final String COMMON_CONFIG_FILE = "heavyinventories-common.json";
-
-    /**
-     * Loads client config from file and applies it to ConfigOptions.
-     * Should be called during mod initialization on client side.
-     */
     public static void loadClientConfig() {
-
-        Path configFile = getConfigDirectory().resolve(CLIENT_CONFIG_FILE);
-
-        if (!Files.exists(configFile)) {
-            return;
-        }
-
-        try (Reader reader = Files.newBufferedReader(configFile, StandardCharsets.UTF_8)) {
-            JsonObject root = GSON.fromJson(reader, JsonObject.class);
-            if (root == null) return;
-
-            // Load weight measure
-            if (root.has("weightMeasure")) {
-                String measureStr = root.get("weightMeasure").getAsString();
-                try {
-                    ConfigOptions.WEIGHT_MEASURE = MeasuringSystem.valueOf(measureStr.toUpperCase());
-                } catch (IllegalArgumentException e) {
-                    HeavyInventories.LOGGER.warn("Invalid weight measure in config: {}, using default", measureStr);
-                }
-            }
-
-            if (root.has("enableGuiOverlay")) {
-                ConfigOptions.ENABLE_GUI_OVERLAY = root.get("enableGuiOverlay").getAsBoolean();
-            }
-
-            if (root.has("normalTextColor")) {
-                ConfigOptions.NORMAL_TEXT_COLOR = root.get("normalTextColor").getAsInt();
-            }
-
-            if (root.has("overencumberedTextColor")) {
-                ConfigOptions.OVER_ENCUMBERED_TEXT_COLOR = root.get("overencumberedTextColor").getAsInt();
-            }
-
-            if (root.has("encumberedTextColor")) {
-                ConfigOptions.ENCUMBERED_TEXT_COLOR = root.get("encumberedTextColor").getAsInt();
-            }
-
-        } catch (IOException | JsonParseException e) {
-            HeavyInventories.LOGGER.error("Failed to load client config: {}", e.getMessage());
+        try { ClientSettings.parse(JsonFiles.readObject(clientPath())).apply(); }
+        catch (IOException | IllegalArgumentException e) {
+            HeavyInventories.LOGGER.error("Failed to load client config; keeping current preferences: {}", e.getMessage());
         }
     }
 
-    /**
-     * Saves current client config values to file.
-     * Called when user clicks "Done" in the config screen.
-     */
-    public static void saveClientConfig() {
-        Path configFile = getConfigDirectory().resolve(CLIENT_CONFIG_FILE);
-        JsonObject root = new JsonObject();
+    public static void saveClientConfig(ClientSettings settings) throws IOException {
+        // Preserve unknown fields. Refuse to replace an existing malformed document.
+        var root = JsonFiles.readObject(clientPath());
+        ClientSettings.parse(root);
+        settings.toJson().entrySet().forEach(entry -> root.add(entry.getKey(), entry.getValue()));
+        JsonFiles.writeObject(clientPath(), root);
+        settings.apply();
+    }
 
-        root.addProperty("weightMeasure", ConfigOptions.WEIGHT_MEASURE.name());
-        root.addProperty("enableGuiOverlay", ConfigOptions.ENABLE_GUI_OVERLAY);
-        root.addProperty("normalTextColor", ConfigOptions.NORMAL_TEXT_COLOR);
-        root.addProperty("overencumberedTextColor", ConfigOptions.OVER_ENCUMBERED_TEXT_COLOR);
-        root.addProperty("encumberedTextColor", ConfigOptions.ENCUMBERED_TEXT_COLOR);
-
-        try {
-            ensureParentDirectories(configFile);
-            Path temp = Files.createTempFile(configFile.getParent(), configFile.getFileName().toString(), ".tmp");
-
-            try (Writer writer = Files.newBufferedWriter(temp, StandardCharsets.UTF_8)) {
-                GSON.toJson(root, writer);
-            }
-
-            Files.move(temp, configFile, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-            HeavyInventories.LOGGER.info("Client config saved successfully");
-        } catch (IOException e) {
-            HeavyInventories.LOGGER.error("Failed to save client config: {}", e.getMessage());
-            try (Writer writer = Files.newBufferedWriter(configFile, StandardCharsets.UTF_8)) {
-                GSON.toJson(root, writer);
-            } catch (IOException ignored) {
-            }
-        }
+    private static Path clientPath() {
+        return Services.PLATFORM.getGameDirectory().resolve("config/heavyinventories-client.json");
     }
 
     public static ServerSettings readServerConfig(Path path) throws IOException {
-        if (!Files.exists(path)) return ServerSettings.DEFAULT;
-        try (var reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
-            return ServerSettings.parse(GSON.fromJson(reader, JsonObject.class));
-        } catch (RuntimeException e) {
-            throw new IllegalArgumentException("Invalid server config " + path + ": " + e.getMessage(), e);
-        }
+        return ServerSettings.parse(JsonFiles.readObject(path));
     }
 
-    /** Writes validated settings before the running server applies them; failed writes preserve the old file. */
     public static void writeServerConfig(Path path, ServerSettings settings) throws IOException {
-        ensureParentDirectories(path);
-        Path temp = Files.createTempFile(path.getParent(), path.getFileName().toString(), ".tmp");
-        try {
-            var json = new JsonObject();
-            json.addProperty("startingWeight", settings.startingWeight());
-            try (var writer = Files.newBufferedWriter(temp, StandardCharsets.UTF_8)) {
-                GSON.toJson(json, writer);
-            }
-            try {
-                Files.move(temp, path, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-            } catch (java.nio.file.AtomicMoveNotSupportedException e) {
-                Files.move(temp, path, StandardCopyOption.REPLACE_EXISTING);
-            }
-        } finally {
-            Files.deleteIfExists(temp);
-        }
+        var root = JsonFiles.readObject(path);
+        ServerSettings.parse(root);
+        root.addProperty("startingWeight", settings.startingWeight());
+        root.addProperty("walkingMode", settings.walkingMode().id());
+        JsonFiles.writeObject(path, root);
     }
 
-    /**
-     * Loads common config from file.
-     * TODO: Implement when common config options are added.
-     */
-    public static void loadCommonConfig() {
-        // TODO: Implement common config loading
-    }
-
-    /**
-     * Saves common config to file.
-     * TODO: Implement when common config options are added.
-     */
-    public static void saveCommonConfig() {
-        // TODO: Implement common config saving
-    }
-
-    /**
-     * Gets the config directory path (usually .minecraft/config).
-     */
-    private static Path getConfigDirectory() {
-        return Services.PLATFORM.getGameDirectory().resolve("config");
-    }
-
-    /**
-     * Ensures parent directories exist.
-     */
-    private static void ensureParentDirectories(Path filePath) throws IOException {
-        Path parent = filePath.getParent();
-        if (parent != null && !Files.exists(parent)) {
-            Files.createDirectories(parent);
-        }
-    }
+    public static void loadCommonConfig() { }
+    public static void saveCommonConfig() { }
 }

@@ -22,5 +22,12 @@ build
 eclipse
 run
 runs
+
+.idea
+/neoforge/src/generated/resources/.cache/
+/fabric/src/generated/resources/.cache/
+
+.vscode
+.eclipse
 /REPAIR_PLAN.md
 /gradle/packaged-smoke.gradle

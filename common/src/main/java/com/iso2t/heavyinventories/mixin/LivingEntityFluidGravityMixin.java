@@ -1,23 +1,20 @@
 package com.iso2t.heavyinventories.mixin;
 
+import com.iso2t.heavyinventories.api.player.PlayerHolder;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import com.iso2t.heavyinventories.api.player.PlayerHolder;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
+/** Modify the shared fluid gravity source, including deep lava's separate gravity path. */
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityFluidGravityMixin {
-
-    @ModifyVariable(method = "getFluidFallingAdjustedMovement", at = @At("HEAD"), argsOnly = true, ordinal = 0)
+    // NeoForge delegates to an overload with FluidState; match both signatures.
+    @ModifyExpressionValue(method = "travelInFluid*", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/LivingEntity;getEffectiveGravity()D"))
     private double heavyinventories$scaleFluidGravity(double gravity) {
-        LivingEntity self = (LivingEntity)(Object)this;
-
-        if (!(self instanceof Player player)) return gravity;
-        if (!(self.isInWater() || self.isInLava())) return gravity;
-
-        float multi = PlayerHolder.getOrCreate(player).getFluidSinkGravityMultiplier();
-        return gravity * multi;
+        if (!((Object) this instanceof Player player)) return gravity;
+        return gravity * PlayerHolder.getOrCreate(player).getFluidSinkGravityMultiplier();
     }
 }

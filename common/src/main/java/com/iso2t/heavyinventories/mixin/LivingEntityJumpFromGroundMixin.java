@@ -1,10 +1,8 @@
 package com.iso2t.heavyinventories.mixin;
 
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import com.iso2t.heavyinventories.api.player.PlayerHolder;
-import com.iso2t.heavyinventories.api.util.Functions;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -19,9 +17,8 @@ public class LivingEntityJumpFromGroundMixin {
         if (!(self instanceof Player player)) return;
         var holder = PlayerHolder.getOrCreate(player);
 
-        if (holder.isEncumbered() || holder.isOverEncumbered()) {
-            player.sendSystemMessage(Component.translatable("chat.heavyinventories.no_jump",
-                    Component.translatable(Functions.either("chat.heavyinventories.over_encumbered", "chat.heavyinventories.encumbered", holder.isOverEncumbered()))));
+        if (holder.preventsGroundJump()) {
+            com.iso2t.heavyinventories.api.events.PlayerFeedback.jumpDenied(holder);
             ci.cancel();
         }
     }

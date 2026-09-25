@@ -8,7 +8,7 @@
     "PlayerStateMixin",
     "LivingEntityFallDamageMixin",
     "LivingEntityFluidGravityMixin",
-    "LivingEntityFluidTravelMixin",
+    "EntityMovementMixin",
     "LivingEntityJumpFromGroundMixin"
   ],
   "client": [

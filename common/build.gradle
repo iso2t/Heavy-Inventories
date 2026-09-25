@@ -3,6 +3,8 @@ plugins {
     id 'net.neoforged.moddev'
 }
 
+repositories { maven { url 'https://maven.shedaniel.me/' } }
+
 neoForge {
     neoFormVersion = neo_form_version
     // Automatically enable AccessTransformers if the file exists
@@ -13,6 +15,8 @@ neoForge {
 }
 
 dependencies {
+    // Compile shared screen builders against Cloth's loader-neutral public API only.
+    compileOnly("me.shedaniel.cloth:cloth-config-neoforge:${cloth_config_version}") { transitive = false }
     testImplementation 'org.junit.jupiter:junit-jupiter:6.0.0'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:6.0.0'
     compileOnly group: 'org.spongepowered', name: 'mixin', version: '0.8.5'

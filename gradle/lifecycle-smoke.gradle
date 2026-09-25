@@ -3,10 +3,10 @@
 // ./gradlew.bat :fabric:runClient -I gradle/lifecycle-smoke.gradle "-PlifecycleClientWorld=New World"
 // Substitute neoforge for the other loader. Each process runs assertions and stops itself.
 // Client tests replace inventory, respawn the player, and change dimensions in the named save.
-// Optionally prepend -I gradle/packaged-smoke.gradle to test the production mod jar.
+// Add -PpackagedSmoke to test the production mod jar.
 // EULA acceptance and localhost server properties must already be configured.
 // Separate-process authority tests: add -PauthorityMultiplayer to both launches,
-// prepend -I gradle/packaged-smoke.gradle, and add -PsmokeMultiplayer to the client.
+// add -PpackagedSmoke to both and -PsmokeMultiplayer to the client.
 // These tests replace the test player's inventory and temporarily edit/restore server config and op status.
 gradle.projectsEvaluated {
     if (gradle.rootProject.findProject(':fabric') == null) return
@@ -24,6 +24,32 @@ gradle.projectsEvaluated {
             modProject.tasks.named(runName) {
                 if (modProject.hasProperty('authorityMultiplayer')) {
                     systemProperty 'heavyinventories.test.multiplayer', 'true'
+                }
+                if (modProject.hasProperty('packagedSmoke')) {
+                    dependsOn modProject.tasks.named('jar')
+                    def modJar = modProject.tasks.named('jar').get().archiveFile.get().asFile
+                    def outputs = modProject.sourceSets.main.output.files
+                    classpath = classpath.filter { !outputs.contains(it) } + modProject.files(modJar)
+                    if (modProject.name == 'neoforge') {
+                        // ModDev appends this provider again in its task action.
+                        def runtimeFiles = classpathProvider.files
+                        classpathProvider.setFrom(runtimeFiles.findAll { !outputs.contains(it) })
+                        if (runName == 'runServer' && modProject.hasProperty('withoutCloth')) {
+                            def keepDependency = { !it.name.startsWith('cloth-config-') && !it.name.startsWith('basic-math-') }
+                            classpath = classpath.filter(keepDependency)
+                            classpathProvider.setFrom(runtimeFiles.findAll { !outputs.contains(it) && keepDependency(it) })
+                        }
+                    }
+                    doFirst {
+                        if (modProject.name == 'fabric') systemProperty 'fabric.addMods', modJar.absolutePath
+                        else environment 'MOD_CLASSES', "heavyinventories%%${modJar.absolutePath}"
+                        println "PACKAGED MOD: ${modJar}"
+                        if (runName == 'runClient') {
+                            args '--username', "Step2${modProject.name.capitalize()}", '--width', '1100', '--height', '700'
+                            if (modProject.hasProperty('smokeMultiplayer'))
+                                args '--quickPlayMultiplayer', "127.0.0.1:${modProject.name == 'fabric' ? '25575' : '25576'}"
+                        }
+                    }
                 }
                 dependsOn testJar
                 classpath += modProject.files(testJar.flatMap { it.archiveFile })

@@ -9,6 +9,7 @@ import com.iso2t.heavyinventories.config.ConfigOptions;
 import com.iso2t.heavyinventories.api.weight.StackWeight;
 
 import java.util.List;
+import com.iso2t.heavyinventories.client.WeightDisplay;
 
 public class Tooltip {
 
@@ -29,14 +30,14 @@ public class Tooltip {
             return tooltip;
         }
         weight = single.weight();
-        tooltip.add(Component.translatable("tooltip.heavyinventories.item_weight", weight, ConfigOptions.WEIGHT_MEASURE.getSub()));
-        if (stack.getCount() > 1) tooltip.add(Component.translatable("tooltip.heavyinventories.item_stack_weight", total.weight(), ConfigOptions.WEIGHT_MEASURE.getSub()));
+        tooltip.add(Component.translatable("tooltip.heavyinventories.item_weight", WeightDisplay.weight(weight, ConfigOptions.WEIGHT_MEASURE)));
+        if (stack.getCount() > 1) tooltip.add(Component.translatable("tooltip.heavyinventories.item_stack_weight", WeightDisplay.weight(total.weight(), ConfigOptions.WEIGHT_MEASURE)));
 
         if (stack.getCount() < stack.getMaxStackSize()) {
             if (Minecraft.getInstance().hasShiftDown()) {
                 var maximum = StackWeight.of(stack.copyWithCount(stack.getMaxStackSize()), ClientWeightData::unitWeight);
                 tooltip.add(maximum.complete()
-                        ? Component.translatable("tooltip.heavyinventories.item_max_stack_weight", maximum.weight(), ConfigOptions.WEIGHT_MEASURE.getSub())
+                        ? Component.translatable("tooltip.heavyinventories.item_max_stack_weight", WeightDisplay.weight(maximum.weight(), ConfigOptions.WEIGHT_MEASURE))
                         : Component.translatable("tooltip.heavyinventories.calculation_limit"));
             } else {
                 tooltip.add(Component.translatable("tooltip.heavyinventories.hold_shift"));

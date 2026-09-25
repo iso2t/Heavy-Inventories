@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum MeasuringSystem {
-    KGS("Metric", "Kilograms", "kgs"),
+    KGS("Metric", "Kilograms", "kg"),
     LBS("Imperial", "Pounds", "lbs"),
     NONE("None", "", "");
 
@@ -15,6 +15,11 @@ public enum MeasuringSystem {
         this.unit = unit;
         this.name = name;
         this.sub = sub;
+    }
+
+    /** Stored weights are pounds; preferences affect presentation only. */
+    public double fromStored(double pounds) {
+        return this == KGS ? pounds * 0.45359237 : pounds;
     }
 
     @Override

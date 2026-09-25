@@ -31,15 +31,14 @@ public class ModCommands {
     public static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
                 Commands.literal("heavyinventories")
-                        .requires(Commands.hasPermission(new PermissionCheck.Require(Permissions.COMMANDS_GAMEMASTER)))
-                        .then(Commands.literal("set")
+                        .then(Commands.literal("set").requires(Commands.hasPermission(new PermissionCheck.Require(Permissions.COMMANDS_GAMEMASTER)))
                                 .then(Commands.literal("weight")
-                                        .then(RequiredArgumentBuilder.<CommandSourceStack, Float>argument("weight_argument", FloatArgumentType.floatArg())
+                                        .then(RequiredArgumentBuilder.<CommandSourceStack, Float>argument("weight_argument", FloatArgumentType.floatArg(0, ServerSettings.MAX_VALUE))
                                                 .executes(ModCommands::executeSetWeightCommand)
                                         )
                                 )
                         )
-                        .then(Commands.literal("reload")
+                        .then(Commands.literal("reload").requires(Commands.hasPermission(new PermissionCheck.Require(Permissions.COMMANDS_GAMEMASTER)))
                                 .executes(ModCommands::executeReloadCommand)
                                 .then(Commands.literal("weight")
                                         .executes(ModCommands::executeReloadCommand)
@@ -47,11 +46,12 @@ public class ModCommands {
                                 .then(Commands.literal("players")
                                         .executes(context -> {
                                             PlayerWeightCache.clearAll(context.getSource().getServer());
+                                            context.getSource().sendSuccess(() -> Component.translatable("command.heavyinventories.players_reloaded"), false);
                                             return Command.SINGLE_SUCCESS;
                                         })
                                 )
                         )
-                        .then(Commands.literal("dump")
+                        .then(Commands.literal("dump").requires(Commands.hasPermission(new PermissionCheck.Require(Permissions.COMMANDS_GAMEMASTER)))
                                 .then(RequiredArgumentBuilder.<CommandSourceStack, String>argument("modid", StringArgumentType.string())
                                         .suggests(new ModidSuggestionProvider())
                                         .executes(ModCommands::executeDumpCommand)
@@ -65,6 +65,10 @@ public class ModCommands {
 
     protected static int executeOpenConfig(CommandContext<CommandSourceStack> context, String type) {
         var source = context.getSource();
+        if (!java.util.Set.of("client", "server", "common").contains(type)) {
+            source.sendFailure(Component.translatable("command.heavyinventories.config.invalid", type));
+            return 0;
+        }
         var player = source.getPlayer();
         
         if (player == null) {
@@ -74,7 +78,7 @@ public class ModCommands {
 
         Services.CONFIG_SCREEN.sendOpenConfigPacket(player, type);
         
-        source.sendSuccess(() -> Component.translatable("command.heavyinventories.config.success", type), true);
+        source.sendSuccess(() -> Component.translatable("command.heavyinventories.config.success", type), false);
         return Command.SINGLE_SUCCESS;
     }
 
@@ -85,7 +89,7 @@ public class ModCommands {
             context.getSource().sendFailure(Component.translatable("command.heavyinventories.command_set.failure", number));
             return 0;
         }
-        ItemStack stack = context.getSource().getPlayer().getItemInHand(context.getSource().getPlayer().getUsedItemHand());
+        ItemStack stack = context.getSource().getPlayer().getMainHandItem();
         try { ServerSettings.validateItemWeight(number); }
         catch (IllegalArgumentException e) {
             context.getSource().sendFailure(Component.literal(e.getMessage()));
@@ -95,8 +99,12 @@ public class ModCommands {
             context.getSource().sendFailure(Component.literal("Hold an item to set its weight."));
             return 0;
         }
-        WeightOverride.put(stack.getItem(), number);
-        if (executeReloadCommand(context) == 0) return 0;
+        try {
+            ServerWeightState.of(context.getSource().getServer()).setWeight(net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem()), number);
+        } catch (java.io.IOException | IllegalArgumentException e) {
+            context.getSource().sendFailure(Component.translatable("command.heavyinventories.write_failed", e.getMessage()));
+            return 0;
+        }
         context.getSource().sendSuccess(() -> Component.translatable("command.heavyinventories.command_set.success", number), true);
         return Command.SINGLE_SUCCESS;
     }
@@ -116,7 +124,7 @@ public class ModCommands {
     protected static int executeDumpCommand(CommandContext<CommandSourceStack> context) {
         var modid = StringArgumentType.getString(context, "modid");
 
-        if (!Services.PLATFORM.isModLoaded(modid)) {
+        if (!modid.matches("[a-z0-9_.-]+") || (RegistryHelper.getItemsFor(modid).isEmpty() && RegistryHelper.getBlocksFor(modid).isEmpty())) {
             context.getSource().sendFailure(Component.literal(modid + " is invalid or not loaded!"));
             return 0;
         }
@@ -128,14 +136,13 @@ public class ModCommands {
         context.getSource().sendSystemMessage(Component.literal("Found " + items.size() + " items and " + blocks.size() + " blocks."));
 
         var level = context.getSource().getLevel();
-        try { WeightOverride.putDumpFile(items, blocks, level); }
-        catch (IllegalArgumentException e) {
+        java.nio.file.Path export;
+        try { export = WeightOverride.putDumpFile(modid, items, blocks, level); }
+        catch (java.io.IOException | IllegalArgumentException e) {
             context.getSource().sendFailure(Component.literal(e.getMessage()));
             return 0;
         }
-        if (executeReloadCommand(context) == 0) return 0;
-
-        context.getSource().sendSuccess(() -> Component.literal("Done!"), true);
+        context.getSource().sendSuccess(() -> Component.translatable("command.heavyinventories.exported", Services.PLATFORM.getGameDirectory().relativize(export).toString()), false);
         return Command.SINGLE_SUCCESS;
     }
 
@@ -146,7 +153,7 @@ public class ModCommands {
         public CompletableFuture<Suggestions> getSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
             for (var modid : HeavyInventories.getInstance().getModIds()) {
                 if (modid.equals(Services.PLATFORM.getPlatformName().toLowerCase())) continue;
-                if (RegistryHelper.getItemsFor(modid).isEmpty() || RegistryHelper.getBlocksFor(modid).isEmpty()) continue;
+                if (RegistryHelper.getItemsFor(modid).isEmpty() && RegistryHelper.getBlocksFor(modid).isEmpty()) continue;
 
                 builder.suggest(modid);
             }

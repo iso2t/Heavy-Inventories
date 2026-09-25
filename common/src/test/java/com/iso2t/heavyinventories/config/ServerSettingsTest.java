@@ -10,6 +10,27 @@ import static org.junit.jupiter.api.Assertions.*;
 class ServerSettingsTest {
     @TempDir Path directory;
 
+    @Test void walkingModeRoundTripsAndOlderConfigsUseTheDefault() throws Exception {
+        var file = directory.resolve("server.json");
+        var settings = new ServerSettings(12.375f, WalkingMode.AT_NINETY_PERCENT);
+        ConfigFileManager.writeServerConfig(file, settings);
+        assertEquals(settings, ConfigFileManager.readServerConfig(file));
+        Files.writeString(file, "{\"startingWeight\":23.5}");
+        assertEquals(ServerSettings.DEFAULT.walkingMode(), ConfigFileManager.readServerConfig(file).walkingMode());
+        Files.writeString(file, "{\"walkingMode\":\"at_ninety_percent\"}");
+        assertEquals(new ServerSettings(1000, WalkingMode.AT_NINETY_PERCENT), ConfigFileManager.readServerConfig(file));
+    }
+
+    @Test void invalidWalkingModesAreRejectedWithoutChangingTheFile() throws Exception {
+        var file = directory.resolve("server.json");
+        for (String value : new String[]{"null", "true", "17", "\"unknown\""}) {
+            String json = "{\"walkingMode\":" + value + "}";
+            Files.writeString(file, json);
+            assertThrows(IllegalArgumentException.class, () -> ConfigFileManager.readServerConfig(file));
+            assertEquals(json, Files.readString(file));
+        }
+    }
+
     @Test void decimalsSurviveFileRoundTrip() throws Exception {
         var file = directory.resolve("config/server.json");
         assertEquals(ServerSettings.DEFAULT, ConfigFileManager.readServerConfig(file));

@@ -3,15 +3,7 @@
   "description": {
     "translate": "enchantment.heavyinventories.bracing"
   },
-  "effects": {
-    "minecraft:tick": [
-      {
-        "effect": {
-          "type": "heavyinventories:bracing"
-        }
-      }
-    ]
-  },
+  "effects": {},
   "max_cost": {
     "base": 25,
     "per_level_above_first": 7

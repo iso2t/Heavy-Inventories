@@ -4,10 +4,8 @@
   "package": "com.iso2t.heavyinventories.fabric.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
-    "EquipmentMixin"
   ],
   "client": [
-    "InputMixin"
   ],
   "server": [],
   "injectors": {
