@@ -124,6 +124,9 @@ public final class ClientLifecycleScenario {
 				oldClient = client.player;
 				operation = server.submit(() -> {
 					var replacement = server.getPlayerList().respawn(serverPlayer, true, Entity.RemovalReason.KILLED);
+					// Vanilla's respawn packet handler performs this reassignment after PlayerList.respawn.
+					replacement.connection.player = replacement;
+					replacement.connection.resetPosition();
 					PlayerHolder.getOrCreate(replacement);
 					return replacement;
 				});
@@ -151,6 +154,8 @@ public final class ClientLifecycleScenario {
 				require(PlayerHolder.getOrCreate(client.player).getPlayer() == client.player, "Dimension change reused stale client entity");
 				operation = server.submit(() -> {
 					var replacement = server.getPlayerList().respawn(serverPlayer, false, Entity.RemovalReason.KILLED);
+					replacement.connection.player = replacement;
+					replacement.connection.resetPosition();
 					PlayerHolder.getOrCreate(replacement);
 					return replacement;
 				});
@@ -331,7 +336,10 @@ public final class ClientLifecycleScenario {
 
 	private boolean weightsMatch (Minecraft client, float expected) {
 		if (weightCheck == null) {
-			weightCheck = client.getSingleplayerServer().submit(() -> PlayerHolder.getOrCreate(serverPlayer).getWeight() == expected);
+			weightCheck = client.getSingleplayerServer().submit(() -> {
+				require(serverPlayer.connection.player == serverPlayer, "Connection still ticks the old player after respawn");
+				return PlayerHolder.getOrCreate(serverPlayer).getWeight() == expected;
+			});
 			return false;
 		}
 		if (!weightCheck.isDone()) return false;

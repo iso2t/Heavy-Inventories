@@ -70,10 +70,19 @@ class ServerSettingsTest {
 	}
 
 	@Test
-	void failedReplacementPreservesTargetAndCleansTemporaryFile () throws Exception {
+	void directoryAtConfigPathIsAnIoFailureAndIsPreserved () throws Exception {
 		var target = Files.createDirectory(directory.resolve("server.json"));
 		Files.writeString(target.resolve("keep.txt"), "original");
 		assertThrows(java.io.IOException.class, () -> ConfigFileManager.writeServerConfig(target, new ServerSettings(20)));
+		assertEquals("original", Files.readString(target.resolve("keep.txt")));
+	}
+
+	@Test
+	void failedReplacementPreservesTargetAndCleansTemporaryFile () throws Exception {
+		var target = Files.createDirectory(directory.resolve("server.json"));
+		Files.writeString(target.resolve("keep.txt"), "original");
+		assertThrows(java.io.IOException.class, () -> com.iso2t.heavyinventories.api.files.JsonFiles.writeObject(
+				target, JsonParser.parseString("{\"startingWeight\":20}").getAsJsonObject()));
 		assertEquals("original", Files.readString(target.resolve("keep.txt")));
 		try (var children = Files.list(directory)) {
 			assertEquals(1, children.count());

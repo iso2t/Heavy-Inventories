@@ -23,8 +23,10 @@ public final class JsonFiles {
 
 	public static JsonObject readObject (Path path) throws IOException {
 		if (Files.notExists(path)) return new JsonObject();
-		try (var reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
-			var root = GSON.fromJson(reader, JsonObject.class);
+		// Keep filesystem failures outside Gson, which wraps reader IOExceptions differently by platform.
+		var json = Files.readString(path, StandardCharsets.UTF_8);
+		try {
+			var root = GSON.fromJson(json, JsonObject.class);
 			if (root == null) throw new IllegalArgumentException("Expected a JSON object in " + path);
 			return root;
 		} catch (com.google.gson.JsonParseException | IllegalStateException e) {

@@ -76,7 +76,8 @@ def verifyModJar = tasks.register('verifyModJar') {
                 requireEntry(metadata.icon as String)
             } else {
                 def metadata = readEntry('META-INF/neoforge.mods.toml')
-                if (!metadata.contains('modId = "' + mod_id + '"') || metadata.contains('${')) {
+                if (!metadata.contains('modId = "' + mod_id + '"')
+                        || !metadata.contains('version = "' + project.version.toString() + '"') || metadata.contains('${')) {
                     throw new GradleException('NeoForge metadata contains an incorrect mod ID or unresolved properties')
                 }
                 (metadata =~ /(?m)^config\s*=\s*"([^"]+)"/).each { requireEntry(it[1]) }
@@ -84,6 +85,14 @@ def verifyModJar = tasks.register('verifyModJar') {
             }
 
             zip.entries().each { entry ->
+                if (entry.name.startsWith('com/iso2t/heavyinventories/') && entry.name.endsWith('.class')) {
+                    // Deleted sources must not survive in an incrementally built release jar.
+                    def sourcePath = entry.name.replaceFirst(/\.class$/, '').split('\\$', 2)[0] + '.java'
+                    if (!rootProject.file('common/src/main/java/' + sourcePath).isFile()
+                            && !file('src/main/java/' + sourcePath).isFile()) {
+                        throw new GradleException("Packaged class has no current source: ${entry.name}. Run a clean build.")
+                    }
+                }
                 if (entry.name.startsWith('com/iso2t/heavyinventories/test/')
                         || entry.name == 'heavyinventories.lifecycle-test.mixins.json') {
                     throw new GradleException("Test harness leaked into distributable jar: ${entry.name}")

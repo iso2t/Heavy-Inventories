@@ -36,7 +36,7 @@ public final class RingCompatibilityScenario {
 	private static final UUID     WAYPOINT = UUID.fromString("5157cc0f-1f54-479a-970c-5d831ee234ec");
 	private static       int      index, phase, waiting, ringStart, xpStart, width, height, level;
 	private static float  health;
-	private static double maxHealth, armor;
+	private static double maxHealth;
 	private static          long                    time;
 	private static          Horse                   horse;
 	private static          CompletableFuture<Void> operation;
@@ -51,7 +51,6 @@ public final class RingCompatibilityScenario {
 				operation = server.submit(() -> {
 					player.getInventory().clearContent();
 					player.getAttribute(Attributes.MAX_HEALTH).setBaseValue(maxHealth);
-					player.getAttribute(Attributes.ARMOR).setBaseValue(armor);
 					player.setHealth(health);
 					player.setExperienceLevels(level);
 					server.clockManager().setTotalTicks(player.level().dimensionType().defaultClock().orElseThrow(), time);
@@ -86,7 +85,6 @@ public final class RingCompatibilityScenario {
 					level = player.experienceLevel;
 					health = player.getHealth();
 					maxHealth = player.getAttribute(Attributes.MAX_HEALTH).getBaseValue();
-					armor = player.getAttribute(Attributes.ARMOR).getBaseValue();
 					time = server.clockManager().getTotalTicks(player.level().dimensionType().defaultClock().orElseThrow());
 					player.removeAllEffects();
 					player.getInventory().clearContent();
@@ -110,9 +108,6 @@ public final class RingCompatibilityScenario {
 					horse.discard();
 				} else {
 					player.getAttribute(Attributes.MAX_HEALTH).setBaseValue(60);
-					// Seed the displayed armor attribute explicitly, like the extra-health fixture.
-					// This checks HUD layout independently of equipment modifier recalculation.
-					player.getAttribute(Attributes.ARMOR).setBaseValue(20);
 					player.setHealth(60);
 					player.setItemSlot(EquipmentSlot.HEAD, new ItemStack(Items.DIAMOND_HELMET));
 					player.setItemSlot(EquipmentSlot.CHEST, new ItemStack(Items.DIAMOND_CHESTPLATE));
@@ -136,7 +131,7 @@ public final class RingCompatibilityScenario {
 			if (client.player.experienceLevel != 30) return false;
 			if (PlayerHolder.getOrCreate(client.player).getWeight() != (index == 4 ? 1100 : 900)) return false;
 			if (index == 1 && client.player.jumpableVehicle() == null) return false;
-			if (index >= 3 && (client.player.getMaxHealth() != 60 || client.player.getArmorValue() < 20)) return false;
+			if (index >= 3 && (client.player.getMaxHealth() != 60 || client.player.getArmorValue() != 20)) return false;
 			ringStart = RingHudScenario.ringFrames;
 			xpStart = RingHudScenario.xpFrames;
 			waiting = 0;

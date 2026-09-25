@@ -256,3 +256,11 @@ To repeat multiplayer, launch the server and client commands below in separate t
 ```
 
 Validate saved logs with `scripts/assert-runtime.ps1 -Mode MultiplayerServer` and `-Mode MultiplayerClient`; the latter now also requires `MULTIPLAYER RING PASSED`. The integrated-client command above runs all 25 checkpoints. Third-party HUD mods and custom resource packs remain unverified; a replacement ring texture must preserve the current 16×16 interior mask. These exclusions do not leave any agreed baseline HUD-plan steps outstanding.
+
+## RC1 acceptance follow-up
+
+The RC1 pass corrects two verification gaps found after the HUD plan. The scripted calls to `PlayerList.respawn` did not reassign `replacement.connection.player`, a step normally performed by vanilla's respawn packet handler. The listener therefore continued ticking the old entity; manually invoked weight updates hid this mistake. Both respawn paths now update the connection and reset its position, and weight assertions reject a stale connection owner. The crowded-HUD fixtures no longer assign the armor attribute: the real equipped diamond set must synchronize exactly 20 armor points. Both loader runs passed with this correction.
+
+The previous Linux CI failure was `ServerSettingsTest.failedReplacementPreservesTargetAndCleansTemporaryFile`: Linux allowed opening a directory as a reader, then Gson wrapped the read failure as invalid JSON. File reading now occurs before JSON parsing, preserving `IOException` consistently. The tests separately cover a directory at the config path and a failed atomic replacement with temporary-file cleanup. All 75 common tests pass locally; Windows/Linux CI runs against the RC branch.
+
+Use [RC1 verification](RC1_VERIFICATION.md) for the final candidate artifacts, hashes, reproduction commands, and acceptance evidence. Earlier log paths above are historical and may be removed by a clean build.

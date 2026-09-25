@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.Unique;
  */
 @Mixin(Player.class)
 public abstract class PlayerStateMixin implements PlayerStateAccess {
+
 	@Unique
 	private PlayerHolder heavyinventories$holder;
 
