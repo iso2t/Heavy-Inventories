@@ -10,17 +10,17 @@ import java.util.concurrent.CompletableFuture;
 
 public class ModEnchantmentGenerator extends FabricDynamicRegistryProvider {
 
-    public ModEnchantmentGenerator(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
-        super(output, registriesFuture);
-    }
+	public ModEnchantmentGenerator (FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
+		super(output, registriesFuture);
+	}
 
-    @Override
-    protected void configure(HolderLookup.Provider registries, Entries entries) {
-        entries.addAll(registries.lookupOrThrow(Registries.ENCHANTMENT));
-    }
+	@Override
+	protected void configure (HolderLookup.Provider registries, Entries entries) {
+		entries.addAll(registries.lookupOrThrow(Registries.ENCHANTMENT));
+	}
 
-    @Override
-    public @NotNull String getName() {
-        return "Heavy Inventories enchantments";
-    }
+	@Override
+	public @NotNull String getName () {
+		return "Heavy Inventories enchantments";
+	}
 }

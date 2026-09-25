@@ -6,57 +6,63 @@ package com.iso2t.heavyinventories.platform.services;
  */
 public interface IConfigScreenHelper {
 
-    /**
-     * Opens the client config screen on the client side.
-     * This should only be called from the client.
-     */
-    void openClientConfig();
+	/**
+	 * Opens the client config screen on the client side.
+	 * This should only be called from the client.
+	 */
+	void openClientConfig ();
 
-    /**
-     * Opens the server config screen on the client side.
-     * This should only be called from the client.
-     */
-    void openServerConfig();
+	/**
+	 * Opens the server config screen on the client side.
+	 * This should only be called from the client.
+	 */
+	void openServerConfig ();
 
-    /**
-     * Opens the common config screen on the client side.
-     * This should only be called from the client.
-     */
-    void openCommonConfig();
+	/**
+	 * Opens the common config screen on the client side.
+	 * This should only be called from the client.
+	 */
+	void openCommonConfig ();
 
-    /**
-     * Checks if the current side is the client.
-     * @return true if on client side, false otherwise
-     */
-    boolean isClientSide();
+	/**
+	 * Checks if the current side is the client.
+	 *
+	 * @return true if on client side, false otherwise
+	 */
+	boolean isClientSide ();
 
-    /**
-     * Sends a packet to the client to open the specified config screen.
-     * @param playerId the player to send the packet to
-     * @param configType the type of config to open ("client", "server", or "common")
-     */
-    void sendOpenConfigPacket(Object playerId, String configType);
+	/**
+	 * Sends a packet to the client to open the specified config screen.
+	 *
+	 * @param playerId   the player to send the packet to
+	 * @param configType the type of config to open ("client", "server", or "common")
+	 */
+	void sendOpenConfigPacket (Object playerId, String configType);
 
-    /**
-     * A no-op implementation for when the platform doesn't support config screens.
-     */
-    IConfigScreenHelper NO_OP = new IConfigScreenHelper() {
-        @Override
-        public void openClientConfig() {}
+	/**
+	 * A no-op implementation for when the platform doesn't support config screens.
+	 */
+	IConfigScreenHelper NO_OP = new IConfigScreenHelper() {
+		@Override
+		public void openClientConfig () {
+		}
 
-        @Override
-        public void openServerConfig() {}
+		@Override
+		public void openServerConfig () {
+		}
 
-        @Override
-        public void openCommonConfig() {}
+		@Override
+		public void openCommonConfig () {
+		}
 
-        @Override
-        public boolean isClientSide() {
-            return false;
-        }
+		@Override
+		public boolean isClientSide () {
+			return false;
+		}
 
-        @Override
-        public void sendOpenConfigPacket(Object playerId, String configType) {}
-    };
+		@Override
+		public void sendOpenConfigPacket (Object playerId, String configType) {
+		}
+	};
 }
 

@@ -6,14 +6,14 @@ import net.neoforged.fml.ModContainer;
 
 public class HeavyInventoriesNeoForgeServer extends HeavyInventoriesNeoForgeBase {
 
-    public HeavyInventoriesNeoForgeServer(ModContainer modContainer, IEventBus modEventBus) {
-        super(modContainer, modEventBus);
+	public HeavyInventoriesNeoForgeServer (ModContainer modContainer, IEventBus modEventBus) {
+		super(modContainer, modEventBus);
 
-    }
+	}
 
-    @Override
-    public Level getClientLevel() {
-        return null;
-    }
+	@Override
+	public Level getClientLevel () {
+		return null;
+	}
 
 }

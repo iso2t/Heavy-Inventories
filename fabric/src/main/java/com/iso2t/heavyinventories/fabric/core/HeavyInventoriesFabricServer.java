@@ -4,14 +4,13 @@ import net.minecraft.world.level.Level;
 
 public class HeavyInventoriesFabricServer extends HeavyInventoriesFabricBase {
 
-    public HeavyInventoriesFabricServer() {
-        super();
+	public HeavyInventoriesFabricServer () {
+		super();
+	}
 
-    }
-
-    @Override
-    public Level getClientLevel() {
-        return null;
-    }
+	@Override
+	public Level getClientLevel () {
+		return null;
+	}
 
 }

@@ -106,6 +106,7 @@ def verifyModJar = tasks.register('verifyModJar') {
             ['bracing', 'reinforced', 'surefooted'].each {
                 requireEntry("data/${mod_id}/enchantment/${it}.json")
             }
+            requireEntry("assets/${mod_id}/textures/gui/hud_ring.png")
             def defaults = json.parse(rootProject.file('common/src/main/weight-defaults.json'))
             def expectedWeights = [:]
             defaults.groups.each { group -> group.items.each { id -> expectedWeights[id] = group.weight } }

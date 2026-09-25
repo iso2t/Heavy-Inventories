@@ -212,3 +212,47 @@ Reproduce in the existing disposable test worlds (accept the EULA before a new d
 ```
 
 Use `scripts/assert-runtime.ps1` with `Datapack`, `DatapackClient`, or `Client` for the corresponding log. The datapack modes require `BUNDLED DEFAULTS PASSED` as well as their existing markers. These runs validate calculation and delivery, not long-term gameplay balance or third-party modpack coverage. Separate-process multiplayer reconnect checks were not repeated in Step 6.
+
+## Weight ring HUD
+
+The shared renderer draws the supplied 16×16 frame over a matching interior mask. Fabric registers after INFO_BAR so the ring survives XP level zero; NeoForge registers below EXPERIENCE_LEVEL. Both wrap the existing XP layer with a scoped vertical translation. Production jars contain no new mixins for this feature; test-only injections observe the real vanilla XP transform.
+
+The full build and **74 common tests** passed. New tests cover the mask against the actual PNG, fill quantization and capacity changes, migration of old/off settings, integer range validation, and persistence of HUD modes/offsets. Both jar checks now require the frame texture.
+
+Both packaged clients passed **20 visual checkpoints**: weights 0/25/50/89/90/99/100/125%, XP levels 0/1/30/100/1000, offsets 0/7/8/12/64, ring/numbers/both/off modes, and a real nested-container calculation limit. The harness verifies server-synchronized weights, ring visibility, the actual transform seen by vanilla XP drawing, and restoration of vanilla positioning when the ring is hidden. Cloth tests save offset 12, reload it, reopen the screen, and then restore the disposable client's preferences.
+
+Screenshots under `<loader>/runs/client/screenshots/ring-*.png` and `step7-settings.png` show the actual game renderer. The ring/XP layering and the settings screen were visually inspected on both loaders. Existing F1, GUI scales 1/2, screen hiding, respawn/dimension, equipment/container, Strength/movement, admin, and feedback checks also passed.
+
+Evidence:
+- `build/hud-ring-clients.log`: full build plus both integrated-client suites. `scripts/assert-runtime.ps1 -Mode Client` now requires `RING HUD PASSED`.
+- `build/hud-ring-datapacks.log`: dedicated startup/reload and integrated live datapack reloads with the new HUD on both loaders.
+
+Reproduce with the existing disposable worlds:
+
+```powershell
+.\gradlew.bat build :fabric:runClient :neoforge:runClient -I gradle/lifecycle-smoke.gradle -PpackagedSmoke "-PlifecycleClientWorld=New World" --offline --console=plain
+.\gradlew.bat :fabric:runServer :neoforge:runServer :fabric:runClient :neoforge:runClient -I gradle/lifecycle-smoke.gradle -PpackagedSmoke -PdatapackSmoke "-PlifecycleClientWorld=New World" --offline --console=plain
+```
+
+### Final ring compatibility acceptance
+
+The remaining HUD plan checks passed on both loaders. `RingCompatibilityScenario` adds five real-game checkpoints to the original 20: a server-sent locator waypoint, a spawned/tamed/saddled horse's jump bar, dismounting back to experience, daylight at 800×600, and night at 1600×900. The day/night cases equip diamond armor and explicitly seed the armor-display and maximum-health attributes, producing armor icons and three rows of hearts. This isolates the layout check from equipment modifier recalculation. World time, window dimensions, and attribute fixtures are restored afterward. Test-only observers verify the actual contextual-bar class, vanilla XP transform, and at most one ring draw per GUI extraction. Screenshots from both loaders were inspected for ring/XP ordering, bar clearance, and light/dark readability.
+
+Separate-process Fabric and NeoForge clients also passed the authority/movement/reconnect suite with the ring active. Each captured an overloaded state before disconnect and the new server state after reconnect (45 weight / 512 capacity), verifying fresh definitions/bonuses, visible ring, offset 7, vanilla XP rendering, and no duplicate draws. Client display preferences and dedicated-server configuration are restored by the harness. The final build, both jar checks, and all **74 common tests** passed. This final acceptance pass required test-harness additions only; the production renderer did not need adjustment.
+
+Final local evidence:
+
+- `build/hud-ring-final-build.log`: clean full build and production-jar checks.
+- `build/hud-ring-compat-clients.log`: both packaged integrated suites, with 25 ring checkpoints each. `Client` assertion mode now requires both `RING HUD PASSED` and `RING COMPATIBILITY PASSED`; use this newer log with the current script.
+- `build/hud-ring-fabric-mp-server.log` and `build/hud-ring-fabric-mp-client.log`: separate-process Fabric acceptance.
+- `build/hud-ring-neoforge-mp-server.log` and `build/hud-ring-neoforge-mp-client.log`: separate-process NeoForge acceptance.
+- Each loader's `runs/client/screenshots/ring-{locator,mounted-jump,experience-return,day-small-crowded,night-large-crowded,multiplayer-overloaded,multiplayer-reconnected}.png` contains the added visual evidence.
+
+To repeat multiplayer, launch the server and client commands below in separate terminals, promptly one after the other. Use the existing EULA-accepted disposable servers bound to localhost (Fabric 25575, NeoForge 25576); replace `fabric` with `neoforge` for the second run. Each process stops itself. The server restores its config and operator state; the fixture replaces the test player's inventory.
+
+```powershell
+.\gradlew.bat :fabric:runServer -I gradle/lifecycle-smoke.gradle -PpackagedSmoke -PauthorityMultiplayer --offline --console=plain
+.\gradlew.bat :fabric:runClient -I gradle/lifecycle-smoke.gradle -PpackagedSmoke -PauthorityMultiplayer -PsmokeMultiplayer --offline --console=plain
+```
+
+Validate saved logs with `scripts/assert-runtime.ps1 -Mode MultiplayerServer` and `-Mode MultiplayerClient`; the latter now also requires `MULTIPLAYER RING PASSED`. The integrated-client command above runs all 25 checkpoints. Third-party HUD mods and custom resource packs remain unverified; a replacement ring texture must preserve the current 16×16 interior mask. These exclusions do not leave any agreed baseline HUD-plan steps outstanding.

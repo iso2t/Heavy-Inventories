@@ -12,7 +12,10 @@
   "client": [
     "ClientLifecycleSmokeMixin",
     "GuiFeedbackTestAccess",
-    "HudFeedbackSmokeMixin"
+    "HudFeedbackSmokeMixin",
+    "RingHudSmokeMixin",
+    "RingFrameSmokeMixin",
+    "ExperiencePositionSmokeMixin"
   ],
   "injectors": {
     "defaultRequire": 1

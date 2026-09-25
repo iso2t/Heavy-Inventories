@@ -11,20 +11,20 @@ import java.util.List;
 
 public interface HeavyInventories {
 
-	String MOD_ID = "heavyinventories";
+	String MOD_ID   = "heavyinventories";
 	String MOD_NAME = "Heavy Inventories";
-	Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
+	Logger LOGGER   = LoggerFactory.getLogger(MOD_NAME);
 
-    static HeavyInventories getInstance() {
-        return ModBase.INSTANCE;
-    }
+	static HeavyInventories getInstance () {
+		return ModBase.INSTANCE;
+	}
 
-    Collection<ServerPlayer> getPlayers();
+	Collection<ServerPlayer> getPlayers ();
 
-    Level getClientLevel();
+	Level getClientLevel ();
 
-    MinecraftServer getCurrentServer();
+	MinecraftServer getCurrentServer ();
 
-    List<String> getModIds();
+	List<String> getModIds ();
 
 }

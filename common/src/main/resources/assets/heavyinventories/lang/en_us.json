@@ -50,5 +50,11 @@
   "command.heavyinventories.write_failed": "Weight was not changed: %s",
   "command.heavyinventories.exported": "Exported weight report to %s, including sources. This is not an installable datapack and does not change gameplay.",
   "command.heavyinventories.converted": "Converted %s weights (%s entries without weights skipped) to %s. Review the ZIP, install it in the intended world's datapacks folder, and enable it. Source files and gameplay were unchanged.",
-  "command.heavyinventories.conversion_failed": "Weight conversion failed: %s"
+  "command.heavyinventories.conversion_failed": "Weight conversion failed: %s",
+  "option.heavyinventories.hud_mode": "Weight display",
+  "option.heavyinventories.hud_mode.ring": "Ring",
+  "option.heavyinventories.hud_mode.numbers": "Numbers",
+  "option.heavyinventories.hud_mode.both": "Ring and numbers",
+  "option.heavyinventories.ring_vertical_offset": "Ring vertical offset",
+  "option.heavyinventories.ring_vertical_offset.tooltip": "Moves the ring and XP number upward together in GUI pixels (0–64; default 7). Zero may overlap the XP bar. Try 12 for long XP numbers. Hiding the ring restores vanilla XP positioning."
 }

@@ -73,7 +73,7 @@ Both encumbered states prevent ground jumping. Encumbered/overloaded horizontal 
 
 Creative and spectator players are exempt. Ability flight, gliding, and riding bypass movement penalties. Weight still displays when appropriate. The mod scales normalized horizontal input, preserving vanilla momentum, knockback, vertical input, and movement modifiers; these are not absolute speed limits or an anti-cheat system.
 
-The optional bottom-right HUD shows weight, effective capacity, percentage, and encumbrance status. Colors change at the actual 90% and 100% thresholds. Ground-jump denial appears briefly in the action bar, throttled to once per 40 client ticks. Item tooltips include current stack weight; hold Shift for maximum-stack weight.
+The default weight HUD is a 16×16 ring behind the XP level. Its center fills upward using current weight and effective capacity: green below 90%, yellow from 90% to below 100%, and red at 100% or more. It remains visible at XP level zero. Choose Ring, Numbers, or Ring and numbers in client settings; the numeric display shows weight, capacity, percentage, and status at the bottom right. Disable the GUI overlay to hide both. A calculation-limit warning remains visible even in ring-only mode. Ground-jump denial appears briefly in the action bar, throttled to once per 40 client ticks. Item tooltips include current stack weight; hold Shift for maximum-stack weight.
 
 ## Server configuration
 
@@ -92,7 +92,11 @@ Use `"at_ninety_percent"` for the alternative walking mode. Older files without 
 
 Operators can also open `/heavyinventories config server` and edit both values. Saving sends a validated request to the server; accepted changes are written before they apply. Non-operators can view the server screen. Singleplayer requires command permission for server edits.
 
-Client display preferences and colors are available through `/heavyinventories config client` and stored in `config/heavyinventories-client.json`.
+Client display preferences and numeric text colors are available through `/heavyinventories config client` and stored in `config/heavyinventories-client.json`.
+
+**Ring vertical offset** is a client-only whole number from 0 to 64, default **7**. Higher values move the ring and vanilla XP number upward together in GUI pixels; the XP bar stays in place. Zero retains vanilla text placement and may overlap the bar; 12 gives long XP numbers more space. Hiding the ring restores vanilla XP text positioning. The settings screen provides a reset to 7.
+
+The saved fields are `hudMode` (`"ring"`, `"numbers"`, or `"both"`), `ringVerticalOffset`, and the existing `enableGuiOverlay` master toggle. Older settings default to ring mode with offset 7 and preserve an explicit overlay-off preference. These settings never change server gameplay or other players' HUDs.
 
 ### Item weights in datapacks
 

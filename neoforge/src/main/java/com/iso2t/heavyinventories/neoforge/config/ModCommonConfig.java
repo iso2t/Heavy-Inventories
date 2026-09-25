@@ -11,42 +11,41 @@ import net.minecraft.network.chat.Component;
  */
 public class ModCommonConfig {
 
-    private static ConfigBuilder builder;
-    private static boolean entriesInitialized = false;
+	private static ConfigBuilder builder;
+	private static boolean       entriesInitialized = false;
 
-    public static void init() {
-        if (builder == null) {
-            builder = ConfigBuilder.create().setParentScreen(null).setTitle(Component.translatable("title.heavyinventories.config.common"));
-        }
+	public static void init () {
+		if (builder == null) {
+			builder = ConfigBuilder.create().setParentScreen(null).setTitle(Component.translatable("title.heavyinventories.config.common"));
+		}
 
-        builder.setSavingRunnable(ModCommonConfig::saveConfig);
+		builder.setSavingRunnable(ModCommonConfig::saveConfig);
 
-        // Only add entries once to prevent duplication
-        if (!entriesInitialized) {
-            ConfigCategory general = builder.getOrCreateCategory(Component.translatable("category.heavyinventories.general"));
-            ConfigEntryBuilder entryBuilder = builder.entryBuilder();
+		// Only add entries once to prevent duplication
+		if (!entriesInitialized) {
+			ConfigCategory general = builder.getOrCreateCategory(Component.translatable("category.heavyinventories.general"));
+			ConfigEntryBuilder entryBuilder = builder.entryBuilder();
 
-            // TODO: Add common config options here
-            // These are configs that apply to both client and server
-            general.addEntry(entryBuilder.startTextDescription(Component.translatable("option.heavyinventories.common_config_info"))
-                    .build());
-            
-            entriesInitialized = true;
-        }
-    }
+			// TODO: Add common config options here
+			// These are configs that apply to both client and server
+			general.addEntry(entryBuilder.startTextDescription(Component.translatable("option.heavyinventories.common_config_info")).build());
 
-    /**
-     * Save the config.
-     */
-    private static void saveConfig() {
-        // TODO: Implement common config saving
-    }
+			entriesInitialized = true;
+		}
+	}
 
-    public static ConfigBuilder getBuilder() {
-        if (builder == null) {
-            init();
-        }
-        return builder;
-    }
+	/**
+	 * Save the config.
+	 */
+	private static void saveConfig () {
+		// TODO: Implement common config saving
+	}
+
+	public static ConfigBuilder getBuilder () {
+		if (builder == null) {
+			init();
+		}
+		return builder;
+	}
 }
 

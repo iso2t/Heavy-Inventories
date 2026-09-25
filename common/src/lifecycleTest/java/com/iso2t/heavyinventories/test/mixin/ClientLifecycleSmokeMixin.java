@@ -10,10 +10,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Minecraft.class)
 public abstract class ClientLifecycleSmokeMixin {
-    @Unique private final ClientLifecycleScenario heavyinventories$scenario = new ClientLifecycleScenario();
+	@Unique
+	private final ClientLifecycleScenario heavyinventories$scenario = new ClientLifecycleScenario();
 
-    @Inject(method = "tick", at = @At("TAIL"))
-    private void heavyinventories$testClient(CallbackInfo ci) {
-        heavyinventories$scenario.tick((Minecraft) (Object) this);
-    }
+	@Inject(method = "tick", at = @At("TAIL"))
+	private void heavyinventories$testClient (CallbackInfo ci) {
+		heavyinventories$scenario.tick((Minecraft) (Object) this);
+	}
 }

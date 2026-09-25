@@ -3,8 +3,9 @@ package com.iso2t.heavyinventories.config;
 @FunctionalInterface
 public interface ConfigScreenOpener {
 
-    void openConfigScreen();
+	void openConfigScreen ();
 
-    ConfigScreenOpener NO_OP = () -> {};
+	ConfigScreenOpener NO_OP = () -> {
+	};
 
 }

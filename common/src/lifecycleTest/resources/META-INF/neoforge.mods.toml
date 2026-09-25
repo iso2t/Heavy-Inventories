@@ -1,9 +1,9 @@
-modLoader="javafml"
-loaderVersion="[1,)"
-license="MIT"
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "MIT"
 [[mods]]
-modId="heavyinventories_lifecycle_test"
-version="1.0.0"
-displayName="Heavy Inventories Lifecycle Tests"
+modId = "heavyinventories_lifecycle_test"
+version = "1.0.0"
+displayName = "Heavy Inventories Lifecycle Tests"
 [[mixins]]
-config="heavyinventories.lifecycle-test.mixins.json"
+config = "heavyinventories.lifecycle-test.mixins.json"

@@ -10,16 +10,15 @@ import org.jetbrains.annotations.NotNull;
 
 public record ReinforcedEnchantmentEffect() implements EnchantmentEntityEffect {
 
-    public static final MapCodec<ReinforcedEnchantmentEffect> CODEC = MapCodec.unit(ReinforcedEnchantmentEffect::new);
+	public static final MapCodec<ReinforcedEnchantmentEffect> CODEC = MapCodec.unit(ReinforcedEnchantmentEffect::new);
 
+	@Override
+	public void apply (@NotNull ServerLevel serverLevel, int enchantmentLevel, @NotNull EnchantedItemInUse enchantedItemInUse, @NotNull Entity entity, @NotNull Vec3 vec3) {
+		// Legacy codec retained for datapacks. PlayerHolder rebuilds bonuses from current equipment.
+	}
 
-    @Override
-    public void apply(@NotNull ServerLevel serverLevel, int enchantmentLevel, @NotNull EnchantedItemInUse enchantedItemInUse, @NotNull Entity entity, @NotNull Vec3 vec3) {
-        // Legacy codec retained for datapacks. PlayerHolder rebuilds bonuses from current equipment.
-    }
-
-    @Override
-    public @NotNull MapCodec<? extends EnchantmentEntityEffect> codec() {
-        return CODEC;
-    }
+	@Override
+	public @NotNull MapCodec<? extends EnchantmentEntityEffect> codec () {
+		return CODEC;
+	}
 }

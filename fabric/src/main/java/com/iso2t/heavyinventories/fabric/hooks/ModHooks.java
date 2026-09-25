@@ -6,9 +6,8 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 
 public class ModHooks {
-    public static void registerHooks() {
-        ServerTickEvents.END_SERVER_TICK.register(server ->
-                server.getPlayerList().getPlayers().forEach(PlayerEvents::onPlayerTick));
-        CommandRegistrationCallback.EVENT.register((dispatcher, _, _) -> ModCommands.registerCommands(dispatcher));
-    }
+	public static void registerHooks () {
+		ServerTickEvents.END_SERVER_TICK.register(server -> server.getPlayerList().getPlayers().forEach(PlayerEvents::onPlayerTick));
+		CommandRegistrationCallback.EVENT.register((dispatcher, _, _) -> ModCommands.registerCommands(dispatcher));
+	}
 }

@@ -4,6 +4,10 @@
   "version": "1.0.0",
   "name": "Heavy Inventories Lifecycle Tests",
   "environment": "*",
-  "mixins": ["heavyinventories.lifecycle-test.mixins.json"],
-  "depends": {"heavyinventories": "*"}
+  "mixins": [
+    "heavyinventories.lifecycle-test.mixins.json"
+  ],
+  "depends": {
+    "heavyinventories": "*"
+  }
 }
