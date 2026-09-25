@@ -111,17 +111,16 @@ def metadata(root, tag=None, commit=None):
     }, body
 
 
-def resolve(root, tag):
-    require(tag.startswith('v'), 'Release tag must start with v')
-    channel(tag[1:])
+def resolve(root):
+    meta, _ = metadata(root)
+    tag, sha = meta['tag'], meta['commit']
     rules = policy(root)
-    sha = git('rev-parse', '--verify', 'refs/tags/' + tag + '^{commit}', root=root)
     trusted = False
     for branch in rules['release_branches']:
         require(re.fullmatch(r'[A-Za-z0-9_./-]+', branch) and '..' not in branch, 'Invalid release branch')
         check = subprocess.run(['git', 'merge-base', '--is-ancestor', sha, 'refs/remotes/origin/' + branch], cwd=root, capture_output=True)
         trusted |= check.returncode == 0
-    require(trusted, 'Tag must point to a commit on a configured release branch: ' + ', '.join(rules['release_branches']))
+    require(trusted, 'Selected commit must be on a configured release branch: ' + ', '.join(rules['release_branches']))
     output = os.environ.get('GITHUB_OUTPUT')
     if output:
         with open(output, 'a', encoding='utf-8') as handle:
@@ -197,8 +196,7 @@ def main():
     parser.add_argument('--bundle', type=Path, default=Path('build/release/bundle'))
     args = parser.parse_args()
     if args.command == 'resolve':
-        require(bool(args.tag), 'Missing release tag')
-        print(resolve(args.root, args.tag))
+        print(resolve(args.root))
     elif args.command == 'validate':
         print(json.dumps(metadata(args.root, args.tag)[0], indent=2))
     elif args.command == 'package':

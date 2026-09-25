@@ -93,8 +93,11 @@ class GitHub:
         self.upload = Http('https://uploads.github.com', 'Bearer ' + token)
         self.path = '/repos/' + repository
 
-    def tag_sha(self, tag):
-        value = self.api.get(self.path + '/git/ref/tags/' + urllib.parse.quote(tag, safe=''))['object']
+    def tag_sha(self, tag, missing=False):
+        ref = self.api.get(self.path + '/git/ref/tags/' + urllib.parse.quote(tag, safe=''), missing=missing)
+        if ref is None:
+            return None
+        value = ref['object']
         for _ in range(5):
             if value['type'] == 'commit':
                 return value['sha']
@@ -102,11 +105,24 @@ class GitHub:
             value = self.api.get(self.path + '/git/tags/' + value['sha'])['object']
         raise ReleaseError('Too many nested annotated tags')
 
-    def preflight(self, meta):
+    def preflight(self, meta, allow_missing_tag=False):
         # Repository permissions.push is not the Actions token's contents scope.
         # The workflow requests contents: write; release writes enforce it.
         self.api.get(self.path)
-        require(self.tag_sha(meta['tag']) == meta['commit'], 'Remote release tag moved or differs from bundle')
+        sha = self.tag_sha(meta['tag'], missing=allow_missing_tag)
+        require((allow_missing_tag and sha is None) or sha == meta['commit'],
+                'Release tag already points to a different commit; use a new version in gradle.properties and its changelog')
+
+    def ensure_tag(self, meta):
+        sha = self.tag_sha(meta['tag'], missing=True)
+        require(sha is None or sha == meta['commit'],
+                'Release tag already points to a different commit; use a new version in gradle.properties and its changelog')
+        if sha is None:
+            self.api.request('POST', self.path + '/git/refs', value={
+                'ref': 'refs/tags/' + meta['tag'], 'sha': meta['commit'],
+            })
+        # Covers a concurrent change as well as the new tag before any file uploads.
+        self.preflight(meta)
 
     def release(self, tag):
         return self.api.get(self.path + '/releases/tags/' + urllib.parse.quote(tag, safe=''), missing=True)
@@ -190,26 +206,18 @@ class CurseForge:
     def __init__(self, project, token):
         self.project = project
         self.api = Http('https://minecraft.curseforge.com', token, 'X-Api-Token')
-        self.versions = {}
 
     def preflight(self, meta):
-        rows = self.api.get('/api/game/versions')
-        for name in (meta['minecraft'], 'Fabric', 'NeoForge'):
-            matches = [r['id'] for r in rows if r['name'] == name]
-            require(len(matches) == 1, 'Missing/ambiguous CurseForge game or loader tag: ' + name)
-            self.versions[name] = matches[0]
-        # The author API has no documented project/permission or file lookup endpoint.
-        # This validates metadata access, not project upload permission or dependency ownership.
+        # Check API access only. The upload endpoint accepts version names directly
+        # and validates them; no catalog lookup or numeric-ID conversion is needed.
+        self.api.get('/api/game/versions')
 
     def payload(self, meta, loader, body):
         loader_name = 'Fabric' if loader == 'fabric' else 'NeoForge'
         value = {'displayName': f"Heavy Inventories {meta['version']} ({loader_name})", 'changelog': body,
                  'changelogType': 'markdown', 'releaseType': meta['channel'],
+                 'gameVersionNames': [meta['minecraft'], loader_name],
                  'relations': {'projects': [{'slug': d['slug'], 'projectID': d['curseforge'], 'type': 'requiredDependency'} for d in meta['dependencies'][loader]]}}
-        if self.versions:
-            value['gameVersions'] = [self.versions[meta['minecraft']], self.versions[loader_name]]
-        else:
-            value['gameVersionNames'] = [meta['minecraft'], loader_name]
         return value
 
     def publish(self, meta, loader, body, data):

@@ -1,13 +1,9 @@
 name: Publish release
-run-name: Publish ${{ inputs.tag }} (${{ inputs.mode }})
+run-name: Publish ${{ github.ref_name }} (${{ inputs.mode }})
 
 on:
   workflow_dispatch:
     inputs:
-      tag:
-        description: Existing release tag (v plus the Gradle version)
-        required: true
-        type: string
       mode:
         description: dry-run previews only; preflight reads APIs; publish uploads
         type: choice
@@ -36,17 +32,15 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          # Use this run's tag/selected branch, never unrelated default-branch code.
+          # Freeze the selected branch at the commit that started this run.
           ref: ${{ github.sha }}
           fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: '3.13'
-      - name: Resolve existing tag and verify release branch ancestry
+      - name: Read version and changelog from the selected commit
         id: resolve
-        env:
-          RELEASE_TAG: ${{ inputs.tag }}
         run: python scripts/release/release.py resolve
 
   build:

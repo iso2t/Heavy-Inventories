@@ -133,19 +133,20 @@ class ValidationTests(Fixture):
         self.assertFalse(publisher.should_be_latest({**stable, 'minecraft': '1.21'}, None))
         self.assertFalse(publisher.should_be_latest(stable, {'tag_name': 'unknown'}))
 
-    def test_resolve_rejects_unmerged_tag(self):
+    def test_resolve_rejects_commit_outside_release_branch(self):
         from unittest.mock import Mock
         with patch.object(release, 'git', return_value='a' * 40), \
                 patch.object(release.subprocess, 'run', return_value=Mock(returncode=1)), \
                 self.assertRaisesRegex(release.ReleaseError, 'configured release branch: 26.1'):
-            release.resolve(self.root, 'v4.0.0-rc.1')
+            release.resolve(self.root)
 
     def test_resolve_accepts_version_branch_without_main(self):
         from unittest.mock import Mock
-        with patch.object(release, 'git', return_value='a' * 40), \
+        with patch.object(release, 'git', return_value='a' * 40) as git_command, \
                 patch.object(release.subprocess, 'run', return_value=Mock(returncode=0)) as command, \
                 patch.dict(os.environ, {}, clear=True):
-            self.assertEqual(release.resolve(self.root, 'v4.0.0-rc.1'), 'a' * 40)
+            self.assertEqual(release.resolve(self.root), 'a' * 40)
+        git_command.assert_called_once_with('rev-parse', 'HEAD', root=self.root)
         command.assert_called_once_with(
             ['git', 'merge-base', '--is-ancestor', 'a' * 40, 'refs/remotes/origin/26.1'],
             cwd=self.root, capture_output=True)
@@ -162,9 +163,15 @@ class FakeGitHub:
         self.value, self.files, self.writes = None, {}, 0
         self.fail_asset, self.fail_after_save = None, False
         self.fail_finalize = False
+        self.tag_created = False
 
-    def preflight(self, meta):
+    def preflight(self, meta, allow_missing_tag=False):
         pass
+
+    def ensure_tag(self, meta):
+        if not self.tag_created:
+            self.writes += 1
+            self.tag_created = True
 
     def release(self, tag):
         return copy.deepcopy(self.value)
@@ -342,6 +349,13 @@ class RecoveryTests(Fixture):
         self.assertEqual(self.gh.writes, 0)
         self.assertEqual(self.adapters['curseforge'].calls, [])
 
+    def test_tag_creation_failure_stops_before_release_or_uploads(self):
+        with patch.object(self.gh, 'ensure_tag', side_effect=release.ReleaseError('tag creation failed')):
+            with self.assertRaisesRegex(release.ReleaseError, 'tag creation failed'):
+                self.attempt_publish()
+        self.assertEqual(self.gh.writes, 0)
+        self.assertEqual([len(p.calls) for p in self.adapters.values()], [0, 0])
+
     def test_receipt_write_failure_stops_and_preserves_intent(self):
         self.gh.fail_asset = 'publish-state-000002.json'
         with self.assertRaises(release.ReleaseError):
@@ -388,6 +402,77 @@ class RecoveryTests(Fixture):
 
 
 class TransportTests(unittest.TestCase):
+    def test_github_preflight_allows_new_tag_without_creating_it(self):
+        from unittest.mock import Mock
+        adapter = platforms.GitHub('iso2t/Heavy-Inventories', 'test-token')
+        adapter.api = Mock()
+        adapter.api.get.side_effect = [{}, None]
+        adapter.preflight({'tag': 'v4.0.0-rc.1', 'commit': 'a' * 40}, allow_missing_tag=True)
+        adapter.api.request.assert_not_called()
+
+    def test_github_creates_tag_at_built_commit(self):
+        from unittest.mock import Mock
+        adapter = platforms.GitHub('iso2t/Heavy-Inventories', 'test-token')
+        adapter.api = Mock()
+        adapter.api.get.side_effect = [None, {}, {'object': {'type': 'commit', 'sha': 'a' * 40}}]
+        adapter.ensure_tag({'tag': 'v4.0.0-rc.1', 'commit': 'a' * 40})
+        adapter.api.request.assert_called_once_with('POST', '/repos/iso2t/Heavy-Inventories/git/refs',
+                                                   value={'ref': 'refs/tags/v4.0.0-rc.1', 'sha': 'a' * 40})
+
+    def test_github_never_moves_conflicting_tag(self):
+        from unittest.mock import Mock
+        adapter = platforms.GitHub('iso2t/Heavy-Inventories', 'test-token')
+        adapter.api = Mock()
+        adapter.api.get.return_value = {'object': {'type': 'commit', 'sha': 'b' * 40}}
+        with self.assertRaisesRegex(release.ReleaseError, 'different commit'):
+            adapter.ensure_tag({'tag': 'v4.0.0-rc.1', 'commit': 'a' * 40})
+        adapter.api.request.assert_not_called()
+
+    def test_github_reuses_matching_annotated_tag(self):
+        from unittest.mock import Mock
+        adapter = platforms.GitHub('iso2t/Heavy-Inventories', 'test-token')
+        adapter.api = Mock()
+        annotated = {'object': {'type': 'tag', 'sha': 'b' * 40}}
+        target = {'object': {'type': 'commit', 'sha': 'a' * 40}}
+        adapter.api.get.side_effect = [annotated, target, {}, annotated, target]
+        adapter.ensure_tag({'tag': 'v4.0.0-rc.1', 'commit': 'a' * 40})
+        adapter.api.request.assert_not_called()
+
+    def test_lost_tag_creation_response_recovers_without_another_write(self):
+        from unittest.mock import Mock
+        adapter = platforms.GitHub('iso2t/Heavy-Inventories', 'test-token')
+        adapter.api = Mock()
+        state = {}
+        def get(path, **kwargs):
+            return state.get('tag') if '/git/ref/' in path else {}
+        def create(*args, **kwargs):
+            state['tag'] = {'object': {'type': 'commit', 'sha': 'a' * 40}}
+            raise release.ReleaseError('lost response')
+        adapter.api.get.side_effect = get
+        adapter.api.request.side_effect = create
+        meta = {'tag': 'v4.0.0-rc.1', 'commit': 'a' * 40}
+        with self.assertRaisesRegex(release.ReleaseError, 'lost response'):
+            adapter.ensure_tag(meta)
+        adapter.ensure_tag(meta)
+        self.assertEqual(adapter.api.request.call_count, 1)
+
+    def test_curseforge_catalog_does_not_gate_version_names(self):
+        from unittest.mock import Mock
+        catalogs = [[], [{'id': 1, 'name': '26.1'}, {'id': 2, 'name': '26.1'}]]
+        meta = {'version': '4.0.0-rc.1', 'minecraft': '26.1', 'channel': 'beta',
+                'dependencies': {'fabric': [], 'neoforge': []}}
+        for catalog in catalogs:
+            with self.subTest(catalog=catalog):
+                adapter = platforms.CurseForge('123', 'test-token')
+                adapter.api = Mock()
+                adapter.api.get.return_value = catalog
+                adapter.preflight(meta)
+                for loader, label in [('fabric', 'Fabric'), ('neoforge', 'NeoForge')]:
+                    payload = adapter.payload(meta, loader, 'notes')
+                    self.assertEqual(payload['gameVersionNames'], ['26.1', label])
+                    self.assertNotIn('gameVersions', payload)
+                adapter.api.request.assert_not_called()
+
     def test_github_preflight_does_not_infer_token_scope_from_repo_permissions(self):
         from unittest.mock import Mock, call
         for repo in ({}, {'permissions': {}}, {'permissions': {'push': False}}, {'permissions': {'push': True}}):
@@ -398,7 +483,7 @@ class TransportTests(unittest.TestCase):
                 adapter.preflight({'tag': 'v4.0.0-rc.1', 'commit': 'a' * 40})
                 self.assertEqual(adapter.api.get.call_args_list, [
                     call('/repos/iso2t/Heavy-Inventories'),
-                    call('/repos/iso2t/Heavy-Inventories/git/ref/tags/v4.0.0-rc.1')])
+                    call('/repos/iso2t/Heavy-Inventories/git/ref/tags/v4.0.0-rc.1', missing=False)])
                 adapter.api.request.assert_not_called()
 
     def test_github_preflight_still_rejects_moved_tag(self):
@@ -406,7 +491,7 @@ class TransportTests(unittest.TestCase):
         adapter = platforms.GitHub('iso2t/Heavy-Inventories', 'test-token')
         adapter.api = Mock()
         adapter.api.get.side_effect = [{}, {'object': {'type': 'commit', 'sha': 'b' * 40}}]
-        with self.assertRaisesRegex(release.ReleaseError, 'tag moved'):
+        with self.assertRaisesRegex(release.ReleaseError, 'different commit'):
             adapter.preflight({'tag': 'v4.0.0-rc.1', 'commit': 'a' * 40})
 
     def test_github_preflight_preserves_api_access_errors(self):
@@ -429,7 +514,7 @@ stub = types.ModuleType('publisher')
 def run(*args):
     from platforms import GitHub
     adapter = GitHub('iso2t/Heavy-Inventories', 'test-token')
-    adapter.api = types.SimpleNamespace(get=lambda path: {'object': {'type': 'commit', 'sha': 'b' * 40}})
+    adapter.api = types.SimpleNamespace(get=lambda path, **kwargs: {'object': {'type': 'commit', 'sha': 'b' * 40}})
     adapter.preflight({'tag': 'v4.0.0-rc.1', 'commit': 'a' * 40})
 stub.run = run
 sys.modules['publisher'] = stub
@@ -439,7 +524,7 @@ runpy.run_path(str(script), run_name='__main__')
         result = subprocess.run([sys.executable, '-c', code, str(REPO / 'scripts/release/release.py')],
                                 capture_output=True, text=True)
         self.assertEqual(result.returncode, 1)
-        self.assertEqual(result.stderr.strip(), 'Release stopped: Remote release tag moved or differs from bundle')
+        self.assertEqual(result.stderr.strip(), 'Release stopped: Release tag already points to a different commit; use a new version in gradle.properties and its changelog')
         self.assertNotIn('Traceback', result.stderr)
 
     def test_write_not_retried_and_error_sanitized(self):

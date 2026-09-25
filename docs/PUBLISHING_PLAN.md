@@ -2,24 +2,24 @@
 
 Status: workflows, release tooling, recovery tests, and setup documentation are implemented locally. Local clean builds, artifact previews, and workflow linting are verified. GitHub-hosted runs, authenticated platform checks, repository settings, and first live publication remain unverified. No commits, tags, pushes, or platform uploads were performed. Treat platform setup as unverified until the maintainer runs preflight.
 
-The assistant must never commit, create/push tags, push branches, or publish merely because a publishing system exists. Repository publishing is a maintainer-controlled workflow. The selected trigger below governs that workflow after implementation, not assistant authorization.
+The assistant must never commit, create/push tags, push branches, or publish merely because a publishing system exists. Repository publishing is a maintainer-controlled workflow. Selecting manual publish authorizes that workflow to create its version tag automatically; it does not authorize the assistant to perform remote writes. The selected trigger below governs that workflow after implementation, not assistant authorization.
 
 ## Agreed direction and implementation defaults
 
-Updated by the user: publication is manual-only. Branch/tag pushes never publish; manual runs default to dry-run. Changelogs use one Markdown file per version with an Unreleased draft. The defaults below are implemented in the checked-in policy and scripts; rollout checks remain below.
+Updated by the user: publication is manual-only. Branch/tag pushes never publish; manual runs default to dry-run. The selected commit supplies version and changelog; a live run creates its tag automatically. Changelogs use one Markdown file per version with an Unreleased draft. The defaults below are implemented in the checked-in policy and scripts; rollout checks remain below.
 
 | Decision | Implemented behavior |
 | --- | --- |
-| Publication trigger | A maintainer runs Publish release with an existing tag and mode=publish; branch/tag pushes never publish |
-| Manual workflow | Select an existing tag; default to dry-run; explicit publish mode can recover an incomplete release |
+| Publication trigger | A maintainer runs Publish release on branch 26.1 with mode=publish; the workflow creates the version tag |
+| Manual workflow | Select a branch; default to dry-run; live mode creates the tag and publishes |
 | Changelogs | `changelogs/<version>.md`, with `UNRELEASED.md` as the working draft |
-| Version authority | `version` in the tagged `gradle.properties`; tag must equal `v` plus that value |
+| Version authority | `version` in the selected commit's `gradle.properties`; generated tag equals `v` plus that value |
 | Game compatibility | Exact `minecraft_version` from that same revision; do not publish the wider metadata version range as tested compatibility |
 | Artifacts | Exactly one Fabric jar and one NeoForge jar from the verified Linux build; Windows independently verifies the same source |
 | Release body | The same version-specific changelog on all three services |
 | First rollout | Publishing remains disabled until projects, secrets, and a dry-run have been reviewed |
 
-No part of the workflow creates or pushes Git refs. The maintainer creates and pushes the release tag, then explicitly dispatches the manual workflow. A tag push alone does nothing to publishing.
+The live workflow creates a lightweight version tag through the GitHub API after successful builds and preflight. A matching tag is reused; a conflicting tag is never moved. Dry-run and preflight create no refs. No branch pushes or source commits are performed by the workflow.
 
 ## Platform layout
 
@@ -48,13 +48,13 @@ Declare Fabric API and Cloth Config as required for Fabric. NeoForge requires Cl
 
 ## Setup from zero
 
-Follow the [publishing setup guide](PUBLISHING.md) for token creation, exact repository settings, changelog preparation, and tag commands. The workflow is implemented locally and needs a maintainer commit/push before GitHub can run it.
+Follow the [publishing setup guide](PUBLISHING.md) for token creation, exact repository settings, changelog preparation, and the manual Publish action. The workflow is implemented locally and needs a maintainer commit/push before GitHub can run it.
 
 1. Create or verify ownership of the Heavy Inventories listings on CurseForge and Modrinth, including any required initial approval. Record the real project IDs; do not invent them from names.
 2. Create publishing tokens in the platforms' account settings with the account/project permissions needed to upload versions. Store values directly in GitHub's repository Actions secrets, never in source files, changelogs, logs, or chat.
 3. Add the variables and secrets below. Keep publication disabled until the dry-run and authenticated preflight are complete.
 4. Make `26.1` the repository default branch and put the workflow there for manual dispatch. Protect release tags so only authorized maintainers can create or replace them. Approval via a GitHub environment is optional; it is not assumed or added as an extra required step in this design.
-5. Have a maintainer choose the first release tag and enable publishing. Creating platform listings, configuring repository settings, adding credentials, and first live publication are separate setup actions, not work performed by this document.
+5. Have a maintainer prepare the first version/changelog, enable publishing, and manually run the workflow. Creating platform listings, configuring repository settings, adding credentials, and first live publication are separate setup actions, not work performed by this document.
 
 | Name | Storage | Purpose |
 | --- | --- | --- |
@@ -73,20 +73,21 @@ GitHub provides the workflow token; limit write permission to the publishing job
 
 ```mermaid
 flowchart TD
-    A[Manual existing-tag selection] --> B[Validate version, changelog, and metadata]
+    A[Manual branch selection] --> B[Validate version, changelog, and metadata]
     B --> C[Clean build and tests: Linux and Windows]
     C --> D[Package exact Linux jars and immutable manifest]
     D --> E{Dry-run?}
     E -->|Yes| F[Upload preview artifacts and summary only]
     E -->|No| G[Authenticated preflight for every destination]
-    G --> H[Stage or verify GitHub draft assets]
+    G --> T[Create or verify version tag]
+    T --> H[Stage or verify GitHub draft assets]
     H --> I[Upload missing CurseForge and Modrinth entries]
     I --> J[Record receipts and finalize GitHub release]
 ```
 
 Refactor the existing build matrix into reusable validation/build jobs, retaining ordinary branch/PR checks. The release workflow must wait for both operating systems at the exact selected commit; a previous green result on a moving branch is insufficient. No `release: published` trigger chain is needed: one workflow coordinates all destinations. The existing CI does not launch Minecraft; release acceptance still includes the project's separately recorded gameplay checks.
 
-Resolve the tag once to a commit SHA and use that SHA for source, properties, changelog, and build. Recheck that the tag has not moved before publication. Check allowed release-line ancestry (`26.1`, configured in `release/publishing.json`); do not execute secrets-bearing workflows for pull-request heads or arbitrary unreviewed branches. Manual workflow dispatch requires the workflow on the default branch. [GitHub workflow events](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows)
+Freeze the manual run at github.sha and use that SHA for source, properties, changelog, and build. Derive the tag from that commit's version. A missing tag is allowed during preflight and created only in publish mode; verify it before every platform upload. Check allowed release-line ancestry (`26.1`, configured in `release/publishing.json`); do not execute secrets-bearing workflows for pull-request heads or arbitrary unreviewed branches. Manual workflow dispatch requires the workflow on the default branch. [GitHub workflow events](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows)
 
 Build both loaders, run common tests, verify packaged resources/metadata, and compile the runtime harness. Have Gradle report the exact two `archiveFile` paths into a machine-readable manifest rather than relying on a broad `*.jar` glob. Transfer the verified Linux bundle between jobs; never rebuild separately for each destination. The package contains:
 
@@ -94,7 +95,7 @@ Build both loaders, run common tests, verify packaged resources/metadata, and co
 - `CHANGELOG.md`, rendered from the version-specific source file.
 - `SHA256SUMS.txt` and `release-manifest.json`: schema version, base version, tag, commit, Minecraft/Java versions, channel, loader mapping, dependencies, changelog hash, and workflow provenance.
 
-A publish job consumes only this validated bundle and rechecks its hashes. Required IDs/tokens, game/loader tags, GitHub access, Modrinth project/dependency identity, and existing Modrinth version conflicts are checked before the first upload. CurseForge dependency IDs are explicit verified policy values. Its author API cannot prove per-project upload permission or look up an existing file; upload-only token scopes are finally enforced by POST. The setup guide calls out those limits rather than claiming preflight proves them. Missing configuration fails the whole live attempt before creating a draft or uploading files. Platform moderation may still occur after an accepted upload; report that status distinctly from public availability.
+A publish job consumes only this validated bundle and rechecks its hashes. Required IDs/tokens, Modrinth game/loader tags, GitHub access, Modrinth project/dependency identity, and existing Modrinth version conflicts are checked before the first upload. CurseForge dependency IDs are explicit verified policy values. Minecraft/loader names are passed directly to its upload endpoint, without a local catalog match requirement. Its author API cannot prove per-project upload permission or look up an existing file; upload-only token scopes are finally enforced by POST. The setup guide calls out those limits rather than claiming preflight proves them. Missing configuration fails the whole live attempt before creating a draft or uploading files. Platform moderation may still occur after an accepted upload; report that status distinctly from public availability.
 
 The implementation uses Python 3.13 standard-library scripts with narrow CurseForge, Modrinth, and GitHub adapters; no third-party Python dependencies are required. Keep network operations out of normal Gradle `build` tasks. Direct API adapters provide explicit duplicate detection and receipts; a convenience upload action should only replace them if it satisfies those same recovery rules. Workflow actions are pinned to verified commit SHAs.
 
@@ -129,7 +130,7 @@ The local `4.0.0-rc.1.md` draft starts from the current release notes. Its prese
 
 ### 1. Settle the publishing contract
 
-- [x] Confirm manual-only publication, dry-run default, and per-version changelog layout.
+- [x] Confirm manual-only publication with automatic tag creation, dry-run default, and per-version changelog layout.
 - [ ] Confirm the first release version before live rollout; the current RC1 notes are a prepared draft.
 - [ ] Verify/create platform listings and record actual project/dependency IDs without exposing token values.
 - [x] Implement conservative required Cloth relations with explicit client-only release notes, prerelease mapping, and configured latest-stable policy.

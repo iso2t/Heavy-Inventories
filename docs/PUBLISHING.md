@@ -58,76 +58,44 @@ Do not create a `GITHUB_TOKEN` secret or obtain an extra GitHub personal access 
 
 Your local Git authentication for pushing is separate from these publishing tokens. Continue using your existing GitHub sign-in/credential manager or SSH setup for `origin`.
 
-## 4. Prepare a release commit and changelog
+## 4. Publish from the branch
 
-These three values must match exactly; RC1 is an example, not a decision to publish that version:
+Normal releases take one manual Actions run. You do not create/push a tag, upload jars, or create a GitHub release yourself.
 
-| Location | Example |
+1. Keep `version` in `gradle.properties` and `changelogs/<version>.md` up to date, then commit/push the release code to `26.1` through your normal development workflow.
+2. Open **Actions → Publish release → Run workflow** and select **26.1** in the branch selector.
+3. Select **publish** in `mode`, leave `recovery` as `{}`, and run it. Repository variable `PUBLISH_ENABLED` must be `true`.
+
+The workflow reads the version and notes from the selected commit, builds/tests Fabric and NeoForge, creates `v<version>` at that exact commit, uploads both jars to CurseForge and Modrinth, and finishes the GitHub release. It does not change source files or advance your branch. A branch push or tag push alone never publishes.
+
+For a preview, choose `dry-run` (the default). It builds and produces artifacts without creating tags/releases or uploading to the platforms. `preflight` is an optional API-access check and also creates nothing. Neither is a required extra run before publishing.
+
+Make `26.1` the repository default branch so GitHub exposes this manual workflow from the current code. Releases are allowed from `26.1` in `release/publishing.json`; no merge into old `main` is needed. Each run freezes the selected branch's commit, so a later branch push does not change a running release.
+
+| Workflow input | Meaning |
 | --- | --- |
-| `gradle.properties` | `version=4.0.0-rc.1` |
-| Changelog filename and first heading | `changelogs/4.0.0-rc.1.md` and `# 4.0.0-rc.1` |
-| Git tag | `v4.0.0-rc.1` |
+| `mode` | `dry-run` (default), `preflight`, or `publish` |
+| `recovery` | Leave `{}` except when reconciling an ambiguous upload below |
 
-While developing, add player-facing changes to [Unreleased](../changelogs/UNRELEASED.md). Before release, curate them into the version file using the [template](../changelogs/TEMPLATE.md), remove empty sections/placeholders, update the [index](../CHANGELOG.md), and reset Unreleased for subsequent work. The version file supplies the release notes for all three platforms.
+## 5. Versions and notes
 
-Commit and merge the release changes through your normal Git workflow. The release commit must contain the publishing workflow, scripts, version, and changelog. Keep it on `26.1`: `release/publishing.json` permits release commits reachable from that branch. No merge into `main` is required. Set the repository default branch to `26.1` in GitHub repository Settings so GitHub can expose the manual workflow from the current code. The workflow resolves its setup from the branch selected for the manual run, then builds the exact release tag commit. If a future maintenance branch should publish, add its exact name to `release_branches` in that configuration through review first. Finish build and gameplay verification before tagging. Tag the exact reviewed commit, not a later untested change.
+Use a new version for each new release. For example, `version=4.0.0-rc.2` uses `changelogs/4.0.0-rc.2.md`, headed `# 4.0.0-rc.2`, and the workflow creates `v4.0.0-rc.2`. The release notes are the same on all three platforms.
 
-Channel mapping: `-rc.N` and `-beta.N` publish as beta/prerelease; `-alpha.N` as alpha/prerelease; a version without a suffix is stable. The tag's leading `v` does not appear in `gradle.properties` or the changelog filename.
+Record changes in [Unreleased](../changelogs/UNRELEASED.md) during development, then curate the version file using the [template](../changelogs/TEMPLATE.md), update the [index](../CHANGELOG.md), and reset Unreleased. The workflow does not invent player-facing notes or choose your next version.
 
-## 5. Create and push one release tag
+`-rc.N` and `-beta.N` publish as beta/prerelease, `-alpha.N` as alpha/prerelease, and a version without a suffix is stable. Versions and changelog filenames omit the leading `v` used for tags.
 
-Run these commands in the repository after checking out the intended release commit. They are PowerShell-compatible. Check that the working tree is clean and the displayed commit is the reviewed release:
+A matching tag is reused. A tag pointing to a different commit is never overwritten. The old manually created `v4.0.0-rc.1` points to earlier code; use a new version for the corrected release. There are no manual tag commands in the normal release process.
 
-```powershell
-git status --short
-git log -1 --oneline
-git remote -v
-```
+## 6. First rollout
 
-The expected `origin` is `https://github.com/iso2t/Heavy-Inventories.git` (or its SSH equivalent). A tag identifies a commit; it does not include uncommitted edits.
+Push the updated workflow/scripts to `26.1` and ensure the repository secrets/variables are configured. Optionally run `dry-run` to review the generated jars/notes, or `preflight` to check API access. Set `PUBLISH_ENABLED=true` when ready, then run `mode=publish` once.
 
-For the example version, create an annotated local tag and inspect it:
-
-```powershell
-git tag -a v4.0.0-rc.1 -m "Heavy Inventories 4.0.0-rc.1" HEAD
-git show --no-patch v4.0.0-rc.1
-```
-
-When ready, push only that tag:
-
-```powershell
-git push origin refs/tags/v4.0.0-rc.1
-```
-
-Substitute the chosen version everywhere. An ordinary branch push does not normally push this tag. Prefer the explicit single-tag command over `git push --tags`, which sends all local tags. Do not move or force-push a published tag; changed release contents need a new version. [Git's tagging guide](https://git-scm.com/book/en/v2/Git-Basics-Tagging)
-
-**Pushing a tag does not publish.** Publication is manual-only: open Actions, select Publish release, choose Run workflow, select branch `26.1`, enter the existing tag, and choose `mode=publish`. You do not create the GitHub release yourself; the workflow creates it. Ordinary branch pushes still run Build and verify.
-
-## 6. First rollout: dry-run before enabling publication
-
-In **Actions → Publish release → Run workflow**, the inputs are:
-
-| Input | Meaning |
-| --- | --- |
-| `tag` | Existing tag, for example `v4.0.0-rc.1` |
-| `mode` | `dry-run` (default), `preflight` (API reads only), or `publish` |
-| `recovery` | Leave `{}` unless reconciling an ambiguous upload as described below |
-
-The ordinary branch/PR build validates release notes and tests the publisher without tokens. Tag pushes do not run the publisher. A release run builds on Linux and Windows, compiles the runtime harness, and packages the exact verified Linux jars. Only after both builds pass can publication begin. It does not launch Minecraft gameplay tests.
-
-1. Keep `PUBLISH_ENABLED=false`. Set `26.1` as the default branch and ensure it contains the implementation and reviewed release commit.
-2. Create and push the chosen release tag using step 5. This makes the tag available to the manual workflow; pushing it does not start publication.
-3. Open the repository's Actions page, select the publishing workflow, and choose **Run workflow**. Select branch `26.1`, enter the existing release tag in the `tag` input, and set `mode=dry-run` and leave `recovery={}`.
-4. Inspect the resulting two jars, changelog, checksums, manifest, and destination preview. Both Linux and Windows validation must pass. Dry-run validates the release without publishing credentials; it cannot prove the tokens work.
-5. Run the same tag with `mode=preflight`. This reads GitHub, Modrinth, and CurseForge metadata with the configured credentials, without creating a draft or uploading files. This read-only check cannot prove upload-only permissions/scopes: CurseForge does not expose a documented project-permission or file lookup endpoint in its author API. Verify your CurseForge account can upload to the configured project. The live path repeats its available checks before writing.
-6. Set `PUBLISH_ENABLED=true`. Manually run the same existing tag with `mode=publish`. Changing the variable or pushing a tag never starts publication; only the explicit manual run does.
-7. Verify both loader entries on CurseForge and Modrinth, and the GitHub release containing both jars. Confirm dependency declarations and any pending moderation.
-
-For later releases, prepare the version/changelog, push the reviewed commit to `26.1`, and push its new tag. Then manually run Publish release with that tag and `mode=publish`. Every manual run defaults to `dry-run`; live publication also requires `PUBLISH_ENABLED=true`. Existing tags still point to their original commits; use a new version/tag to include subsequent fixes.
+CurseForge preflight checks API access only. Uploads send Minecraft/loader names directly through `gameVersionNames`; the upload endpoint validates them. Read-only API checks do not prove upload-only permissions. Check the resulting files and CurseForge moderation status after publication.
 
 ## 7. If publication fails
 
-Inspect the workflow summary before rerunning. A failure can leave a GitHub draft or an accepted upload on one platform. Use manual `mode=publish` for the same tag; the publisher must reuse the original artifacts and skip verified uploads. An ambiguous upload requires reconciliation before retrying. Do not delete the tag or create duplicate platform versions to restart the process.
+Inspect the workflow summary before rerunning. A failure can leave a GitHub draft or an accepted upload on one platform. Use **Re-run all jobs** on the original Actions run to retain its exact commit; the publisher must reuse the original artifacts and skip verified uploads. An ambiguous upload requires reconciliation before retrying. Do not delete the tag or create duplicate platform versions to restart the process.
 
 | Symptom | Check |
 | --- | --- |
@@ -136,12 +104,15 @@ Inspect the workflow summary before rerunning. A failure can leave a GitHub draf
 | Missing token | Exact secret spelling and repository Actions secret location |
 | Unauthorized upload | Token expiry/scopes and account permission on the selected project |
 | Wrong project / not found | Project ID rather than file/version ID; private project access |
-| Version or changelog validation failed | Tag, properties, filename, heading, and reviewed commit agree |
-| Some destinations already succeeded | Use recovery on the same tag; inspect ambiguous outcomes |
+| Version or changelog validation failed | Properties, filename, and heading agree |
+| Tag points to a different commit | Use a new version and corresponding changelog; existing tags are not moved |
+| Some destinations already succeeded | Rerun the original Actions run; inspect ambiguous outcomes |
 
 Replace expired tokens by editing the existing secrets under the same names. Setting `PUBLISH_ENABLED=false` prevents future live attempts under the publication gate; it does not undo uploads or reliably stop an already-running job. Cancel an active job separately if necessary, then reconcile any completed uploads.
 
 ## Recovery evidence
+
+For a partial failure, retry the original Actions run before advancing the release commit. If recovery evidence is needed, use Run workflow and select the generated release tag in the branch/tag selector to retain the original commit, then supply `recovery`.
 
 The GitHub draft holds the canonical jars, manifest, and numbered `publish-state-*.json` ledger assets. Each upload intent is saved before the request and its receipt afterward. Never delete these assets to make a retry proceed. Once complete, the same release is a no-op. A new build with different contents must use a new version.
 
@@ -188,8 +159,8 @@ Local validation uses Python 3.13 and JDK 25:
 python -m unittest discover -s scripts/release/tests -v
 python scripts/release/release.py validate
 .\gradlew.bat clean build releaseArtifacts --no-daemon --max-workers=2 --console=plain
-python scripts/release/release.py package --tag v4.0.0-rc.1 --bundle build/release/local-preview
+python scripts/release/release.py package --bundle build/release/local-preview
 python scripts/release/release.py preview --bundle build/release/local-preview
 ```
 
-Choose an empty output directory for each package attempt. Local previews may include uncommitted work and are not the canonical Linux release bundle. Publishing happens through Actions from the reviewed tagged commit. The `release-bundle` artifact contains the jars, changelog, checksums, and manifest; `release-preview` contains destination payloads. Authenticated preflight and a real Actions run remain the final setup checks.
+Choose an empty output directory for each package attempt. Local previews may include uncommitted work and are not the canonical Linux release bundle. Publishing happens through Actions from the selected commit, which the workflow tags automatically. The `release-bundle` artifact contains the jars, changelog, checksums, and manifest; `release-preview` contains destination payloads. Authenticated preflight and a real Actions run remain the final setup checks.

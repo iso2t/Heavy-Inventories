@@ -27,7 +27,7 @@ The clean build retains existing JavaDoc and Gradle deprecation warnings; there 
 ## Remaining rollout checks
 
 - [ ] Maintainer commits/pushes these changes to `26.1` (the configured release branch) and selects `26.1` as the GitHub default branch for manual workflow discovery.
-- [ ] Run the real GitHub-hosted Linux/Windows dry-run for the existing release tag.
+- [ ] Run the real GitHub-hosted Linux/Windows dry-run from the selected release branch.
 - [ ] Verify repository secret/variable names and actual project IDs, then run `mode=preflight`.
 - [ ] Verify account upload permission on both platforms. Read-only APIs do not prove upload scopes; CurseForge's author API cannot verify project-level upload permission or perform file lookup.
 - [ ] Inspect the real preview artifacts and notes, enable publication, and deliberately run the first live release.
@@ -40,3 +40,9 @@ Project/dependency IDs for Fabric API and Cloth Config were read from public pla
 Publishing now has only `workflow_dispatch`; branch and tag pushes cannot publish. Resolution uses the selected workflow commit instead of checking out the repository default branch, and release ancestry is checked against `origin/26.1`. Local branch `26.1` now tracks `origin/26.1` rather than the deleted `origin/releases/26.1-rc1`. Repository default-branch settings remain unchanged remotely.
 
 After these corrections, all 37 release-tool tests and actionlint passed locally. This includes accepting a release on `26.1` without requiring ancestry on `main`.
+
+## Automatic release preparation
+
+The manual workflow no longer asks for an existing tag. It reads version/notes from the selected commit and creates the version tag during live publication after successful builds/preflight. Dry-run and preflight do not create tags. Existing matching tags are reused; conflicting tags are never overwritten. CurseForge uploads now use version names directly, without the catalog-match check.
+
+All 44 release-tool tests and actionlint pass locally after these changes. New coverage verifies missing-tag preflight without writes, tag creation at the built commit, annotated-tag reuse, conflict rejection, recovery after a lost tag-creation response, and stopping uploads when tag creation fails. No real tag creation or publication was performed.

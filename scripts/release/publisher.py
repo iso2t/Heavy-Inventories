@@ -48,6 +48,7 @@ class Publisher:
         self.release = self.github.release(self.meta['tag'])
         if self.release is None:
             return False
+        self.github.preflight(self.meta)
         require(self.release['tag_name'] == self.meta['tag'] and self.release['body'] == self.body
                 and self.release['prerelease'] == (self.meta['channel'] != 'release'), 'Existing GitHub release metadata conflict')
         assets = self.github.assets(self.release['id'])
@@ -128,7 +129,8 @@ class Publisher:
         # Detect existing Modrinth conflicts before creating a draft or uploading to CurseForge.
         for loader in LOADERS:
             self.platforms['modrinth'].find(self.meta, loader, self.body)
-        self.github.preflight(self.meta)
+        self.github.preflight(self.meta, allow_missing_tag=True)
+        self.github.ensure_tag(self.meta)
         self.stage()
         for platform, loader in TARGETS:
             self.github.preflight(self.meta)  # Ref movement must stop subsequent writes.
@@ -195,7 +197,7 @@ def run(mode, root, bundle):
         require(env.get('PUBLISH_ENABLED') == 'true', 'Live publishing disabled; PUBLISH_ENABLED must be true')
     require(env.get('GITHUB_REPOSITORY') == meta['repository'], 'Publishing is restricted to the configured repository')
     github = GitHub(meta['repository'], env['GITHUB_TOKEN'])
-    github.preflight(meta)
+    github.preflight(meta, allow_missing_tag=True)
     adapters = {'curseforge': CurseForge(projects['curseforge'], env['CURSEFORGE_TOKEN']),
                 'modrinth': Modrinth(projects['modrinth'], env['MODRINTH_TOKEN'])}
     if mode == 'preflight':
