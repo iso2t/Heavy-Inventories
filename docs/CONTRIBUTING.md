@@ -15,3 +15,11 @@ The build runs common regression tests and checks metadata, mixins, services, en
 The GitHub Actions workflow builds/tests on Linux and Windows and uploads reports and mod artifacts. It does not publish releases or start Minecraft. The [testing guide](TESTING.md) describes opt-in local runtime checks and their evidence.
 
 Source and issue tracking: [iso2t/Heavy-Inventories](https://github.com/iso2t/Heavy-Inventories). Contributions and translations are welcome. Licensed under [MIT](../LICENSE.md).
+
+## Changelogs
+
+Record user-visible changes in [Unreleased](../changelogs/UNRELEASED.md) as work lands. Before releasing, curate a `changelogs/<version>.md` file using the exact version from `gradle.properties`, and add it to the [changelog index](../CHANGELOG.md). Remove empty headings and template placeholders. Include compatibility or upgrade steps when they affect players or modpack authors.
+
+The version-specific file will supply the same release body to CurseForge, Modrinth, and GitHub Releases. Keep build logs and internal test details in testing documentation, and keep the README as the project introduction. Published changelogs should describe the original build; add later changes to the next version.
+
+The [publishing plan](PUBLISHING_PLAN.md) defines the agreed tag trigger and the proposed implementation. The [setup guide](PUBLISHING.md) covers tokens, repository secrets and variables, changelogs, and tag commands. No publishing workflow is installed yet.

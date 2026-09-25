@@ -6,14 +6,14 @@ Installation, gameplay rules, configuration, and supported limits for the curren
 
 Use the jar for your loader on both the client and server, with matching Heavy Inventories builds.
 
-| Component | Verified version |
-| --- | --- |
-| Minecraft | 26.1 |
-| Java | 25 |
-| Fabric Loader | 0.18.5 |
-| Fabric API | 0.144.0+26.1 |
-| NeoForge | 26.1.0.1-beta |
-| Cloth Config | 26.1.154, for the matching loader |
+| Component     | Verified version                  |
+|---------------|-----------------------------------|
+| Minecraft     | 26.1                              |
+| Java          | 25                                |
+| Fabric Loader | 0.18.5                            |
+| Fabric API    | 0.144.0+26.1                      |
+| NeoForge      | 26.1.0.1-beta                     |
+| Cloth Config  | 26.1.154, for the matching loader |
 
 Fabric requires Fabric API and Cloth Config. NeoForge requires Cloth Config on clients; its dedicated server does not require the settings UI. These are external dependencies, not bundled copies. The version table records the tested baseline, not a claim that every newer loader/mod version works.
 
@@ -31,11 +31,11 @@ External chest inventories, Ender Chest storage, and custom backpack/storage API
 
 Default base capacity is **1000 pounds**. Bonuses add percentages of that base:
 
-| Source | Bonus |
-| --- | --- |
-| Strength | +10% per effect level; Strength II adds +20% |
-| Bracing, on chest armor | +10% per level, through level X (+100%) |
-| Reinforced, on leggings | +5% per level, through level V (+25%) |
+| Source                  | Bonus                                        |
+|-------------------------|----------------------------------------------|
+| Strength                | +10% per effect level; Strength II adds +20% |
+| Bracing, on chest armor | +10% per level, through level X (+100%)      |
+| Reinforced, on leggings | +5% per level, through level V (+25%)        |
 
 For example, base 1000 + Bracing X + Reinforced V + Strength II gives capacity **2450**. Effects and equipment are read again each server tick; removed equipment/effects leave no stored bonus.
 
@@ -47,11 +47,11 @@ Displays use up to two decimal places, without trailing zeros. Values below 0.01
 
 The server compares carried weight with effective capacity:
 
-| Load | State |
-| --- | --- |
-| Below 90% | Below the encumbrance threshold |
-| 90% to below 100% | Encumbered |
-| 100% and above | Over encumbered |
+| Load              | State                           |
+|-------------------|---------------------------------|
+| Below 90%         | Below the encumbrance threshold |
+| 90% to below 100% | Encumbered                      |
+| 100% and above    | Over encumbered                 |
 
 The server chooses one walking mode:
 
@@ -61,11 +61,11 @@ The server chooses one walking mode:
 Surefooted on boots provides minimum walking multipliers:
 
 | Level | Encumbered floor | Overloaded floor |
-| --- | --- | --- |
-| I | 25% | 5% |
-| II | 25% | 10% |
-| III | 30% | 15% |
-| IV | 40% | 20% |
+|-------|------------------|------------------|
+| I     | 25%              | 5%               |
+| II    | 25%              | 10%              |
+| III   | 30%              | 15%              |
+| IV    | 40%              | 20%              |
 
 Both encumbered states prevent ground jumping. Encumbered/overloaded horizontal swimming input is 75%/50%, sinking gravity is multiplied by 1.5/3, and fall damage by 1.5/3. Surefooted changes walking floors only.
 
