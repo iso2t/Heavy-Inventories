@@ -35,6 +35,7 @@ def release_branches(root: Path) -> list[str]:
         return []
 
     data = json.loads(policy.read_text(encoding="utf-8"))
+    require(isinstance(data, dict), "Invalid release branch configuration")
     if "release_branches" not in data:
         return []
     branches = data.get("release_branches")
@@ -87,7 +88,8 @@ def resolve(root: Path, tag: str) -> str:
     output = os.environ.get("GITHUB_OUTPUT")
     if output:
         with open(output, "a", encoding="utf-8") as handle:
-            handle.write(f"tag={tag}\nsha={sha}\n")
+            handle.write(f"tag<<__HI__\n{tag}\n__HI__\n")
+            handle.write(f"sha<<__HI__\n{sha}\n__HI__\n")
 
     return sha
 
