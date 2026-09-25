@@ -43,6 +43,20 @@ def release_branches(root: Path) -> list[str]:
     return validated
 
 
+def resolve_branch_ref(root: Path, branch: str) -> str:
+    candidates = [f"refs/heads/{branch}", f"refs/remotes/origin/{branch}", f"origin/{branch}", branch]
+    for ref in candidates:
+        check = subprocess.run(
+            ["git", "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}"],
+            cwd=root,
+            capture_output=True,
+            text=True,
+        )
+        if check.returncode == 0:
+            return ref
+    raise ReleaseError(f"Release branch ref not found for {branch}")
+
+
 def resolve(root: Path, tag: str) -> str:
     require(tag.startswith("v"), "Release tag must start with v")
     sha = git("rev-parse", "--verify", f"refs/tags/{tag}^{{commit}}", root=root)
@@ -51,8 +65,9 @@ def resolve(root: Path, tag: str) -> str:
     if branches:
         trusted = False
         for branch in branches:
+            ref = resolve_branch_ref(root, branch)
             check = subprocess.run(
-                ["git", "merge-base", "--is-ancestor", sha, f"refs/remotes/origin/{branch}"],
+                ["git", "merge-base", "--is-ancestor", sha, ref],
                 cwd=root,
                 capture_output=True,
                 text=True,
