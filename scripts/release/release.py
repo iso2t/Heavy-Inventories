@@ -77,6 +77,7 @@ def resolve(root: Path, tag: str) -> str:
             )
             if check.returncode == 0:
                 trusted = True
+                break
             elif check.returncode != 1:
                 raise ReleaseError(f"Git merge-base failed for branch {branch}")
         require(trusted, "Tag must point to a commit merged into a configured release branch")
