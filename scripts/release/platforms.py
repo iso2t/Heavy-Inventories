@@ -103,8 +103,9 @@ class GitHub:
         raise ReleaseError('Too many nested annotated tags')
 
     def preflight(self, meta):
-        repo = self.api.get(self.path)
-        require(repo.get('permissions', {}).get('push'), 'GitHub token needs contents: write')
+        # Repository permissions.push is not the Actions token's contents scope.
+        # The workflow requests contents: write; release writes enforce it.
+        self.api.get(self.path)
         require(self.tag_sha(meta['tag']) == meta['commit'], 'Remote release tag moved or differs from bundle')
 
     def release(self, tag):

@@ -209,6 +209,9 @@ def main():
 
 
 if __name__ == '__main__':
+    # Adapters import release.ReleaseError. Share this module when run as a script
+    # so the CLI catches that same exception class instead of loading a second copy.
+    sys.modules['release'] = sys.modules[__name__]
     try:
         main()
     except (ReleaseError, KeyError, ValueError, OSError, zipfile.BadZipFile) as error:

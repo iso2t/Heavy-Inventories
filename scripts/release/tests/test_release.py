@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -377,6 +378,60 @@ class RecoveryTests(Fixture):
 
 
 class TransportTests(unittest.TestCase):
+    def test_github_preflight_does_not_infer_token_scope_from_repo_permissions(self):
+        from unittest.mock import Mock, call
+        for repo in ({}, {'permissions': {}}, {'permissions': {'push': False}}, {'permissions': {'push': True}}):
+            with self.subTest(repo=repo):
+                adapter = platforms.GitHub('iso2t/Heavy-Inventories', 'test-token')
+                adapter.api = Mock()
+                adapter.api.get.side_effect = [repo, {'object': {'type': 'commit', 'sha': 'a' * 40}}]
+                adapter.preflight({'tag': 'v4.0.0-rc.1', 'commit': 'a' * 40})
+                self.assertEqual(adapter.api.get.call_args_list, [
+                    call('/repos/iso2t/Heavy-Inventories'),
+                    call('/repos/iso2t/Heavy-Inventories/git/ref/tags/v4.0.0-rc.1')])
+                adapter.api.request.assert_not_called()
+
+    def test_github_preflight_still_rejects_moved_tag(self):
+        from unittest.mock import Mock
+        adapter = platforms.GitHub('iso2t/Heavy-Inventories', 'test-token')
+        adapter.api = Mock()
+        adapter.api.get.side_effect = [{}, {'object': {'type': 'commit', 'sha': 'b' * 40}}]
+        with self.assertRaisesRegex(release.ReleaseError, 'tag moved'):
+            adapter.preflight({'tag': 'v4.0.0-rc.1', 'commit': 'a' * 40})
+
+    def test_github_preflight_preserves_api_access_errors(self):
+        from unittest.mock import Mock
+        adapter = platforms.GitHub('iso2t/Heavy-Inventories', 'test-token')
+        adapter.api = Mock()
+        adapter.api.get.side_effect = release.ReleaseError('HTTP 403')
+        with self.assertRaisesRegex(release.ReleaseError, 'HTTP 403'):
+            adapter.preflight({'tag': 'v4.0.0-rc.1', 'commit': 'a' * 40})
+
+    def test_cli_catches_adapter_error_without_traceback(self):
+        # Exercise script entry (__main__) and adapter imports in a fresh process.
+        # Replace dispatch only; the real adapter raises the real ReleaseError.
+        code = '''
+import runpy, sys, types
+from pathlib import Path
+script = Path(sys.argv[1]).resolve()
+sys.path.insert(0, str(script.parent))
+stub = types.ModuleType('publisher')
+def run(*args):
+    from platforms import GitHub
+    adapter = GitHub('iso2t/Heavy-Inventories', 'test-token')
+    adapter.api = types.SimpleNamespace(get=lambda path: {'object': {'type': 'commit', 'sha': 'b' * 40}})
+    adapter.preflight({'tag': 'v4.0.0-rc.1', 'commit': 'a' * 40})
+stub.run = run
+sys.modules['publisher'] = stub
+sys.argv = [str(script), 'preflight']
+runpy.run_path(str(script), run_name='__main__')
+'''
+        result = subprocess.run([sys.executable, '-c', code, str(REPO / 'scripts/release/release.py')],
+                                capture_output=True, text=True)
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(result.stderr.strip(), 'Release stopped: Remote release tag moved or differs from bundle')
+        self.assertNotIn('Traceback', result.stderr)
+
     def test_write_not_retried_and_error_sanitized(self):
         from unittest.mock import Mock
         opener = Mock()
