@@ -44,7 +44,13 @@ def release_branches(root: Path) -> list[str]:
     validated: list[str] = []
     for branch in branches:
         require(isinstance(branch, str), "Invalid release branch")
-        require(re.fullmatch(r"[A-Za-z0-9_./-]+", branch) and ".." not in branch, "Invalid release branch")
+        format_check = subprocess.run(
+            ["git", "check-ref-format", "--branch", branch],
+            cwd=root,
+            capture_output=True,
+            text=True,
+        )
+        require(format_check.returncode == 0, "Invalid release branch")
         validated.append(branch)
     return validated
 
