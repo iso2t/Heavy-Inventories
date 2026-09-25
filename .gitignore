@@ -29,6 +29,8 @@ runs
 
 .vscode
 .eclipse
+__pycache__/
+*.pyc
 /REPAIR_PLAN.md
 /gradle/packaged-smoke.gradle
 /DATAPACK_PLAN.md

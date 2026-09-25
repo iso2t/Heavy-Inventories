@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "repository": "iso2t/Heavy-Inventories",
+  "release_branches": ["main"],
+  "latest_minecraft": "26.1",
+  "dependencies": {
+    "fabric": [
+      {"modrinth": "P7dR8mSH", "curseforge": 306612, "slug": "fabric-api"},
+      {"modrinth": "9s6osm5g", "curseforge": 348521, "slug": "cloth-config"}
+    ],
+    "neoforge": [
+      {"modrinth": "9s6osm5g", "curseforge": 348521, "slug": "cloth-config"}
+    ]
+  }
+}

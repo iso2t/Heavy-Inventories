@@ -4,3 +4,23 @@ plugins {
     // see https://projects.neoforged.net/neoforged/moddevgradle for new versions
     id 'net.neoforged.moddev' version '2.0.141' apply false
 }
+
+// Read the actual distributable task outputs; never select release jars with a glob.
+tasks.register('releaseArtifacts') {
+    group = 'distribution'
+    description = 'Writes the exact verified loader artifact paths for release packaging.'
+    dependsOn ':fabric:verifyModJar', ':neoforge:verifyModJar'
+    def destination = layout.buildDirectory.file('release/artifacts.json')
+    outputs.file(destination)
+    // The manifest describes task outputs from this invocation, including renamed versions.
+    outputs.upToDateWhen { false }
+    doLast {
+        def artifacts = ['fabric', 'neoforge'].collectEntries { loader ->
+            def archive = project(":" + loader).tasks.named('jar').get().archiveFile.get().asFile
+            [(loader): rootDir.toPath().relativize(archive.toPath()).toString().replace('\\', '/')]
+        }
+        def output = destination.get().asFile
+        output.parentFile.mkdirs()
+        output.setText(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(artifacts)) + '\n', 'UTF-8')
+    }
+}

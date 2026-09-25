@@ -12,7 +12,7 @@ bash ./gradlew clean build
 
 The build runs common regression tests and checks metadata, mixins, services, enchantment resources, bundled weight definitions, and test-harness exclusion in both loader jars. Distributable jars are under `fabric/build/libs/` and `neoforge/build/libs/`; do not install sources, javadoc, or lifecycle-test jars.
 
-The GitHub Actions workflow builds/tests on Linux and Windows and uploads reports and mod artifacts. It does not publish releases or start Minecraft. The [testing guide](TESTING.md) describes opt-in local runtime checks and their evidence.
+The GitHub Actions workflow builds/tests on Linux and Windows and uploads reports and mod artifacts. Branch and PR builds do not publish releases or start Minecraft. The separate publishing workflow handles release tags and manual dry-runs. The [testing guide](TESTING.md) describes opt-in local runtime checks and their evidence.
 
 Source and issue tracking: [iso2t/Heavy-Inventories](https://github.com/iso2t/Heavy-Inventories). Contributions and translations are welcome. Licensed under [MIT](../LICENSE.md).
 
@@ -22,4 +22,4 @@ Record user-visible changes in [Unreleased](../changelogs/UNRELEASED.md) as work
 
 The version-specific file will supply the same release body to CurseForge, Modrinth, and GitHub Releases. Keep build logs and internal test details in testing documentation, and keep the README as the project introduction. Published changelogs should describe the original build; add later changes to the next version.
 
-The [publishing plan](PUBLISHING_PLAN.md) defines the agreed tag trigger and the proposed implementation. The [setup guide](PUBLISHING.md) covers tokens, repository secrets and variables, changelogs, and tag commands. No publishing workflow is installed yet.
+The [publishing plan](PUBLISHING_PLAN.md) defines the agreed tag trigger and the implementation checklist. The [setup guide](PUBLISHING.md) covers tokens, repository secrets and variables, changelogs, and tag commands. Publishing remains gated by repository configuration and a maintainer tag push or explicit manual publish run.

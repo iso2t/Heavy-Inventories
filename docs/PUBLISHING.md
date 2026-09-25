@@ -1,6 +1,6 @@
 # Publishing setup and release guide
 
-Status: setup instructions for the agreed publishing design. Only the build workflow exists today; the publishing workflow and scripts still need to be implemented. You can create the platform listings and repository secrets/variables now. The dry-run and publication procedures below become available after implementation. Adding secrets alone does not publish anything.
+Status: the publishing workflow and scripts are implemented locally. They take effect only after a maintainer commits and pushes them to GitHub. No release has been published or repository settings verified by this implementation. Adding secrets alone does not publish anything.
 
 The [publishing plan](PUBLISHING_PLAN.md) tracks implementation. Commands below are for the maintainer to run deliberately; this guide does not authorize the assistant to commit, tag, push, or publish.
 
@@ -29,7 +29,7 @@ Sign in with an account allowed to upload versions to the project. Open your [Mo
 - Read projects (`PROJECT_READ`), including the draft project during initial setup.
 - Read versions (`VERSION_READ`), for validation and recovery.
 
-The proposed publisher creates new versions and reads existing ones; it does not need project creation, deletion, payout, or account-management permissions. Token scopes do not grant project membership: the account must also have upload permission. Set an expiration you can maintain, and replace the GitHub secret when rotating the token.
+The publisher creates new versions and reads existing ones; it does not need project creation, deletion, payout, or account-management permissions. Token scopes do not grant project membership: the account must also have upload permission. Set an expiration you can maintain, and replace the GitHub secret when rotating the token.
 
 Name the GitHub secret exactly `MODRINTH_TOKEN`. Modrinth documents [personal access tokens](https://docs.modrinth.com/api/#authentication) and defines these [scope names in its source](https://github.com/modrinth/code/blob/main/apps/labrinth/src/models/v3/pats.rs).
 
@@ -52,9 +52,9 @@ Switch to the **Variables** tab and choose **New repository variable**, or open 
 | `MODRINTH_PROJECT_ID` | Your real permanent Modrinth project ID |
 | `PUBLISH_ENABLED` | `false` |
 
-IDs are configuration, so they belong in variables. Set `PUBLISH_ENABLED` to the exact lowercase value `true` only at the live-release step. This switch is part of our proposed workflow, not a built-in GitHub setting. [GitHub variable setup](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-variables)
+IDs are configuration, so they belong in variables. Set `PUBLISH_ENABLED` to the exact lowercase value `true` only at the live-release step. This switch is part of our workflow, not a built-in GitHub setting. [GitHub variable setup](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-variables)
 
-Do not create a `GITHUB_TOKEN` secret or obtain an extra GitHub personal access token for publishing. Actions supplies `GITHUB_TOKEN`; the publishing job will request `contents: write` in its YAML. Build jobs retain read-only permissions. You do not need to change every workflow's default permission to write. [GitHub workflow authentication](https://docs.github.com/en/actions/tutorials/authenticate-with-github_token)
+Do not create a `GITHUB_TOKEN` secret or obtain an extra GitHub personal access token for publishing. Actions supplies `GITHUB_TOKEN`; the publishing job requests `contents: write` in its YAML. Build jobs retain read-only permissions. You do not need to change every workflow's default permission to write. [GitHub workflow authentication](https://docs.github.com/en/actions/tutorials/authenticate-with-github_token)
 
 Your local Git authentication for pushing is separate from these publishing tokens. Continue using your existing GitHub sign-in/credential manager or SSH setup for `origin`.
 
@@ -64,13 +64,13 @@ These three values must match exactly; RC1 is an example, not a decision to publ
 
 | Location | Example |
 | --- | --- |
-| `gradle.properties` | `version=26.1.0.0-rc.1` |
-| Changelog filename and first heading | `changelogs/26.1.0.0-rc.1.md` and `# 26.1.0.0-rc.1` |
-| Git tag | `v26.1.0.0-rc.1` |
+| `gradle.properties` | `version=4.0.0-rc.1` |
+| Changelog filename and first heading | `changelogs/4.0.0-rc.1.md` and `# 4.0.0-rc.1` |
+| Git tag | `v4.0.0-rc.1` |
 
 While developing, add player-facing changes to [Unreleased](../changelogs/UNRELEASED.md). Before release, curate them into the version file using the [template](../changelogs/TEMPLATE.md), remove empty sections/placeholders, update the [index](../CHANGELOG.md), and reset Unreleased for subsequent work. The version file supplies the release notes for all three platforms.
 
-Commit and merge the release changes through your normal Git workflow. The release commit must contain the publishing workflow, scripts, version, and changelog; the default branch must also contain the workflow for manual runs. Finish build and gameplay verification before tagging. Tag the exact reviewed commit, not a later untested change.
+Commit and merge the release changes through your normal Git workflow. The release commit must contain the publishing workflow, scripts, version, and changelog. Merge it into `main` before tagging: `release/publishing.json` permits release commits reachable from `main`. The default branch must also contain the workflow for manual runs. If a future maintenance branch should publish, add its exact name to `release_branches` in that configuration through review first. Finish build and gameplay verification before tagging. Tag the exact reviewed commit, not a later untested change.
 
 Channel mapping: `-rc.N` and `-beta.N` publish as beta/prerelease; `-alpha.N` as alpha/prerelease; a version without a suffix is stable. The tag's leading `v` does not appear in `gradle.properties` or the changelog filename.
 
@@ -89,41 +89,49 @@ The expected `origin` is `https://github.com/iso2t/Heavy-Inventories.git` (or it
 For the example version, create an annotated local tag and inspect it:
 
 ```powershell
-git tag -a v26.1.0.0-rc.1 -m "Heavy Inventories 26.1.0.0-rc.1" HEAD
-git show --no-patch v26.1.0.0-rc.1
+git tag -a v4.0.0-rc.1 -m "Heavy Inventories 4.0.0-rc.1" HEAD
+git show --no-patch v4.0.0-rc.1
 ```
 
 When ready, push only that tag:
 
 ```powershell
-git push origin refs/tags/v26.1.0.0-rc.1
+git push origin refs/tags/v4.0.0-rc.1
 ```
 
 Substitute the chosen version everywhere. An ordinary branch push does not normally push this tag. Prefer the explicit single-tag command over `git push --tags`, which sends all local tags. Do not move or force-push a published tag; changed release contents need a new version. [Git's tagging guide](https://git-scm.com/book/en/v2/Git-Basics-Tagging)
 
-Once the publisher is implemented and enabled, **the tag push is the publication trigger**. Creating the local tag alone does not publish. You do not also need to create a GitHub release manually; the workflow creates it.
+Once these changes are on GitHub and publishing is enabled, **the tag push is the publication trigger**. Creating the local tag alone does not publish. You do not also need to create a GitHub release manually; the workflow creates it.
 
 ## 6. First rollout: dry-run before enabling publication
 
-This procedure is for the future publishing workflow. Its input names and UI labels must be finalized during implementation.
+In **Actions → Publish release → Run workflow**, the inputs are:
+
+| Input | Meaning |
+| --- | --- |
+| `tag` | Existing tag, for example `v4.0.0-rc.1` |
+| `mode` | `dry-run` (default), `preflight` (API reads only), or `publish` |
+| `recovery` | Leave `{}` unless reconciling an ambiguous upload as described below |
+
+The ordinary branch/PR build validates release notes and tests the publisher without tokens. A release run builds on Linux and Windows, compiles the runtime harness, and packages the exact verified Linux jars. Only after both builds pass can publication begin. It does not launch Minecraft gameplay tests.
 
 1. Keep `PUBLISH_ENABLED=false`. Ensure the implementation is on the default branch and in the reviewed release commit.
-2. Create and push the chosen release tag using step 5. Live publication must remain blocked by the switch.
-3. Open the repository's Actions page, select the publishing workflow, and choose **Run workflow**. Use its default-branch workflow, select the existing release tag as the release input, and keep dry-run selected.
+2. Create and push the chosen release tag using step 5. The run produces preview artifacts, then deliberately fails the publication gate while the switch is off.
+3. Open the repository's Actions page, select the publishing workflow, and choose **Run workflow**. Use its default-branch workflow, select the existing release tag as the release input, and set `mode=dry-run` and leave `recovery={}`.
 4. Inspect the resulting two jars, changelog, checksums, manifest, and destination preview. Both Linux and Windows validation must pass. Dry-run validates the release without publishing credentials; it cannot prove the tokens work.
-5. Complete the publisher's authenticated preflight for project access, credentials, game/loader metadata, and dependencies. This preflight must finish before any external write in a live attempt.
-6. Set `PUBLISH_ENABLED=true`. Manually run the same existing tag with explicit live publication selected. Changing the variable does not replay the earlier tag event, and pushing an unchanged tag does not create another event.
+5. Run the same tag with `mode=preflight`. This reads GitHub, Modrinth, and CurseForge metadata with the configured credentials, without creating a draft or uploading files. This read-only check cannot prove upload-only permissions/scopes: CurseForge does not expose a documented project-permission or file lookup endpoint in its author API. Verify your CurseForge account can upload to the configured project. The live path repeats its available checks before writing.
+6. Set `PUBLISH_ENABLED=true`. Manually run the same existing tag with `mode=publish`. Changing the variable does not replay the earlier tag event, and pushing an unchanged tag does not create another event.
 7. Verify both loader entries on CurseForge and Modrinth, and the GitHub release containing both jars. Confirm dependency declarations and any pending moderation.
 
 For later releases, leave publishing enabled, prepare the new release commit/changelog, and push its new tag. The workflow then validates, builds, and publishes automatically. Manual runs continue to default to dry-run.
 
 ## 7. If publication fails
 
-Inspect the workflow summary before rerunning. A failure can leave a GitHub draft or an accepted upload on one platform. With recovery implemented, use manual live mode for the same tag; the publisher must reuse the original artifacts and skip verified uploads. An ambiguous upload requires reconciliation before retrying. Do not delete the tag or create duplicate platform versions to restart the process.
+Inspect the workflow summary before rerunning. A failure can leave a GitHub draft or an accepted upload on one platform. Use manual `mode=publish` for the same tag; the publisher must reuse the original artifacts and skip verified uploads. An ambiguous upload requires reconciliation before retrying. Do not delete the tag or create duplicate platform versions to restart the process.
 
 | Symptom | Check |
 | --- | --- |
-| No publishing workflow listed | It is not implemented/on the default branch yet, or Actions is disabled |
+| No publishing workflow listed | The workflow has not been pushed to the default branch, or Actions is disabled |
 | Publication disabled | `PUBLISH_ENABLED` is a repository variable with value `true` |
 | Missing token | Exact secret spelling and repository Actions secret location |
 | Unauthorized upload | Token expiry/scopes and account permission on the selected project |
@@ -131,4 +139,57 @@ Inspect the workflow summary before rerunning. A failure can leave a GitHub draf
 | Version or changelog validation failed | Tag, properties, filename, heading, and reviewed commit agree |
 | Some destinations already succeeded | Use recovery on the same tag; inspect ambiguous outcomes |
 
-Replace expired tokens by editing the existing secrets under the same names. Setting `PUBLISH_ENABLED=false` prevents future live attempts under the planned gate; it does not undo uploads or reliably stop an already-running job. Cancel an active job separately if necessary, then reconcile any completed uploads.
+Replace expired tokens by editing the existing secrets under the same names. Setting `PUBLISH_ENABLED=false` prevents future live attempts under the publication gate; it does not undo uploads or reliably stop an already-running job. Cancel an active job separately if necessary, then reconcile any completed uploads.
+
+## Recovery evidence
+
+The GitHub draft holds the canonical jars, manifest, and numbered `publish-state-*.json` ledger assets. Each upload intent is saved before the request and its receipt afterward. Never delete these assets to make a retry proceed. Once complete, the same release is a no-op. A new build with different contents must use a new version.
+
+Modrinth uploads are reconciled automatically when the matching version and SHA-512 hash are visible. CurseForge lacks a documented author API for looking up a possibly successful upload, so a lost response stops the workflow. Inspect the author dashboard and the latest ledger before using `recovery`.
+
+If the CurseForge file exists, verify its project, loader, game version, dependencies, release type, and notes in the dashboard. Obtain its direct ForgeCDN download URL. Supply an entry like this, replacing the example project/file IDs and URL with the verified values:
+
+```json
+{
+  "curseforge:fabric": {
+    "project_id": "123456",
+    "project_verified": true,
+    "id": 1234567,
+    "download_url": "https://mediafilez.forgecdn.net/files/1234/567/heavyinventories-fabric-26.1-4.0.0-rc.1.jar"
+  }
+}
+```
+
+The script validates the CDN host, file ID/path, filename, and downloaded SHA-512 against the original jar. `project_verified` is your explicit attestation of the project and metadata check; it is not an automated permission check. If the file is still in moderation and cannot be downloaded, wait rather than uploading a duplicate.
+
+If an intent was recorded but you have verified that the upload never happened (including private/pending files), authorize that missing attempt explicitly:
+
+```json
+{
+  "curseforge:neoforge": {
+    "project_id": "123456",
+    "project_verified": true,
+    "verified_absent": true
+  }
+}
+```
+
+The same absence form works for `modrinth:fabric` or `modrinth:neoforge`, using the Modrinth project ID. Allow time for a delayed request to settle and inspect the dashboard before attesting absence. Recovery entries cannot override a confirmed receipt or a mismatching remote version. Keep `recovery={}` for ordinary runs.
+
+If draft staging failed before the manifest/ledger existed, no platform upload was started. Matching partial assets can be resumed; byte conflicts require inspecting the draft instead of silently overwriting it.
+
+## Dependency policy and local verification
+
+The platform metadata marks Fabric API and Cloth Config required for Fabric, and Cloth Config required for NeoForge. Required is the conservative listing choice because platform relations cannot express a client-only requirement; release notes explain that NeoForge dedicated servers can omit Cloth Config. Dependency IDs and trusted branches live in `release/publishing.json`.
+
+Local validation uses Python 3.13 and JDK 25:
+
+```powershell
+python -m unittest discover -s scripts/release/tests -v
+python scripts/release/release.py validate
+.\gradlew.bat clean build releaseArtifacts --no-daemon --max-workers=2 --console=plain
+python scripts/release/release.py package --tag v4.0.0-rc.1 --bundle build/release/local-preview
+python scripts/release/release.py preview --bundle build/release/local-preview
+```
+
+Choose an empty output directory for each package attempt. Local previews may include uncommitted work and are not the canonical Linux release bundle. Publishing happens through Actions from the reviewed tagged commit. The `release-bundle` artifact contains the jars, changelog, checksums, and manifest; `release-preview` contains destination payloads. Authenticated preflight and a real Actions run remain the final setup checks.
