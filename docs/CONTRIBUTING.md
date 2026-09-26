@@ -12,6 +12,10 @@ bash ./gradlew clean build
 
 The build runs common regression tests and checks metadata, mixins, services, enchantment resources, bundled weight definitions, and test-harness exclusion in both loader jars. Distributable jars are under `fabric/build/libs/` and `neoforge/build/libs/`; do not install sources, javadoc, or lifecycle-test jars.
 
+Shared Gradle convention plugins live in the included `build-logic` build, following the [Minecraft 26.1.2 MultiLoader template](https://github.com/jaredlll08/MultiLoader-Template/tree/6c933ec60e02716b657b2dfdf360ddae1e8c9030). It replaces the former `buildSrc` directory; keep Heavy Inventories' resource generation and packaged-jar checks in those conventions. The port uses the template's Fabric Mixin 0.17.3+mixin.0.8.7 and MixinExtras 0.5.3 dependencies while retaining this project's newer Gradle 9.5.0 wrapper.
+
+The 26.1.2 port passed 89 common tests, both packaged-jar checks, both loaders' dedicated/integrated and separate multiplayer runtime suites, datapack reload/conversion checks, and a NeoForge dedicated run without Cloth Config on Windows/JDK 25. No gameplay source changes were needed. Linux runtime, third-party integrations, and long-session balance were not verified in this migration. Published RC2 notes remain unchanged; record port changes under Unreleased and choose a new release version before publishing.
+
 The GitHub Actions workflow builds/tests on Linux and Windows and uploads reports and mod artifacts. Branch and PR builds do not publish releases or start Minecraft. The separate publishing workflow is manual-only, reads the selected branch commit, and creates its version tag automatically. The [testing guide](TESTING.md) describes opt-in local runtime checks and their evidence.
 
 Source and issue tracking: [iso2t/Heavy-Inventories](https://github.com/iso2t/Heavy-Inventories). Contributions and translations are welcome. Licensed under [MIT](../LICENSE.md).

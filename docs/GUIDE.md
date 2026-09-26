@@ -6,13 +6,13 @@ Installation, gameplay rules, configuration, and supported limits for the curren
 
 Use the jar for your loader on both the client and server, with matching Heavy Inventories builds.
 
-| Component     | Verified version                  |
-|---------------|-----------------------------------|
-| Minecraft     | 26.1                              |
-| Java          | 25                                |
-| Fabric Loader | 0.18.5                            |
-| Fabric API    | 0.144.0+26.1                      |
-| NeoForge      | 26.1.0.1-beta                     |
+| Component     | Verified version                 |
+|---------------|----------------------------------|
+| Minecraft     | 26.1.2                           |
+| Java          | 25                               |
+| Fabric Loader | 0.18.6                           |
+| Fabric API    | 0.145.4+26.1.2                   |
+| NeoForge      | 26.1.2.7-beta                    |
 | Cloth Config  | 26.1.154, for the matching loader |
 
 Fabric requires Fabric API and Cloth Config. NeoForge requires Cloth Config on clients; its dedicated server does not require the settings UI. These are external dependencies, not bundled copies. The version table records the tested baseline, not a claim that every newer loader/mod version works.

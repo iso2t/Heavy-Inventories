@@ -53,7 +53,7 @@ publishMods {
     github {
         accessToken = providers.environmentVariable('GITHUB_TOKEN')
         repository = providers.environmentVariable('GITHUB_REPOSITORY').orElse('iso2t/Heavy-Inventories')
-        commitish = providers.environmentVariable('GITHUB_SHA').orElse('26.1')
+        commitish = providers.environmentVariable('GITHUB_SHA').orElse('26.1.2')
         tagName = "v${releaseVersion}"
         file project(':fabric')
         additionalFile project(':neoforge')
