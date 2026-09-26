@@ -18,7 +18,8 @@ public class LivingEntityJumpFromGroundMixin {
 		var holder = PlayerHolder.getOrCreate(player);
 
 		if (holder.preventsGroundJump()) {
-			com.iso2t.heavyinventories.api.events.PlayerFeedback.jumpDenied(holder);
+			if (holder.preventsFluidAscent()) com.iso2t.heavyinventories.api.events.PlayerFeedback.fluidAscentDenied(holder);
+			else com.iso2t.heavyinventories.api.events.PlayerFeedback.jumpDenied(holder);
 			ci.cancel();
 		}
 	}

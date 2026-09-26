@@ -1,6 +1,6 @@
 package com.iso2t.heavyinventories.test;
 
-import com.iso2t.heavyinventories.api.events.PlayerEvents;
+import com.iso2t.heavyinventories.test.TestPlayerTick;
 import com.iso2t.heavyinventories.api.player.PlayerHolder;
 import com.iso2t.heavyinventories.api.resource.IResourceList;
 import com.iso2t.heavyinventories.api.weight.RecipeWeights;
@@ -64,7 +64,7 @@ public final class WeightCalculationScenario {
 	}
 
 	private static void check (ServerPlayer player, float expected, String message) {
-		PlayerEvents.onPlayerTick(player);
+		TestPlayerTick.update(player);
 		require(PlayerHolder.getOrCreate(player).getWeight() == expected, message);
 	}
 

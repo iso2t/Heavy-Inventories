@@ -37,7 +37,7 @@ public final class ServerConfiguration {
 			return;
 		}
 		try {
-			var settings = new ServerSettings(request.startingWeight(), WalkingMode.parse(request.walkingMode()));
+			var settings = new ServerSettings(request.startingWeight(), WalkingMode.parse(request.walkingMode()), request.effects());
 			ConfigFileManager.writeServerConfig(Services.PLATFORM.getGameDirectory().resolve("config/heavyinventories-server.json"), settings);
 			state.replace(settings, state.weights());
 			player.sendSystemMessage(Component.translatable("config.heavyinventories.saved"));

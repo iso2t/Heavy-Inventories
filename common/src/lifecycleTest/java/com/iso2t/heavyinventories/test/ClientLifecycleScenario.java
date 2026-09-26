@@ -123,6 +123,7 @@ public final class ClientLifecycleScenario {
 				if (!weightsMatch(client, 6f)) return;
 				oldClient = client.player;
 				operation = server.submit(() -> {
+					KnockbackScenario.checkBonus(serverPlayer, 0.0024f);
 					var replacement = server.getPlayerList().respawn(serverPlayer, true, Entity.RemovalReason.KILLED);
 					// Vanilla's respawn packet handler performs this reassignment after PlayerList.respawn.
 					replacement.connection.player = replacement;
@@ -141,6 +142,7 @@ public final class ClientLifecycleScenario {
 				oldServerHolder = PlayerHolder.getOrCreate(serverPlayer);
 				oldClient = client.player;
 				operation = server.submit(() -> {
+					KnockbackScenario.checkBonus(serverPlayer, 0.0024f);
 					server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), "execute as " + serverPlayer.getScoreboardName() + " in minecraft:the_nether run tp @s 0 100 0");
 					return serverPlayer;
 				});
@@ -153,6 +155,7 @@ public final class ClientLifecycleScenario {
 				require(PlayerHolder.getOrCreate(serverPlayer) == oldServerHolder, "Dimension change lost same-entity state");
 				require(PlayerHolder.getOrCreate(client.player).getPlayer() == client.player, "Dimension change reused stale client entity");
 				operation = server.submit(() -> {
+					KnockbackScenario.checkBonus(serverPlayer, 0.0024f);
 					var replacement = server.getPlayerList().respawn(serverPlayer, false, Entity.RemovalReason.KILLED);
 					replacement.connection.player = replacement;
 					replacement.connection.resetPosition();
@@ -167,6 +170,8 @@ public final class ClientLifecycleScenario {
 				if (!weightsMatch(client, 0f)) return;
 				require(PlayerHolder.getOrCreate(serverPlayer) != oldServerHolder, "Empty respawn retained old holder");
 				operation = server.submit(() -> {
+					KnockbackScenario.checkBonus(serverPlayer, 0);
+					HeavyInventories.LOGGER.info("KNOCKBACK LIFECYCLE PASSED: retained-inventory respawn, dimension travel, empty respawn");
 					configPath = Services.PLATFORM.getGameDirectory().resolve("config/heavyinventories-server.json");
 					try {
 						originalConfig = Files.exists(configPath) ? Files.readAllBytes(configPath) : null;
@@ -196,26 +201,31 @@ public final class ClientLifecycleScenario {
 				operation.join();
 				var holder = PlayerHolder.getOrCreate(client.player);
 				if (!holder.canEditServerConfig()) return;
-				client.getConnection().send(new ServerboundCustomPayloadPacket(new ServerConfigUpdatePayload(20.25f, holder.serverRevision())));
+				client.getConnection().send(new ServerboundCustomPayloadPacket(EffectsConfigScenario.editThroughScreen()));
 				stage++;
 			}
 			case 8 -> {
 				var holder = PlayerHolder.getOrCreate(client.player);
 				if (holder.getBaseMaxWeight() != 20.25f) return;
+				require(holder.serverSettings().effects().equals(EffectsConfigScenario.expected()), "Effect settings did not synchronize");
+				EffectsConfigScenario.checkReopened();
 				require(Math.abs(holder.getBracingOffset() - 2.025f) < 0.001f, "Live edit did not rebase/synchronize Bracing");
 				operation = server.submit(() -> {
 					try {
 						require(ConfigFileManager.readServerConfig(configPath).startingWeight() == 20.25f, "Network edit was not persisted");
+						require(ConfigFileManager.readServerConfig(configPath).effects().equals(EffectsConfigScenario.expected()), "Effects did not persist");
 						// A malformed reload must preserve the running snapshot and revision.
 						var state = ServerWeightState.of(server);
 						long revision = state.revision();
-						Files.writeString(configPath, "{\"startingWeight\":0}");
+						Files.writeString(configPath, "{\"startingWeight\":777,\"effects\":{\"fallDamage\":{\"startPercent\":130}}}");
 						try {
 							state.reload(server);
 							throw new AssertionError("Invalid reload was accepted");
 						} catch (IllegalArgumentException expected) {
 						}
 						require(state.revision() == revision && state.settings().startingWeight() == 20.25f, "Failed reload changed active settings");
+						require(state.settings().effects().equals(EffectsConfigScenario.expected()), "Invalid nested reload changed effects");
+						HeavyInventories.LOGGER.info("ENCUMBRANCE CONFIG PASSED: Cloth edits, cross-field validation, packet synchronization, reopen, persistence, atomic nested reload rejection");
 					} catch (java.io.IOException e) {
 						throw new RuntimeException(e);
 					} finally {
@@ -263,6 +273,7 @@ public final class ClientLifecycleScenario {
 				operation.join();
 				var holder = PlayerHolder.getOrCreate(client.player);
 				if (holder.getMaxWeight() != 1200 || holder.getWeight() != 1500) return;
+				if (!holder.serverSettings().effects().upwardMovement().enabled()) return;
 				require(holder.getStrengthOffset() == 200, "Strength capacity did not synchronize");
 				require(holder.isOverEncumbered(), "Overload did not synchronize");
 				MovementScenario.checkImpulse(client.player, 0.2);
@@ -270,7 +281,10 @@ public final class ClientLifecycleScenario {
 				client.player.jumpFromGround();
 				require(client.player.getDeltaMovement().y == 0, "Client allowed an overloaded jump");
 				FeedbackScenario.checkJump(client);
+				FluidMovementScenario.checkClient(client.player);
 				operation = server.submit(() -> {
+					var state = ServerWeightState.of(server);
+					state.replace(new ServerSettings(1000), state.weights());
 					serverPlayer.removeAllEffects();
 					serverPlayer.getInventory().clearContent();
 					PlayerEvents.onPlayerTick(serverPlayer);

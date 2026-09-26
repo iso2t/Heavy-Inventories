@@ -1,7 +1,7 @@
 package com.iso2t.heavyinventories.test.mixin;
 
 import com.iso2t.heavyinventories.HeavyInventories;
-import com.iso2t.heavyinventories.api.events.PlayerEvents;
+import com.iso2t.heavyinventories.test.TestPlayerTick;
 import com.iso2t.heavyinventories.api.player.PlayerHolder;
 import com.iso2t.heavyinventories.api.player.PlayerWeightCache;
 import com.iso2t.heavyinventories.server.ServerWeightState;
@@ -63,29 +63,29 @@ public abstract class PlayerLifecycleSmokeMixin {
 		values.put(BuiltInRegistries.ITEM.getKey(Items.IRON_LEGGINGS), 0f);
 		state.replace(new ServerSettings(1000.5f), values);
 		original.getInventory().setItem(0, new ItemStack(Items.STONE, 8));
-		PlayerEvents.onPlayerTick(original);
+		TestPlayerTick.update(original);
 		require(holder.getWeight() == 16f, "Inventory addition must refresh weight");
 		original.getInventory().getItem(0).shrink(3);
-		PlayerEvents.onPlayerTick(original);
+		TestPlayerTick.update(original);
 		require(holder.getWeight() == 10f, "In-place inventory mutation must refresh weight");
 		original.getInventory().setItem(38, com.iso2t.heavyinventories.test.MovementScenario.enchanted(original, Items.IRON_CHESTPLATE, com.iso2t.heavyinventories.api.enchantment.ModEnchantments.BRACING, 1));
-		PlayerEvents.onPlayerTick(original);
+		TestPlayerTick.update(original);
 
 		// Same UUID, new entity: death/respawn or reconnect must never recover the old holder.
 		var replacement = new ServerPlayer(server, server.overworld(), profile, ClientInformation.createDefault());
 		var replacementHolder = PlayerHolder.getOrCreate(replacement);
 		require(replacementHolder != holder, "Same UUID must not share entity state");
 		require(replacementHolder.getPlayer() == replacement, "Replacement must own its holder");
-		PlayerEvents.onPlayerTick(replacement);
+		TestPlayerTick.update(replacement);
 		require(replacementHolder.getWeight() == 0f, "Empty respawn inventory must start at zero");
 		require(replacementHolder.getBracingOffset() == 0f, "Respawn must not copy derived bonuses");
 
 		// keepInventory-style transfer copies stacks, not cached totals or bonuses.
 		replacement.getInventory().replaceWith(original.getInventory());
-		PlayerEvents.onPlayerTick(replacement);
+		TestPlayerTick.update(replacement);
 		require(replacementHolder.getWeight() == 10f, "Transferred inventory must be recalculated");
 		replacement.getInventory().clearContent();
-		PlayerEvents.onPlayerTick(replacement);
+		TestPlayerTick.update(replacement);
 		require(replacementHolder.getWeight() == 0f, "Clearing inventory must refresh weight");
 		require(holder.getWeight() == 10f, "New entity must not mutate old entity state");
 
@@ -93,23 +93,23 @@ public abstract class PlayerLifecycleSmokeMixin {
 		values.put(BuiltInRegistries.ITEM.getKey(Items.STONE), 3f);
 		state.replace(new ServerSettings(2000.5f), values);
 		original.setServerLevel(server.getLevel(Level.NETHER));
-		PlayerEvents.onPlayerTick(original);
+		TestPlayerTick.update(original);
 		require(PlayerHolder.getOrCreate(original) == holder, "Same entity retains ownership across dimensions");
 		require(holder.getWeight() == 15f, "Dimension transition must invalidate the cached total");
 
 		require(holder.getBaseMaxWeight() == 2000.5f, "Capacity change must preserve decimals on existing players");
 		require(Math.abs(holder.getBracingOffset() - 200.05f) < 0.01f, "Capacity change must rebase bonuses");
 		original.getInventory().setItem(37, com.iso2t.heavyinventories.test.MovementScenario.enchanted(original, Items.IRON_LEGGINGS, com.iso2t.heavyinventories.api.enchantment.ModEnchantments.REINFORCED, 1));
-		PlayerEvents.onPlayerTick(original);
+		TestPlayerTick.update(original);
 		require(Math.abs(holder.getBracingOffset() - 200.05f) < 0.01f, "Reinforced must not modify Bracing");
 		original.getInventory().setItem(37, ItemStack.EMPTY);
-		PlayerEvents.onPlayerTick(original);
+		TestPlayerTick.update(original);
 		require(Math.abs(holder.getMaxWeight() - 2200.55f) < 0.01f, "Removing Reinforced must preserve base and Bracing");
 		values.put(BuiltInRegistries.ITEM.getKey(Items.STONE), 4f);
 		state.replace(state.settings(), values);
 		PlayerWeightCache.markDirty(original);
 		require(holder.getWeight() == 15f, "Invalidation must defer calculation until tick/read");
-		PlayerEvents.onPlayerTick(original);
+		TestPlayerTick.update(original);
 		require(holder.getWeight() == 20f, "Dirty inventory must refresh on next tick");
 		require(replacementHolder.getWeight() == 0f, "Invalidation must not affect another entity");
 

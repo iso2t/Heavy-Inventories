@@ -38,9 +38,11 @@ public final class PlayerHolder {
 	private       float             walkingMultiplier = 1;
 	private       boolean           encumbered, overloaded, receivedState, canEditServerConfig;
 	private WalkingMode walkingMode         = ServerSettings.DEFAULT.walkingMode();
+	private com.iso2t.heavyinventories.config.EffectsSettings effectSettings = ServerSettings.DEFAULT.effects();
 	private long        definitionsRevision = -1, serverRevision;
 	private PlayerWeightPayload lastSent;
-	private long                lastSentTick, lastDefinitionsSent = -1, lastJumpNotice = Long.MIN_VALUE;
+	private long                lastDefinitionsSent = -1, lastJumpNotice = Long.MIN_VALUE;
+	private long                movementExhaustionSuppressedUntil = Long.MIN_VALUE;
 
 	public PlayerHolder (Player player) {
 		this.player = player;
@@ -55,6 +57,7 @@ public final class PlayerHolder {
 		}
 		baseCapacity = state.settings().startingWeight();
 		walkingMode = state.settings().walkingMode();
+		effectSettings = state.settings().effects();
 		float nextWeight = PlayerWeightCache.getOrCompute(player);
 		if (nextWeight == StackWeight.TOO_COMPLEX && nextWeight != weight && player instanceof ServerPlayer target && target.connection != null) player.sendSystemMessage(Component.translatable("tooltip.heavyinventories.calculation_limit"));
 		weight = nextWeight;
@@ -66,6 +69,9 @@ public final class PlayerHolder {
 		encumbered = calculated.encumbered();
 		overloaded = calculated.overloaded();
 		walkingMultiplier = calculated.walkingMultiplier();
+		float resistance = effectSettings.knockback().enabled() ? EncumbranceEffects.calculate(weight, getMaxWeight(), walkingMode, effectSettings,
+				EncumbranceEffects.Fluid.NONE, player.isCreative() || player.isSpectator(), false).knockbackResistance() : 0;
+		PlayerKnockback.update(player, resistance);
 	}
 
 	private int level (ResourceKey<Enchantment> key) {
@@ -86,6 +92,19 @@ public final class PlayerHolder {
 
 	public WalkingMode walkingMode () {
 		return walkingMode;
+	}
+
+	public ServerSettings serverSettings () {
+		return new ServerSettings(baseCapacity, walkingMode, effectSettings);
+	}
+
+	public void suppressMovementExhaustion () {
+		// Conservatively ignore residual external momentum for one second.
+		movementExhaustionSuppressedUntil = (long) player.tickCount + 20;
+	}
+
+	public boolean movementExhaustionSuppressed () {
+		return player.tickCount < movementExhaustionSuppressedUntil;
 	}
 
 	public boolean hasServerState () {
@@ -128,19 +147,35 @@ public final class PlayerHolder {
 	}
 
 	public float getFluidSwimMultiplier () {
-		return movementExempt() ? 1 : isOverEncumbered() ? 0.5f : isEncumbered() ? 0.75f : 1;
+		return fluidEffects().swimmingMultiplier();
 	}
 
 	public float getFluidSinkGravityMultiplier () {
-		return movementExempt() ? 1 : isOverEncumbered() ? 3 : isEncumbered() ? 1.5f : 1;
+		return fluidEffects().sinkingMultiplier();
+	}
+
+	public boolean preventsFluidAscent () {
+		return fluidEffects().deniesUpwardMovement();
+	}
+
+	private EncumbranceEffects.State fluidEffects () {
+		var fluid = player.isInWater() ? EncumbranceEffects.Fluid.WATER : player.isInLava() ? EncumbranceEffects.Fluid.LAVA : EncumbranceEffects.Fluid.NONE;
+		if (fluid == EncumbranceEffects.Fluid.NONE || movementExempt()) return EncumbranceEffects.State.NONE;
+		var settings = player.level().isClientSide() ? serverSettings() : ServerWeightState.of(player.level().getServer()).settings();
+		var effects = settings.effects();
+		if (!effects.swimming().enabled() && !effects.sinking().enabled() && !effects.upwardMovement().enabled()) return EncumbranceEffects.State.NONE;
+		return EncumbranceEffects.calculate(weight, getMaxWeight(), settings.walkingMode(), settings.effects(), fluid, exempt(), movementExempt());
 	}
 
 	public float getFallDamageMultiplier () {
-		return exempt() ? 1 : isOverEncumbered() ? 3 : isEncumbered() ? 1.5f : 1;
+		var settings = player.level().isClientSide() ? serverSettings() : ServerWeightState.of(player.level().getServer()).settings();
+		if (!settings.effects().fallDamage().enabled()) return 1;
+		return EncumbranceEffects.calculate(weight, getMaxWeight(), settings.walkingMode(), settings.effects(),
+				EncumbranceEffects.Fluid.NONE, exempt(), false).fallMultiplier();
 	}
 
 	public boolean preventsGroundJump () {
-		return !movementExempt() && (isEncumbered() || isOverEncumbered());
+		return preventsFluidAscent() || !movementExempt() && (isEncumbered() || isOverEncumbered());
 	}
 
 	/**
@@ -166,6 +201,7 @@ public final class PlayerHolder {
 		strengthOffset = snapshot.strength();
 		walkingMultiplier = snapshot.walkingMultiplier();
 		walkingMode = snapshot.walkingMode();
+		effectSettings = snapshot.effects();
 		encumbered = snapshot.encumbered();
 		overloaded = snapshot.overEncumbered();
 		canEditServerConfig = snapshot.canEdit();
@@ -179,11 +215,10 @@ public final class PlayerHolder {
 			state.packets().forEach(packet -> Services.PLATFORM.sendToPlayer(target, packet));
 			lastDefinitionsSent = state.revision();
 		}
-		var snapshot = new PlayerWeightPayload(target.getId(), target.level().dimension().identifier(), weight, baseCapacity, bracingOffset, reinforcedOffset, strengthOffset, walkingMultiplier, walkingMode, isEncumbered(), isOverEncumbered(), ServerConfiguration.canEdit(target), state.revision());
-		if (!snapshot.equals(lastSent) || target.tickCount - lastSentTick >= 20) {
+		var snapshot = new PlayerWeightPayload(target.getId(), target.level().dimension().identifier(), weight, baseCapacity, bracingOffset, reinforcedOffset, strengthOffset, walkingMultiplier, walkingMode, isEncumbered(), isOverEncumbered(), ServerConfiguration.canEdit(target), state.revision(), effectSettings);
+		if (!snapshot.equals(lastSent)) {
 			Services.PLATFORM.sendToPlayer(target, snapshot);
 			lastSent = snapshot;
-			lastSentTick = target.tickCount;
 		}
 	}
 }

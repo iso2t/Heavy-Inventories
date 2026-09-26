@@ -41,6 +41,10 @@ public final class CompatibilityScenario {
 			require(player.startRiding(boat, true, false), "Test player did not mount");
 			MovementScenario.checkImpulse(player, 1);
 			require(!holder.preventsGroundJump(), "Mounted player got ground-jump penalty");
+			var food = (com.iso2t.heavyinventories.test.mixin.FoodDataTestAccess) player.getFoodData();
+			float beforeRiding = food.heavyinventories$getExhaustion();
+			player.checkMovementStatistics(0, 0, 10);
+			require(food.heavyinventories$getExhaustion() == beforeRiding, "Riding consumed movement exhaustion");
 		} finally {
 			player.stopRiding();
 			boat.discard();
@@ -91,7 +95,7 @@ public final class CompatibilityScenario {
 			require(player.isInLava() && player.getFluidHeight(net.minecraft.tags.FluidTags.LAVA) > 0.4, "Test did not enter deep lava: height=" + player.getFluidHeight(net.minecraft.tags.FluidTags.LAVA) + ", ticks=" + player.tickCount + ", block=" + level.getFluidState(center));
 			double[] acceleration = new double[3];
 			int[] counts = { 5, 9, 15 };
-			double[] swim = { 1, 0.75, 0.5 };
+			double[] swim = { 1, 1, 0.5 };
 			for (int i = 0; i < counts.length; i++) {
 				player.getInventory().setItem(0, new ItemStack(Items.STONE, counts[i]));
 				PlayerEvents.onPlayerTick(player);
@@ -100,7 +104,7 @@ public final class CompatibilityScenario {
 				travel.heavyinventories$travelInFluid(Vec3.ZERO);
 				acceleration[i] = player.getDeltaMovement().y;
 			}
-			require(acceleration[0] < 0 && Math.abs(acceleration[1] / acceleration[0] - 1.5) < 0.00001 && Math.abs(acceleration[2] / acceleration[0] - 3) < 0.00001, "Deep-lava gravity did not use encumbrance multipliers");
+			require(acceleration[0] < 0 && Math.abs(acceleration[1] / acceleration[0] - 1) < 0.00001 && Math.abs(acceleration[2] / acceleration[0] - 2) < 0.00001, "Deep-lava gravity did not use encumbrance multipliers");
 			player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 100, 0));
 			player.setDeltaMovement(Vec3.ZERO);
 			travel.heavyinventories$travelInFluid(Vec3.ZERO);

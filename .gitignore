@@ -36,3 +36,9 @@ __pycache__/
 /DATAPACK_PLAN.md
 /HUD_RING_PLAN.md
 /scripts/assert-runtime.ps1
+/ENCUMBRANCE_PLAN.md
+
+/docs
+!/docs/CONTRIBUTING.md
+!/docs/GUIDE.md
+!/docs/RELEASE_NOTES.md

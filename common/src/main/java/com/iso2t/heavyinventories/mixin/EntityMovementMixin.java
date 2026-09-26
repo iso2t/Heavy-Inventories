@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 /**
- * Scale normalized horizontal acceleration once, preserving vertical input and other speed modifiers.
+ * Scale normalized horizontal acceleration once; optionally deny only positive fluid input.
  */
 @Mixin(Entity.class)
 public abstract class EntityMovementMixin {
@@ -18,6 +18,11 @@ public abstract class EntityMovementMixin {
 		if (!((Object) this instanceof Player player)) return movement;
 		var holder = PlayerHolder.getOrCreate(player);
 		float multiplier = player.isInWater() || player.isInLava() ? holder.getFluidSwimMultiplier() : holder.getWalkingMultiplier();
-		return multiplier == 1 ? movement : new Vec3(movement.x * multiplier, movement.y, movement.z * multiplier);
+		double vertical = movement.y;
+		if (vertical > 0 && holder.preventsFluidAscent()) {
+			vertical = 0;
+			com.iso2t.heavyinventories.api.events.PlayerFeedback.fluidAscentDenied(holder);
+		}
+		return multiplier == 1 && vertical == movement.y ? movement : new Vec3(movement.x * multiplier, vertical, movement.z * multiplier);
 	}
 }

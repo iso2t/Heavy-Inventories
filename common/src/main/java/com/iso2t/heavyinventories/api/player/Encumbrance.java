@@ -22,10 +22,14 @@ public final class Encumbrance {
 		double ratio = (double) weight / capacity;
 		boolean over = !exempt && (weight == StackWeight.TOO_COMPLEX || ratio >= 1);
 		boolean encumbered = !exempt && !over && ratio >= 0.9;
-		double multiplier = exempt ? 1 : mode == WalkingMode.PROGRESSIVE ? Math.sqrt(Math.max(0, 1 - ratio)) : Math.clamp((1 - ratio) / 0.1, 0, 1);
+		double multiplier = exempt ? 1 : walkingBeforeSurefooted(ratio, mode);
 		int boots = Math.clamp(surefootedLevel, 0, 4);
 		if (over) multiplier = boots * 0.05;
 		else if (encumbered && boots > 0) multiplier = Math.max(multiplier, Math.max(0.25, boots * 0.1));
 		return new State(bracing, reinforced, strength, capacity, encumbered, over, (float) multiplier);
+	}
+
+	static double walkingBeforeSurefooted (double ratio, WalkingMode mode) {
+		return mode == WalkingMode.PROGRESSIVE ? Math.sqrt(Math.max(0, 1 - ratio)) : Math.clamp((1 - ratio) / 0.1, 0, 1);
 	}
 }

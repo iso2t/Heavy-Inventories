@@ -59,6 +59,7 @@ public final class NetworkAuthorityScenario {
 				serverStage = 1;
 			} else if (serverStage == 1 && ticks - startedAt > 100) {
 				require(state.revision() == initialRevision, "Non-operator network request changed settings");
+				require(state.settings().effects().equals(com.iso2t.heavyinventories.config.EffectsSettings.DEFAULT), "Denied request changed effects");
 				require(java.util.Arrays.equals(previousConfig, Files.exists(config) ? Files.readAllBytes(config) : null), "Non-operator request changed the config file");
 				players.op(profile);
 				serverStage = 2;
@@ -66,9 +67,12 @@ public final class NetworkAuthorityScenario {
 				require(state.revision() == initialRevision + 1, "Invalid/stale requests were applied");
 				require(ConfigFileManager.readServerConfig(config).startingWeight() == 20.25f, "Edit was not persisted on dedicated server");
 				require(ConfigFileManager.readServerConfig(config).walkingMode() == com.iso2t.heavyinventories.config.WalkingMode.AT_NINETY_PERCENT, "Walking mode was not persisted");
+				var persistedEffects = ConfigFileManager.readServerConfig(config).effects();
+				require(persistedEffects.exhaustion().maxMultiplier() == 2.25f && persistedEffects.fallDamage().maxMultiplier() == 3.5f && persistedEffects.knockback().referenceWeight() == 800.25f, "Remote effects were not persisted");
 				serverStage = 3;
 			} else if (serverStage == 3 && state.settings().startingWeight() == 25.5f) {
 				MovementScenario.run(players.getPlayers().getFirst());
+				KnockbackScenario.checkBonus(players.getPlayers().getFirst(), 0.4f);
 				serverStage = 4;
 			} else if (serverStage == 4 && players.getPlayers().isEmpty()) {
 				var weights = new java.util.HashMap<>(state.weights());
@@ -81,6 +85,8 @@ public final class NetworkAuthorityScenario {
 				replacement.removeAllEffects();
 				com.iso2t.heavyinventories.api.events.PlayerEvents.onPlayerTick(replacement);
 				require(PlayerHolder.getOrCreate(replacement).getWeight() == 45 && PlayerHolder.getOrCreate(replacement).getMaxWeight() == 512, "Reconnect did not rebuild from persisted equipment and new definitions");
+				KnockbackScenario.checkBonus(replacement, 0.018f);
+				HeavyInventories.LOGGER.info("KNOCKBACK RECONNECT PASSED: rebuilt from persisted inventory and changed definitions");
 				serverStage = 6;
 			} else if (serverStage == 6 && players.getPlayers().isEmpty()) {
 				cleanup(server);

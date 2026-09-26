@@ -9,6 +9,12 @@ public final class ClientFeedback {
 	}
 
 	public static void register () {
+		PlayerFeedback.registerFluidNotice(holder -> {
+			if (!holder.getPlayer().level().isClientSide()) return;
+			var client = Minecraft.getInstance();
+			if (holder.getPlayer() != client.player || !holder.allowJumpNotice()) return;
+			client.gui.setOverlayMessage(Component.translatable("chat.heavyinventories.no_swim_up"), false);
+		});
 		PlayerFeedback.registerJumpNotice(holder -> {
 			// The integrated server shares this callback but must never touch the client GUI.
 			if (!holder.getPlayer().level().isClientSide()) return;

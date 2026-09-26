@@ -39,9 +39,17 @@ public final class ConfigFileManager {
 	public static void writeServerConfig (Path path, ServerSettings settings) throws IOException {
 		var root = JsonFiles.readObject(path);
 		ServerSettings.parse(root);
-		root.addProperty("startingWeight", settings.startingWeight());
-		root.addProperty("walkingMode", settings.walkingMode().id());
+		merge(root, settings.toJson());
 		JsonFiles.writeObject(path, root);
+	}
+
+	private static void merge (com.google.gson.JsonObject target, com.google.gson.JsonObject source) {
+		// Keep unknown fields inside the new settings groups as well as at the root.
+		source.entrySet().forEach(entry -> {
+			if (entry.getValue().isJsonObject() && target.has(entry.getKey()) && target.get(entry.getKey()).isJsonObject())
+				merge(target.getAsJsonObject(entry.getKey()), entry.getValue().getAsJsonObject());
+			else target.add(entry.getKey(), entry.getValue());
+		});
 	}
 
 	public static void loadCommonConfig () {

@@ -9,8 +9,13 @@
     "PlayerStateMixin",
     "LivingEntityFallDamageMixin",
     "LivingEntityFluidGravityMixin",
+    "LivingEntityFluidAscentMixin",
+    "PlayerFluidAscentMixin",
     "EntityMovementMixin",
-    "LivingEntityJumpFromGroundMixin"
+    "LivingEntityJumpFromGroundMixin",
+    "ServerPlayerExhaustionMixin",
+    "ExternalMovementExhaustionMixin",
+    "LivingEntityExhaustionMixin"
   ],
   "client": [
   ],

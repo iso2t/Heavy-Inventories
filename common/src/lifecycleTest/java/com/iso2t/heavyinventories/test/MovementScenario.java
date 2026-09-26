@@ -1,7 +1,7 @@
 package com.iso2t.heavyinventories.test;
 
 import com.iso2t.heavyinventories.api.enchantment.ModEnchantments;
-import com.iso2t.heavyinventories.api.events.PlayerEvents;
+import com.iso2t.heavyinventories.test.TestPlayerTick;
 import com.iso2t.heavyinventories.api.player.PlayerHolder;
 import com.iso2t.heavyinventories.config.ServerSettings;
 import com.iso2t.heavyinventories.config.WalkingMode;
@@ -30,6 +30,11 @@ public final class MovementScenario {
 	}
 
 	public static void run (ServerPlayer player) {
+		ExhaustionScenario.run(player);
+		FallDamageScenario.run(player);
+		FluidMovementScenario.run(player);
+		KnockbackScenario.run(player);
+		CombinedEffectsScenario.run(player);
 		// Dedicated test worlds persist potion effects between runs.
 		if (player.connection != null) {
 			player.removeAllEffects();
@@ -48,61 +53,61 @@ public final class MovementScenario {
 		player.inventoryMenu.getCraftSlots().clearContent();
 		var holder = PlayerHolder.getOrCreate(player);
 		inventory.setItem(0, new ItemStack(Items.STONE, 5));
-		PlayerEvents.onPlayerTick(player);
+		TestPlayerTick.update(player);
 		checkImpulse(player, Math.sqrt(0.5));
 		state.replace(new ServerSettings(1000, WalkingMode.AT_NINETY_PERCENT), values);
-		PlayerEvents.onPlayerTick(player);
+		TestPlayerTick.update(player);
 		checkImpulse(player, 1);
 		inventory.getItem(0).setCount(9);
-		PlayerEvents.onPlayerTick(player);
+		TestPlayerTick.update(player);
 		require(holder.isEncumbered() && !holder.isOverEncumbered(), "90% boundary mismatch");
 		player.setDeltaMovement(Vec3.ZERO);
 		player.jumpFromGround();
 		require(player.getDeltaMovement().y == 0, "Encumbered jump was allowed");
 		inventory.getItem(0).setCount(15);
-		PlayerEvents.onPlayerTick(player);
+		TestPlayerTick.update(player);
 		checkImpulse(player, 0);
 		inventory.setItem(36, enchanted(player, Items.IRON_BOOTS, ModEnchantments.SUREFOOTED, 4));
-		PlayerEvents.onPlayerTick(player);
+		TestPlayerTick.update(player);
 		checkImpulse(player, 0.2);
 		inventory.getItem(0).setCount(0);
-		PlayerEvents.onPlayerTick(player);
+		TestPlayerTick.update(player);
 		checkImpulse(player, 1);
 		inventory.setItem(38, enchanted(player, Items.IRON_CHESTPLATE, ModEnchantments.BRACING, 10));
 		inventory.setItem(37, enchanted(player, Items.IRON_LEGGINGS, ModEnchantments.REINFORCED, 5));
-		for (int i = 0; i < 5; i++) PlayerEvents.onPlayerTick(player);
+		for (int i = 0; i < 5; i++) TestPlayerTick.update(player);
 		require(holder.getMaxWeight() == 2250, "Bonuses accumulated or failed to stack");
 		inventory.setItem(39, new ItemStack(Items.IRON_HELMET));
-		PlayerEvents.onPlayerTick(player);
+		TestPlayerTick.update(player);
 		require(holder.getMaxWeight() == 2250, "Unrelated equipment reset bonuses");
 		inventory.setItem(37, ItemStack.EMPTY);
-		PlayerEvents.onPlayerTick(player);
+		TestPlayerTick.update(player);
 		require(holder.getMaxWeight() == 2000, "Removing Reinforced changed Bracing");
 		inventory.setItem(38, enchanted(player, Items.IRON_CHESTPLATE, ModEnchantments.BRACING, 1));
-		PlayerEvents.onPlayerTick(player);
+		TestPlayerTick.update(player);
 		require(holder.getMaxWeight() == 1100, "Replacing Bracing retained its old level");
 		inventory.setItem(38, ItemStack.EMPTY);
-		PlayerEvents.onPlayerTick(player);
+		TestPlayerTick.update(player);
 		require(holder.getMaxWeight() == 1000, "Removing Bracing did not restore base");
 		if (player.connection != null) {
 			player.removeAllEffects();
 			checkFluidsAndFalls(player);
 			player.addEffect(new MobEffectInstance(MobEffects.STRENGTH, 200, 1));
-			PlayerEvents.onPlayerTick(player);
+			TestPlayerTick.update(player);
 			require(holder.getMaxWeight() == 1200, "Strength II did not add 20% base");
 			player.removeEffect(MobEffects.STRENGTH);
-			PlayerEvents.onPlayerTick(player);
+			TestPlayerTick.update(player);
 			require(holder.getMaxWeight() == 1000, "Expired/removed Strength retained capacity");
 			inventory.setItem(0, new ItemStack(Items.STONE, 15));
 			for (var mode : new GameType[] { GameType.CREATIVE, GameType.SPECTATOR }) {
 				player.setGameMode(mode);
-				PlayerEvents.onPlayerTick(player);
+				TestPlayerTick.update(player);
 				require(!holder.isOverEncumbered() && !holder.isEncumbered(), "Game mode was not exempt");
 				checkImpulse(player, 1);
 			}
 			player.setGameMode(GameType.SURVIVAL);
 			player.getAbilities().flying = true;
-			PlayerEvents.onPlayerTick(player);
+			TestPlayerTick.update(player);
 			checkImpulse(player, 1);
 			player.getAbilities().flying = false;
 			player.startFallFlying();
@@ -111,10 +116,13 @@ public final class MovementScenario {
 			player.addEffect(new MobEffectInstance(MobEffects.STRENGTH, 1200, 1));
 		}
 		inventory.setItem(0, new ItemStack(Items.STONE, 15));
-		PlayerEvents.onPlayerTick(player);
+		TestPlayerTick.update(player);
 		checkImpulse(player, 0.2);
 		player.setDeltaMovement(Vec3.ZERO);
-		if (player.connection != null) CompatibilityScenario.run(player);
+		if (player.connection != null) {
+			CompatibilityScenario.run(player);
+			FluidMovementScenario.prepareClientCheck(player);
+		}
 	}
 
 	public static void checkImpulse (Player player, double expected) {
@@ -143,31 +151,27 @@ public final class MovementScenario {
 		player.setSprinting(false);
 		try {
 			double[] waterGravity = new double[3];
-			double[] lavaGravity = new double[3];
 			int[] counts = { 5, 9, 15 };
-			double[] swim = { 1, 0.75, 0.5 };
-			int[] damage = { 2, 3, 6 };
+			double[] swim = { 1, 1, 0.5 };
+			int[] damage = { 2, 2, 4 };
 			for (int i = 0; i < counts.length; i++) {
 				player.getInventory().setItem(0, new ItemStack(Items.STONE, counts[i]));
-				PlayerEvents.onPlayerTick(player);
+				TestPlayerTick.update(player);
 				access.heavyinventories$setWater(true);
 				checkImpulse(player, swim[i]);
 				player.setDeltaMovement(Vec3.ZERO);
 				travel.heavyinventories$travelInFluid(Vec3.ZERO);
 				waterGravity[i] = player.getDeltaMovement().y;
 				access.heavyinventories$setWater(false);
-				player.setDeltaMovement(Vec3.ZERO);
-				travel.heavyinventories$travelInFluid(Vec3.ZERO);
-				lavaGravity[i] = player.getDeltaMovement().y;
 				player.setHealth(20);
 				player.invulnerableTime = 0;
 				player.causeFallDamage(5, 1, player.damageSources().fall());
 				require(Math.abs(player.getHealth() - (20 - damage[i])) < 0.001, "Fall damage scaling mismatch");
 			}
-			for (var gravity : new double[][] { waterGravity, lavaGravity }) {
+			for (var gravity : new double[][] { waterGravity }) {
 				require(gravity[0] < 0, "Fluid gravity test did not sink");
-				require(Math.abs(gravity[1] / gravity[0] - 1.5) < 0.00001, "Encumbered fluid gravity mismatch");
-				require(Math.abs(gravity[2] / gravity[0] - 3) < 0.00001, "Overloaded fluid gravity mismatch");
+				require(Math.abs(gravity[1] / gravity[0] - 1) < 0.00001, "Encumbered fluid gravity mismatch");
+				require(Math.abs(gravity[2] / gravity[0] - 2) < 0.00001, "Overloaded fluid gravity mismatch");
 			}
 		} finally {
 			access.heavyinventories$setWater(water);

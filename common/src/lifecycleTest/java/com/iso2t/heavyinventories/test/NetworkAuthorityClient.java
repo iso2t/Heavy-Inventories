@@ -54,6 +54,7 @@ public final class NetworkAuthorityClient {
 			com.iso2t.heavyinventories.config.ClientSettings.DEFAULT.apply();
 			RingHudScenario.active = true;
 			require(!holder.canEditServerConfig(), "Test client unexpectedly has permission");
+			EffectsConfigScenario.checkReadOnly();
 			require(holder.isOverEncumbered(), "Remote encumbrance missing");
 			require(ClientWeightData.weight(BuiltInRegistries.ITEM.getKey(Items.STONE)) == 2f, "Remote item definitions missing");
 			WeightCache.put(Items.STONE, 9999f);
@@ -69,9 +70,13 @@ public final class NetworkAuthorityClient {
 			send(client, Float.NaN, holder.serverRevision());
 			send(client, 20.25f, holder.serverRevision() - 1);
 			client.getConnection().send(new ServerboundCustomPayloadPacket(new ServerConfigUpdatePayload(20.25f, "invalid", holder.serverRevision())));
-			send(client, 20.25f, holder.serverRevision());
+			var edit = EffectsConfigScenario.editThroughScreen();
+			client.getConnection().send(new ServerboundCustomPayloadPacket(new ServerConfigUpdatePayload(edit.startingWeight(), "at_ninety_percent", edit.effects(), edit.expectedRevision())));
 			clientStage = 2;
 		} else if (clientStage == 2 && holder.getBaseMaxWeight() == 20.25f) {
+			require(holder.serverSettings().effects().equals(EffectsConfigScenario.expected()), "Remote effects did not synchronize");
+			EffectsConfigScenario.checkReopened();
+			HeavyInventories.LOGGER.info("MULTIPLAYER EFFECT CONFIG PASSED: read-only controls, operator controls, validation, remote persistence/synchronization and reopen");
 			require(holder.getWeight() == 16f, "Local definitions replaced remote total");
 			require(!holder.isOverEncumbered(), "Capacity edit did not refresh remote encumbrance");
 			HeavyInventories.LOGGER.info("MULTIPLAYER CLIENT AUTHORITY PASSED: remote totals/definitions/encumbrance, read-only and editable screen construction, operator network edits");
@@ -80,9 +85,16 @@ public final class NetworkAuthorityClient {
 			send(client, 25.5f, holder.serverRevision());
 			clientStage = 3;
 		} else if (clientStage == 3 && holder.getMaxWeight() == 1200 && holder.getWeight() == 1500) {
+			if (!holder.serverSettings().effects().upwardMovement().enabled()) return;
 			if (!verifyRing(client, "multiplayer-overloaded")) return;
 			require(holder.getStrengthOffset() == 200 && holder.isOverEncumbered(), "Remote Strength/encumbrance mismatch");
 			MovementScenario.checkImpulse(client.player, 0.2);
+			FluidMovementScenario.checkClient(client.player);
+			var fluidNotice = (com.iso2t.heavyinventories.test.mixin.GuiFeedbackTestAccess) client.gui;
+			require(fluidNotice.heavyinventories$message() != null && fluidNotice.heavyinventories$message().getString().contains("swim upward"), "Missing fluid denial feedback");
+			fluidNotice.heavyinventories$messageTime(20);
+			FluidMovementScenario.checkClient(client.player);
+			require(fluidNotice.heavyinventories$messageTime() == 20, "Fluid denial feedback was not throttled");
 			HeavyInventories.LOGGER.info("MULTIPLAYER MOVEMENT PASSED: live walking-mode edit, Strength capacity, Surefooted, normalized client physics");
 			initialPlayer = client.player;
 			reconnectServer = client.getCurrentServer();
@@ -94,6 +106,7 @@ public final class NetworkAuthorityClient {
 			require(client.player != initialPlayer && holder != PlayerHolder.getOrCreate(initialPlayer), "Reconnect reused local holder");
 			require(ClientWeightData.weight(BuiltInRegistries.ITEM.getKey(Items.STONE)) == 3f, "Reconnect kept old definitions");
 			require(!holder.isEncumbered() && !holder.isOverEncumbered() && holder.getStrengthOffset() == 0, "Reconnect kept stale bonuses/penalties");
+			require(holder.serverSettings().effects().equals(com.iso2t.heavyinventories.config.EffectsSettings.DEFAULT), "Reconnect retained stale effects");
 			HeavyInventories.LOGGER.info("MULTIPLAYER RECONNECT CLIENT PASSED: cleared disconnect data, fresh entity, new server definitions/capacity, rebuilt bonuses");
 			HeavyInventories.LOGGER.info("MULTIPLAYER RING PASSED: rendered before and after reconnect, fresh synchronized status, vanilla XP offset, no duplicate draws");
 			RingHudScenario.active = false;

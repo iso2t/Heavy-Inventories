@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 /**
  * Validated gameplay settings, owned by a running server rather than a physical side.
  */
-public record ServerSettings(float startingWeight, WalkingMode walkingMode) {
+public record ServerSettings(float startingWeight, WalkingMode walkingMode, EffectsSettings effects) {
 
 	public static final float          MAX_VALUE = 1_000_000_000f;
 	public static final ServerSettings DEFAULT   = new ServerSettings(1000f);
@@ -14,7 +14,12 @@ public record ServerSettings(float startingWeight, WalkingMode walkingMode) {
 		this(startingWeight, WalkingMode.PROGRESSIVE);
 	}
 
+	public ServerSettings (float startingWeight, WalkingMode walkingMode) {
+		this(startingWeight, walkingMode, EffectsSettings.DEFAULT);
+	}
+
 	public ServerSettings {
+		if (effects == null) throw new IllegalArgumentException("effects must be specified");
 		if (walkingMode == null) throw new IllegalArgumentException("walkingMode must be specified");
 		if (!Float.isFinite(startingWeight) || startingWeight <= 0 || startingWeight > MAX_VALUE) throw new IllegalArgumentException("startingWeight must be finite, greater than 0, and at most " + MAX_VALUE);
 	}
@@ -33,7 +38,15 @@ public record ServerSettings(float startingWeight, WalkingMode walkingMode) {
 			if (!value.isJsonPrimitive() || !value.getAsJsonPrimitive().isString()) throw new IllegalArgumentException("walkingMode must be a JSON string");
 			mode = WalkingMode.parse(value.getAsString());
 		}
-		return new ServerSettings(startingWeight, mode);
+		return new ServerSettings(startingWeight, mode, EffectsSettings.parse(EffectsSettings.object(json, "effects")));
+	}
+
+	public JsonObject toJson () {
+		var root = new JsonObject();
+		root.addProperty("startingWeight", startingWeight);
+		root.addProperty("walkingMode", walkingMode.id());
+		root.add("effects", effects.toJson());
+		return root;
 	}
 
 	public static float validateItemWeight (float value) {
