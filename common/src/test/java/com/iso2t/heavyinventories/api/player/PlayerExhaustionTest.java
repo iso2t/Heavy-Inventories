@@ -30,8 +30,7 @@ class PlayerExhaustionTest {
 
 	@Test
 	void distancePartitionAndPartialIntentDoNotInflateCosts () {
-		assertEquals(PlayerExhaustion.extraMovementCost(0, 1, 1, 1.5f, .01f),
-				10 * PlayerExhaustion.extraMovementCost(0, .1, .1, 1.5f, .01f), 1e-7);
+		assertEquals(PlayerExhaustion.extraMovementCost(0, 1, 1, 1.5f, .01f), 10 * PlayerExhaustion.extraMovementCost(0, .1, .1, 1.5f, .01f), 1e-7);
 		assertEquals(.025, PlayerExhaustion.extraMovementCost(.1f, 1, .5, 1.5f, .01f), 1e-7);
 		assertEquals(0, PlayerExhaustion.extraMovementCost(.1f, 0, 0, 1.5f, .01f));
 		assertEquals(0, PlayerExhaustion.extraMovementCost(.1f, Double.NaN, 1, 1.5f, .01f));

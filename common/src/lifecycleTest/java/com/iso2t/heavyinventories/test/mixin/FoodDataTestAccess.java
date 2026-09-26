@@ -6,6 +6,9 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(FoodData.class)
 public interface FoodDataTestAccess {
-	@Accessor("exhaustionLevel") float heavyinventories$getExhaustion();
-	@Accessor("exhaustionLevel") void heavyinventories$setExhaustion(float value);
+	@Accessor("exhaustionLevel")
+	float heavyinventories$getExhaustion ();
+
+	@Accessor("exhaustionLevel")
+	void heavyinventories$setExhaustion (float value);
 }

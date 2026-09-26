@@ -1,8 +1,8 @@
 package com.iso2t.heavyinventories.network;
 
 import com.iso2t.heavyinventories.HeavyInventories;
-import com.iso2t.heavyinventories.config.ServerSettings;
 import com.iso2t.heavyinventories.config.EffectsSettings;
+import com.iso2t.heavyinventories.config.ServerSettings;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;

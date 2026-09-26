@@ -35,8 +35,8 @@ public final class RingCompatibilityScenario {
 	private static final String[] BARS     = { "LocatorBarRenderer", "JumpableVehicleBarRenderer", "ExperienceBarRenderer", "ExperienceBarRenderer", "ExperienceBarRenderer" };
 	private static final UUID     WAYPOINT = UUID.fromString("5157cc0f-1f54-479a-970c-5d831ee234ec");
 	private static       int      index, phase, waiting, ringStart, xpStart, width, height, level;
-	private static float  health;
-	private static double maxHealth;
+	private static          float                   health;
+	private static          double                  maxHealth;
 	private static          long                    time;
 	private static          Horse                   horse;
 	private static          CompletableFuture<Void> operation;

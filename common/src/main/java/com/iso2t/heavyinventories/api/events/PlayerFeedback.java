@@ -9,9 +9,10 @@ import java.util.function.Consumer;
  */
 public final class PlayerFeedback {
 
-	private static Consumer<PlayerHolder> jumpDenied = _ -> {
+	private static Consumer<PlayerHolder> jumpDenied  = _ -> {
 	};
-	private static Consumer<PlayerHolder> fluidDenied = _ -> {};
+	private static Consumer<PlayerHolder> fluidDenied = _ -> {
+	};
 
 	private PlayerFeedback () {
 	}

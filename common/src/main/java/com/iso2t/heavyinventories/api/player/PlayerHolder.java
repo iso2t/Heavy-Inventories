@@ -37,12 +37,12 @@ public final class PlayerHolder {
 	private       float             strengthOffset;
 	private       float             walkingMultiplier = 1;
 	private       boolean           encumbered, overloaded, receivedState, canEditServerConfig;
-	private WalkingMode walkingMode         = ServerSettings.DEFAULT.walkingMode();
-	private com.iso2t.heavyinventories.config.EffectsSettings effectSettings = ServerSettings.DEFAULT.effects();
-	private long        definitionsRevision = -1, serverRevision;
+	private WalkingMode                                       walkingMode         = ServerSettings.DEFAULT.walkingMode();
+	private com.iso2t.heavyinventories.config.EffectsSettings effectSettings      = ServerSettings.DEFAULT.effects();
+	private long                                              definitionsRevision = -1, serverRevision;
 	private PlayerWeightPayload lastSent;
 	private long                lastDefinitionsSent = -1, lastJumpNotice = Long.MIN_VALUE;
-	private long                movementExhaustionSuppressedUntil = Long.MIN_VALUE;
+	private long movementExhaustionSuppressedUntil = Long.MIN_VALUE;
 
 	public PlayerHolder (Player player) {
 		this.player = player;
@@ -69,8 +69,7 @@ public final class PlayerHolder {
 		encumbered = calculated.encumbered();
 		overloaded = calculated.overloaded();
 		walkingMultiplier = calculated.walkingMultiplier();
-		float resistance = effectSettings.knockback().enabled() ? EncumbranceEffects.calculate(weight, getMaxWeight(), walkingMode, effectSettings,
-				EncumbranceEffects.Fluid.NONE, player.isCreative() || player.isSpectator(), false).knockbackResistance() : 0;
+		float resistance = effectSettings.knockback().enabled() ? EncumbranceEffects.calculate(weight, getMaxWeight(), walkingMode, effectSettings, EncumbranceEffects.Fluid.NONE, player.isCreative() || player.isSpectator(), false).knockbackResistance() : 0;
 		PlayerKnockback.update(player, resistance);
 	}
 
@@ -170,8 +169,7 @@ public final class PlayerHolder {
 	public float getFallDamageMultiplier () {
 		var settings = player.level().isClientSide() ? serverSettings() : ServerWeightState.of(player.level().getServer()).settings();
 		if (!settings.effects().fallDamage().enabled()) return 1;
-		return EncumbranceEffects.calculate(weight, getMaxWeight(), settings.walkingMode(), settings.effects(),
-				EncumbranceEffects.Fluid.NONE, exempt(), false).fallMultiplier();
+		return EncumbranceEffects.calculate(weight, getMaxWeight(), settings.walkingMode(), settings.effects(), EncumbranceEffects.Fluid.NONE, exempt(), false).fallMultiplier();
 	}
 
 	public boolean preventsGroundJump () {

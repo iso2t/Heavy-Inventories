@@ -81,8 +81,7 @@ class ServerSettingsTest {
 	void failedReplacementPreservesTargetAndCleansTemporaryFile () throws Exception {
 		var target = Files.createDirectory(directory.resolve("server.json"));
 		Files.writeString(target.resolve("keep.txt"), "original");
-		assertThrows(java.io.IOException.class, () -> com.iso2t.heavyinventories.api.files.JsonFiles.writeObject(
-				target, JsonParser.parseString("{\"startingWeight\":20}").getAsJsonObject()));
+		assertThrows(java.io.IOException.class, () -> com.iso2t.heavyinventories.api.files.JsonFiles.writeObject(target, JsonParser.parseString("{\"startingWeight\":20}").getAsJsonObject()));
 		assertEquals("original", Files.readString(target.resolve("keep.txt")));
 		try (var children = Files.list(directory)) {
 			assertEquals(1, children.count());

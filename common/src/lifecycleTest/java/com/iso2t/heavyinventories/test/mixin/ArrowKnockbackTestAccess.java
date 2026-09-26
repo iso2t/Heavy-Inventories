@@ -8,5 +8,6 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(AbstractArrow.class)
 public interface ArrowKnockbackTestAccess {
-	@Invoker("doKnockback") void heavyinventories$knockback(LivingEntity target, DamageSource source);
+	@Invoker("doKnockback")
+	void heavyinventories$knockback (LivingEntity target, DamageSource source);
 }

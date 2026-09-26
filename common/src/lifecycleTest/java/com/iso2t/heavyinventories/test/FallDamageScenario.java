@@ -30,7 +30,9 @@ import net.minecraft.world.phys.Vec3;
 import java.util.HashMap;
 import java.util.UUID;
 
-/** Real fall/health processing on an isolated player, with an unattached connection for vanilla feedback. */
+/**
+ * Real fall/health processing on an isolated player, with an unattached connection for vanilla feedback.
+ */
 public final class FallDamageScenario {
 	public static void run (ServerPlayer anchor) {
 		var server = anchor.level().getServer();
@@ -41,7 +43,10 @@ public final class FallDamageScenario {
 		var profile = new GameProfile(UUID.fromString("b80f4e78-1bd2-4b0e-a7de-8e662f03b997"), "FallDamageTest");
 		var player = new ServerPlayer(server, level, profile, ClientInformation.createDefault());
 		new ServerGamePacketListenerImpl(server, new Connection(PacketFlow.SERVERBOUND), player, CommonListenerCookie.createInitial(profile, false)) {
-			@Override public boolean hasClientLoaded () { return true; }
+			@Override
+			public boolean hasClientLoaded () {
+				return true;
+			}
 		};
 		var holder = PlayerHolder.getOrCreate(player);
 		var weights = new HashMap<>(savedWeights);
@@ -56,13 +61,13 @@ public final class FallDamageScenario {
 			player.baseTick();
 			for (var mode : WalkingMode.values()) {
 				state.replace(new ServerSettings(1000, mode), weights);
-				int[] counts = {0, 20, 36, 40, 50, 60};
-				double[] multipliers = {1, 1, 1, 1 + 2.0 / 7, 2, 2};
+				int[] counts = { 0, 20, 36, 40, 50, 60 };
+				double[] multipliers = { 1, 1, 1, 1 + 2.0 / 7, 2, 2 };
 				for (int i = 0; i < counts.length; i++) {
 					load(player, counts[i]);
 					close(multipliers[i], holder.getFallDamageMultiplier(), "curve " + mode + " count=" + counts[i]);
 					landing(player, Blocks.STONE, 8, 5 * multipliers[i], "ordinary fall");
-					for (double distance : new double[] {0, 3, 3.5, 3.99}) landing(player, Blocks.STONE, distance, 0, "safe fall");
+					for (double distance : new double[] { 0, 3, 3.5, 3.99 }) landing(player, Blocks.STONE, distance, 0, "safe fall");
 				}
 			}
 			load(player, 50);
@@ -101,7 +106,7 @@ public final class FallDamageScenario {
 			landing(player, Blocks.STONE, 8, 5, "Bracing increases capacity");
 			player.getInventory().setItem(38, ItemStack.EMPTY);
 			load(player, 50);
-			for (var mode : new GameType[] {GameType.CREATIVE, GameType.SPECTATOR}) {
+			for (var mode : new GameType[] { GameType.CREATIVE, GameType.SPECTATOR }) {
 				player.setGameMode(mode);
 				landing(player, Blocks.STONE, 30, 0, mode + " immunity");
 			}

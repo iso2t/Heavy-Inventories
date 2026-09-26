@@ -48,7 +48,10 @@ public final class KnockbackScenario {
 		var profile = new GameProfile(UUID.fromString("b80f4e78-1bd2-4b0e-a7de-8e662f03b995"), "KnockbackTest");
 		var player = new ServerPlayer(server, level, profile, ClientInformation.createDefault());
 		new ServerGamePacketListenerImpl(server, new Connection(PacketFlow.SERVERBOUND), player, CommonListenerCookie.createInitial(profile, false)) {
-			@Override public boolean hasClientLoaded () { return true; }
+			@Override
+			public boolean hasClientLoaded () {
+				return true;
+			}
 		};
 		var holder = PlayerHolder.getOrCreate(player);
 		var attribute = player.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
@@ -61,7 +64,7 @@ public final class KnockbackScenario {
 			var arrow = new Arrow(level, 8, player.getY(), 8, new ItemStack(Items.ARROW), bow);
 			arrow.setDeltaMovement(1, 0, 0);
 			double unloadedArrow = 0;
-			int[] counts = {0, 10, 20, 40, 60};
+			int[] counts = { 0, 10, 20, 40, 60 };
 			for (int count : counts) {
 				load(player, count);
 				double bonus = .4 * Math.min(count * 25 / 1000.0, 1);
@@ -123,7 +126,7 @@ public final class KnockbackScenario {
 			state.replace(ServerSettings.parse(custom), weights);
 			load(player, 10);
 			checkBonus(player, .3);
-			for (var mode : new GameType[] {GameType.CREATIVE, GameType.SPECTATOR}) {
+			for (var mode : new GameType[] { GameType.CREATIVE, GameType.SPECTATOR }) {
 				player.setGameMode(mode);
 				holder.update();
 				checkBonus(player, 0);
@@ -151,10 +154,13 @@ public final class KnockbackScenario {
 			state.replace(new ServerSettings(1000), weights);
 			level.addNewPlayer(player);
 			var calculator = new ExplosionDamageCalculator() {
-				@Override public boolean shouldDamageEntity(Explosion explosion, Entity entity) { return false; }
+				@Override
+				public boolean shouldDamageEntity (Explosion explosion, Entity entity) {
+					return false;
+				}
 			};
 			double explosionImpulse = 0;
-			for (int count : new int[] {0, 40}) {
+			for (int count : new int[] { 0, 40 }) {
 				load(player, count);
 				player.setDeltaMovement(Vec3.ZERO);
 				var explosion = new ServerExplosion(level, null, null, calculator, player.position().add(1, 0, 0), 2, false, Explosion.BlockInteraction.KEEP);
@@ -179,10 +185,12 @@ public final class KnockbackScenario {
 		if (expected != 0 && modifier == null) throw new AssertionError("Missing HI modifier");
 		close(expected, modifier == null ? 0 : modifier.amount(), "HI contribution");
 	}
+
 	private static void load (ServerPlayer player, int count) {
 		player.getInventory().setItem(0, count == 0 ? ItemStack.EMPTY : new ItemStack(Items.STONE, count));
 		PlayerHolder.getOrCreate(player).update();
 	}
+
 	private static void close (double expected, double actual, String message) {
 		if (Math.abs(expected - actual) > .00001) throw new AssertionError(message + ": expected " + expected + ", got " + actual);
 	}

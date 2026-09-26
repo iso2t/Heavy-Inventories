@@ -1,8 +1,8 @@
 package com.iso2t.heavyinventories.network;
 
 import com.iso2t.heavyinventories.HeavyInventories;
-import com.iso2t.heavyinventories.config.WalkingMode;
 import com.iso2t.heavyinventories.config.EffectsSettings;
+import com.iso2t.heavyinventories.config.WalkingMode;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -10,7 +10,7 @@ import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
 
 public record PlayerWeightPayload(int entityId, Identifier dimension, float weight, float baseCapacity, float bracing, float reinforced, float strength, float walkingMultiplier, WalkingMode walkingMode, boolean encumbered,
-                                  boolean overEncumbered, boolean canEdit, long revision, EffectsSettings effects) implements CustomPacketPayload {
+								  boolean overEncumbered, boolean canEdit, long revision, EffectsSettings effects) implements CustomPacketPayload {
 	public static final Type<PlayerWeightPayload>                         TYPE  = new Type<>(Identifier.fromNamespaceAndPath(HeavyInventories.MOD_ID, "player_weight_v3"));
 	public static final StreamCodec<FriendlyByteBuf, PlayerWeightPayload> CODEC = StreamCodec.of((buf, p) -> {
 		buf.writeVarInt(p.entityId);

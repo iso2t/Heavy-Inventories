@@ -42,7 +42,10 @@ public final class FluidMovementScenario {
 		var profile = new GameProfile(UUID.fromString("b80f4e78-1bd2-4b0e-a7de-8e662f03b996"), "FluidTest");
 		var player = new ServerPlayer(server, level, profile, ClientInformation.createDefault());
 		new ServerGamePacketListenerImpl(server, new Connection(PacketFlow.SERVERBOUND), player, CommonListenerCookie.createInitial(profile, false)) {
-			@Override public boolean hasClientLoaded () { return true; }
+			@Override
+			public boolean hasClientLoaded () {
+				return true;
+			}
 		};
 		var holder = PlayerHolder.getOrCreate(player);
 		var center = new BlockPos(8, level.getMaxY() - 12, 8);
@@ -53,7 +56,7 @@ public final class FluidMovementScenario {
 			player.getAbilities().flying = false;
 			player.setPos(center.getX() + .5, center.getY(), center.getZ() + .5);
 			player.baseTick();
-			for (boolean lava : new boolean[] {false, true}) {
+			for (boolean lava : new boolean[] { false, true }) {
 				for (var pos : blocks.keySet()) level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
 				for (var pos : blocks.keySet()) level.setBlock(pos, (lava ? Blocks.LAVA : Blocks.WATER).defaultBlockState(), 2);
 				state.replace(new ServerSettings(1000), values);
@@ -61,9 +64,9 @@ public final class FluidMovementScenario {
 				if (lava ? !player.isInLava() : !player.isInWater()) throw new AssertionError("Fluid fixture missing " + lava);
 				load(player, 0);
 				double baseGravity = gravity(player);
-				int[] counts = {0, 20, 36, 38, 40, 60};
-				double[] speeds = {1, 1, 1, .75, .5, .5};
-				double[] gravities = {1, 1, 1, 1.5, 2, 2};
+				int[] counts = { 0, 20, 36, 38, 40, 60 };
+				double[] speeds = { 1, 1, 1, .75, .5, .5 };
+				double[] gravities = { 1, 1, 1, 1.5, 2, 2 };
 				for (int i = 0; i < counts.length; i++) {
 					reset(player, center);
 					load(player, counts[i]);
@@ -263,6 +266,7 @@ public final class FluidMovementScenario {
 		player.getInventory().setItem(0, count == 0 ? ItemStack.EMPTY : new ItemStack(Items.STONE, count));
 		PlayerHolder.getOrCreate(player).update();
 	}
+
 	private static void reset (ServerPlayer player, BlockPos pos) {
 		player.setPos(pos.getX() + .5, pos.getY(), pos.getZ() + .5);
 		player.setDeltaMovement(Vec3.ZERO);
@@ -275,11 +279,13 @@ public final class FluidMovementScenario {
 		player.setYRot(0);
 		((FluidTestAccess) player).heavyinventories$updateFluid();
 	}
+
 	private static double gravity (ServerPlayer player) {
 		player.setDeltaMovement(Vec3.ZERO);
 		((FluidTravelTestAccess) player).heavyinventories$travelInFluid(Vec3.ZERO);
 		return player.getDeltaMovement().y;
 	}
+
 	private static void close (double expected, double actual, String message) {
 		if (Math.abs(expected - actual) > .00001) throw new AssertionError(message + ": expected " + expected + ", got " + actual);
 	}

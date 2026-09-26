@@ -28,7 +28,9 @@ import net.minecraft.world.phys.Vec3;
 import java.util.HashMap;
 import java.util.UUID;
 
-/** Exercises the real transformed server methods, without changing the connected test player's state. */
+/**
+ * Exercises the real transformed server methods, without changing the connected test player's state.
+ */
 public final class ExhaustionScenario {
 	private static final Input FORWARD = new Input(true, false, false, false, false, false, false);
 
@@ -37,8 +39,7 @@ public final class ExhaustionScenario {
 		var state = ServerWeightState.of(server);
 		var savedSettings = state.settings();
 		var savedWeights = state.weights();
-		var player = new ServerPlayer(server, server.overworld(),
-				new GameProfile(UUID.fromString("b80f4e78-1bd2-4b0e-a7de-8e662f03b998"), "ExhaustionTest"), ClientInformation.createDefault());
+		var player = new ServerPlayer(server, server.overworld(), new GameProfile(UUID.fromString("b80f4e78-1bd2-4b0e-a7de-8e662f03b998"), "ExhaustionTest"), ClientInformation.createDefault());
 		var holder = PlayerHolder.getOrCreate(player);
 		var water = (FluidTestAccess) player;
 		var food = (FoodDataTestAccess) player.getFoodData();

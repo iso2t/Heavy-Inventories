@@ -8,7 +8,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 
-/** Adds exhaustion only at vanilla's server movement/jump call sites, never to unrelated food costs. */
+/**
+ * Adds exhaustion only at vanilla's server movement/jump call sites, never to unrelated food costs.
+ */
 public final class PlayerExhaustion {
 	private PlayerExhaustion () {
 	}
@@ -54,7 +56,9 @@ public final class PlayerExhaustion {
 		return vanillaCost * effects.exhaustionMultiplier();
 	}
 
-	/** Only progress along active input counts. Sideways/backward drift and idle transport add no cost. */
+	/**
+	 * Only progress along active input counts. Sideways/backward drift and idle transport add no cost.
+	 */
 	public static double voluntaryDistance (Vec3 movement, Vec3 intent) {
 		if (!movement.isFinite() || !intent.isFinite() || intent.lengthSqr() < 1.0E-8) return 0;
 		return Math.clamp(movement.dot(intent.normalize()), 0, movement.length());

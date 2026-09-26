@@ -46,8 +46,7 @@ public final class ConfigFileManager {
 	private static void merge (com.google.gson.JsonObject target, com.google.gson.JsonObject source) {
 		// Keep unknown fields inside the new settings groups as well as at the root.
 		source.entrySet().forEach(entry -> {
-			if (entry.getValue().isJsonObject() && target.has(entry.getKey()) && target.get(entry.getKey()).isJsonObject())
-				merge(target.getAsJsonObject(entry.getKey()), entry.getValue().getAsJsonObject());
+			if (entry.getValue().isJsonObject() && target.has(entry.getKey()) && target.get(entry.getKey()).isJsonObject()) merge(target.getAsJsonObject(entry.getKey()), entry.getValue().getAsJsonObject());
 			else target.add(entry.getKey(), entry.getValue());
 		});
 	}

@@ -10,7 +10,9 @@ import net.neoforged.neoforge.fluids.FluidType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-/** NeoForge routes jump input through its fluid-type extension instead of jumpInLiquid. */
+/**
+ * NeoForge routes jump input through its fluid-type extension instead of jumpInLiquid.
+ */
 @Mixin(LivingEntity.class)
 public abstract class NeoForgeFluidAscentMixin {
 	@WrapOperation(method = "aiStep", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;jumpInFluid(Lnet/neoforged/neoforge/fluids/FluidType;)V"), require = 2)

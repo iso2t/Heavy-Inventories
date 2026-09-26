@@ -10,7 +10,8 @@ import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EffectsSettingsTest {
-	@TempDir Path directory;
+	@TempDir
+	Path directory;
 
 	@Test
 	void oldAndPartialConfigsUseDefaultsWithoutRewritingFiles () throws Exception {
@@ -32,10 +33,7 @@ class EffectsSettingsTest {
 	void allGroupsRoundTripAndNestedUnknownFieldsSurviveSaving () throws Exception {
 		var path = directory.resolve("server.json");
 		Files.writeString(path, "{\"ownerNote\":\"keep\",\"effects\":{\"future\":7,\"fallDamage\":{\"note\":\"keep too\"}}}");
-		var effects = new EffectsSettings(false, true, new EffectsSettings.Exhaustion(false, 2.25f, 0.025f),
-				new EffectsSettings.FallDamage(false, 83.5f, 137.25f, 3.25f), new EffectsSettings.Swimming(false, 44.5f, 97.5f, 0.125f),
-				new EffectsSettings.Sinking(false, 12.5f, 117.5f, 4.5f), new EffectsSettings.UpwardMovement(true, 98.5f),
-				new EffectsSettings.Knockback(false, 812.25f, 0.75f));
+		var effects = new EffectsSettings(false, true, new EffectsSettings.Exhaustion(false, 2.25f, 0.025f), new EffectsSettings.FallDamage(false, 83.5f, 137.25f, 3.25f), new EffectsSettings.Swimming(false, 44.5f, 97.5f, 0.125f), new EffectsSettings.Sinking(false, 12.5f, 117.5f, 4.5f), new EffectsSettings.UpwardMovement(true, 98.5f), new EffectsSettings.Knockback(false, 812.25f, 0.75f));
 		var settings = new ServerSettings(456.75f, WalkingMode.AT_NINETY_PERCENT, effects);
 		ConfigFileManager.writeServerConfig(path, settings);
 		assertEquals(settings, ConfigFileManager.readServerConfig(path));
@@ -48,13 +46,7 @@ class EffectsSettingsTest {
 	@Test
 	void invalidNestedSettingsRejectReadAndWriteWithoutAlteringFile () throws Exception {
 		var path = directory.resolve("server.json");
-		for (String effects : new String[] {
-				"null", "[]", "{\"water\":1}", "{\"lava\":\"false\"}", "{\"swimming\":null}",
-				"{\"exhaustion\":{\"enabled\":\"true\"}}", "{\"exhaustion\":{\"walkingCostPerBlock\":-1}}",
-				"{\"exhaustion\":{\"maxMultiplier\":\"1.5\"}}", "{\"exhaustion\":{\"maxMultiplier\":0.9}}",
-				"{\"fallDamage\":{\"startPercent\":125}}", "{\"swimming\":{\"minMultiplier\":1.1}}",
-				"{\"sinking\":{\"fullPercent\":89}}", "{\"upwardMovement\":{\"thresholdPercent\":1e100}}",
-				"{\"knockback\":{\"referenceWeight\":0}}", "{\"knockback\":{\"maxResistance\":1.01}}" }) {
+		for (String effects : new String[] { "null", "[]", "{\"water\":1}", "{\"lava\":\"false\"}", "{\"swimming\":null}", "{\"exhaustion\":{\"enabled\":\"true\"}}", "{\"exhaustion\":{\"walkingCostPerBlock\":-1}}", "{\"exhaustion\":{\"maxMultiplier\":\"1.5\"}}", "{\"exhaustion\":{\"maxMultiplier\":0.9}}", "{\"fallDamage\":{\"startPercent\":125}}", "{\"swimming\":{\"minMultiplier\":1.1}}", "{\"sinking\":{\"fullPercent\":89}}", "{\"upwardMovement\":{\"thresholdPercent\":1e100}}", "{\"knockback\":{\"referenceWeight\":0}}", "{\"knockback\":{\"maxResistance\":1.01}}" }) {
 			String json = "{\"startingWeight\":42,\"effects\":" + effects + "}";
 			Files.writeString(path, json);
 			assertThrows(IllegalArgumentException.class, () -> ConfigFileManager.readServerConfig(path), json);

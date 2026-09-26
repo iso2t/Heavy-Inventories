@@ -40,9 +40,7 @@ class EncumbranceEffectsTest {
 	@Test
 	void nondefaultCurvesAndIndependentDisabledFeatures () {
 		var d = EffectsSettings.DEFAULT;
-		var settings = new EffectsSettings(true, false, new EffectsSettings.Exhaustion(false, 3, 0.04f),
-				new EffectsSettings.FallDamage(true, 50, 150, 4), new EffectsSettings.Swimming(false, 0, 50, 0.1f),
-				new EffectsSettings.Sinking(true, 50, 150, 5), new EffectsSettings.UpwardMovement(true, 100), d.knockback());
+		var settings = new EffectsSettings(true, false, new EffectsSettings.Exhaustion(false, 3, 0.04f), new EffectsSettings.FallDamage(true, 50, 150, 4), new EffectsSettings.Swimming(false, 0, 50, 0.1f), new EffectsSettings.Sinking(true, 50, 150, 5), new EffectsSettings.UpwardMovement(true, 100), d.knockback());
 		var s = state(1000, 1000, WalkingMode.PROGRESSIVE, settings, EncumbranceEffects.Fluid.WATER);
 		assertEquals(1, s.exhaustionMultiplier());
 		assertEquals(0, s.walkingCostPerBlock());
@@ -54,8 +52,7 @@ class EncumbranceEffectsTest {
 		var lava = state(1000, 1000, WalkingMode.PROGRESSIVE, settings, EncumbranceEffects.Fluid.LAVA);
 		assertEquals(1, lava.sinkingMultiplier());
 		assertFalse(lava.deniesUpwardMovement());
-		var disabled = new EffectsSettings(false, false, settings.exhaustion(), new EffectsSettings.FallDamage(false, 90, 125, 2),
-				d.swimming(), d.sinking(), d.upwardMovement(), new EffectsSettings.Knockback(false, 1000, 0.4f));
+		var disabled = new EffectsSettings(false, false, settings.exhaustion(), new EffectsSettings.FallDamage(false, 90, 125, 2), d.swimming(), d.sinking(), d.upwardMovement(), new EffectsSettings.Knockback(false, 1000, 0.4f));
 		assertEquals(EncumbranceEffects.State.NONE, state(99999, 1000, WalkingMode.PROGRESSIVE, disabled, EncumbranceEffects.Fluid.WATER));
 	}
 

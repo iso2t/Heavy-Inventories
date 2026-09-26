@@ -12,7 +12,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Remove only fluid propulsion, never the entity's accumulated external velocity. */
+/**
+ * Remove only fluid propulsion, never the entity's accumulated external velocity.
+ */
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityFluidAscentMixin {
 	@Inject(method = "jumpInLiquid", at = @At("HEAD"), cancellable = true)

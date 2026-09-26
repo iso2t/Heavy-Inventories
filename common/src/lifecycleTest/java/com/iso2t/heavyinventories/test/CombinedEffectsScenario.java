@@ -38,7 +38,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.UUID;
 
-/** Combined engine checks and repeatable water-recovery trials in a restored local fixture. */
+/**
+ * Combined engine checks and repeatable water-recovery trials in a restored local fixture.
+ */
 public final class CombinedEffectsScenario {
 	public static void run (ServerPlayer anchor) {
 		var server = anchor.level().getServer();
@@ -51,10 +53,15 @@ public final class CombinedEffectsScenario {
 		weights.put(BuiltInRegistries.ITEM.getKey(Items.IRON_BOOTS), 0f);
 		var profile = new GameProfile(UUID.fromString("b80f4e78-1bd2-4b0e-a7de-8e662f03b994"), "CombinedTest");
 		var player = new ServerPlayer(server, level, profile, ClientInformation.createDefault());
-		int[] snapshots = {0};
+		int[] snapshots = { 0 };
 		new ServerGamePacketListenerImpl(server, new Connection(PacketFlow.SERVERBOUND), player, CommonListenerCookie.createInitial(profile, false)) {
-			@Override public boolean hasClientLoaded () { return true; }
-			@Override public void send (Packet<?> packet) {
+			@Override
+			public boolean hasClientLoaded () {
+				return true;
+			}
+
+			@Override
+			public void send (Packet<?> packet) {
 				if (packet instanceof ClientboundCustomPayloadPacket custom && custom.payload() instanceof PlayerWeightPayload) snapshots[0]++;
 			}
 		};
@@ -74,7 +81,7 @@ public final class CombinedEffectsScenario {
 			player.setLastClientInput(new Input(true, false, false, false, false, false, false));
 			for (var mode : WalkingMode.values()) {
 				state.replace(new ServerSettings(1000, mode), weights);
-				for (int count : new int[] {0, 35, 36, 39, 40, 50, 60}) {
+				for (int count : new int[] { 0, 35, 36, 39, 40, 50, 60 }) {
 					load(player, count);
 					double ratio = count * .025;
 					double burden = mode == WalkingMode.PROGRESSIVE ? 1 - Math.sqrt(Math.max(0, 1 - ratio)) : Math.clamp((ratio - .9) / .1, 0, 1);
@@ -157,16 +164,25 @@ public final class CombinedEffectsScenario {
 			holder.synchronize(player);
 			int sent = snapshots[0];
 			if (sent != 1) throw new AssertionError("Initial snapshot missing: " + sent);
-			for (int i = 0; i < 60; i++) { player.tickCount++; holder.update(); holder.synchronize(player); }
+			for (int i = 0; i < 60; i++) {
+				player.tickCount++;
+				holder.update();
+				holder.synchronize(player);
+			}
 			if (snapshots[0] != sent) throw new AssertionError("Unchanged snapshot resent");
 			load(player, 39);
 			holder.synchronize(player);
 			if (snapshots[0] != ++sent) throw new AssertionError("Inventory change not sent");
 			state.replace(new ServerSettings(1000), weights);
-			holder.update(); holder.synchronize(player);
+			holder.update();
+			holder.synchronize(player);
 			if (snapshots[0] != ++sent) throw new AssertionError("Settings change not sent");
 			var modifier = player.getAttribute(Attributes.KNOCKBACK_RESISTANCE).getModifier(PlayerKnockback.MODIFIER_ID);
-			for (int i = 0; i < 60; i++) { player.tickCount++; holder.update(); holder.synchronize(player); }
+			for (int i = 0; i < 60; i++) {
+				player.tickCount++;
+				holder.update();
+				holder.synchronize(player);
+			}
 			if (snapshots[0] != sent || modifier != player.getAttribute(Attributes.KNOCKBACK_RESISTANCE).getModifier(PlayerKnockback.MODIFIER_ID)) throw new AssertionError("Stable enabled state churn");
 			HeavyInventories.LOGGER.info("COMBINED EFFECTS PASSED: both modes, boundaries/overload, food/fall/fluid/resistance, Strength/Surefooted, repeated water escape/denial/drop/disable, bubbles, all disabled, change-only snapshots");
 		} finally {
@@ -188,10 +204,12 @@ public final class CombinedEffectsScenario {
 		}
 		return player.getY() - center.getY();
 	}
+
 	private static void load (ServerPlayer player, int count) {
 		player.getInventory().setItem(0, count == 0 ? ItemStack.EMPTY : new ItemStack(Items.STONE, count));
 		PlayerHolder.getOrCreate(player).update();
 	}
+
 	private static void close (double expected, double actual, String name) {
 		if (!Double.isFinite(actual) || Math.abs(expected - actual) > .00003) throw new AssertionError(name + ": expected " + expected + ", got " + actual);
 	}

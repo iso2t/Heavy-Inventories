@@ -14,7 +14,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerExhaustionMixin {
-	@Unique private double heavyinventories$beforeJumpY;
+	@Unique
+	private double heavyinventories$beforeJumpY;
 
 	@WrapOperation(method = "checkMovementStatistics(DDD)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayer;causeFoodExhaustion(F)V"), require = 6)
 	private void heavyinventories$movementExhaustion (ServerPlayer player, float cost, Operation<Void> original, double dx, double dy, double dz) {

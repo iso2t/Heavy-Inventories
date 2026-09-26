@@ -13,7 +13,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class LivingEntityExhaustionMixin {
 	@Inject(method = "knockback(DDD)V", at = @At("HEAD"))
 	private void heavyinventories$knockbackMotion (double strength, double x, double z, CallbackInfo ci) {
-		if ((Object) this instanceof ServerPlayer player && strength > 0 && player.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE) < 1)
-			PlayerHolder.getOrCreate(player).suppressMovementExhaustion();
+		if ((Object) this instanceof ServerPlayer player && strength > 0 && player.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE) < 1) PlayerHolder.getOrCreate(player).suppressMovementExhaustion();
 	}
 }

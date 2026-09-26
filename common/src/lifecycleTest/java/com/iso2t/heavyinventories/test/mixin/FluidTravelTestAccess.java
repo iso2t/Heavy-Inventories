@@ -14,11 +14,11 @@ public interface FluidTravelTestAccess {
 	void heavyinventories$travelInFluid (Vec3 input);
 
 	@Invoker("jumpInLiquid")
-	void heavyinventories$jumpInLiquid(net.minecraft.tags.TagKey<net.minecraft.world.level.material.Fluid> fluid);
+	void heavyinventories$jumpInLiquid (net.minecraft.tags.TagKey<net.minecraft.world.level.material.Fluid> fluid);
 
 	@Invoker("jumpOutOfFluid")
-	void heavyinventories$jumpOutOfFluid(double oldY);
+	void heavyinventories$jumpOutOfFluid (double oldY);
 
 	@Invoker("detectEquipmentUpdates")
-	void heavyinventories$refreshEquipment();
+	void heavyinventories$refreshEquipment ();
 }
