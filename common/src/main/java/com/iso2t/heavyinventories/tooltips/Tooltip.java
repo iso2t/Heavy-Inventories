@@ -4,6 +4,7 @@ import com.iso2t.heavyinventories.api.weight.StackWeight;
 import com.iso2t.heavyinventories.client.ClientWeightData;
 import com.iso2t.heavyinventories.client.WeightDisplay;
 import com.iso2t.heavyinventories.config.ConfigOptions;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -27,23 +28,34 @@ public class Tooltip {
 		var single = StackWeight.of(stack.copyWithCount(1), ClientWeightData::unitWeight);
 		var total = StackWeight.of(stack, ClientWeightData::unitWeight);
 		if (!single.complete() || !total.complete()) {
-			tooltip.add(Component.translatable("tooltip.heavyinventories.calculation_limit"));
+			tooltip.add(calculationLimit());
 			return tooltip;
 		}
-		weight = single.weight();
-		tooltip.add(Component.translatable("tooltip.heavyinventories.item_weight", WeightDisplay.weight(weight, ConfigOptions.WEIGHT_MEASURE)));
-		if (stack.getCount() > 1) tooltip.add(Component.translatable("tooltip.heavyinventories.item_stack_weight", WeightDisplay.weight(total.weight(), ConfigOptions.WEIGHT_MEASURE)));
+		boolean stacked = stack.getCount() > 1;
+		boolean belowMaxStack = stack.getCount() < stack.getMaxStackSize();
+		tooltip.add(stacked ? weightLine("tooltip.heavyinventories.item_stack_weight", total.weight()) : weightLine("tooltip.heavyinventories.item_weight", single.weight()));
 
-		if (stack.getCount() < stack.getMaxStackSize()) {
+		if (stacked || belowMaxStack) {
 			if (Minecraft.getInstance().hasShiftDown()) {
-				var maximum = StackWeight.of(stack.copyWithCount(stack.getMaxStackSize()), ClientWeightData::unitWeight);
-				tooltip.add(maximum.complete() ? Component.translatable("tooltip.heavyinventories.item_max_stack_weight", WeightDisplay.weight(maximum.weight(), ConfigOptions.WEIGHT_MEASURE)) : Component.translatable("tooltip.heavyinventories.calculation_limit"));
+				if (stacked) tooltip.add(weightLine("tooltip.heavyinventories.item_weight", single.weight()));
+				if (belowMaxStack) {
+					var maximum = StackWeight.of(stack.copyWithCount(stack.getMaxStackSize()), ClientWeightData::unitWeight);
+					tooltip.add(maximum.complete() ? weightLine("tooltip.heavyinventories.item_max_stack_weight", maximum.weight()) : calculationLimit());
+				}
 			} else {
-				tooltip.add(Component.translatable("tooltip.heavyinventories.hold_shift"));
+				tooltip.add(Component.translatable("tooltip.heavyinventories.hold_shift", Component.translatable("tooltip.heavyinventories.shift_key").withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.GRAY));
 			}
 		}
 
 		return tooltip;
+	}
+
+	private static Component weightLine (String translation, float weight) {
+		return Component.translatable(translation, Component.literal(WeightDisplay.weight(weight, ConfigOptions.WEIGHT_MEASURE)).withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.GRAY);
+	}
+
+	private static Component calculationLimit () {
+		return Component.translatable("tooltip.heavyinventories.calculation_limit").withStyle(ChatFormatting.RED);
 	}
 
 }
