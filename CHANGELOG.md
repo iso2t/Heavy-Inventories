@@ -3,6 +3,7 @@
 Release changes are maintained in one Markdown file per version. These files supply release notes to the publishing workflow for CurseForge, Modrinth, and GitHub Releases.
 
 - [Unreleased](changelogs/UNRELEASED.md)
+- [4.0.0](changelogs/4.0.0.md) — prepared stable release for Minecraft 26.1.2; not yet published
 - [4.0.0-rc.2](changelogs/4.0.0-rc.2.md) — published beta candidate for Minecraft 26.1
 - [4.0.0-rc.1](changelogs/4.0.0-rc.1.md) — prepared candidate notes; publication is not implied
 
