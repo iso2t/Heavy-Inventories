@@ -65,17 +65,19 @@ and [NeoForge's Maven versioning](https://docs.neoforged.net/docs/gettingstarted
 by component, not plain text sorting.
 
 Both loaders publish the same numeric version; loader labels and filenames distinguish the downloads. The publishing
-workflow still creates `v<version>` tags, uses `changelogs/<version>.md`, and runs only when manually triggered. Select
+workflow still creates `v<version>` tags, uses optional `changelogs/<version>.md` notes, and runs only when manually triggered. Select
 the `26.2` branch for this release line. Nothing is uploaded by a normal build.
 
 ## Changelogs
 
-Record user-visible changes in [Unreleased](../changelogs/UNRELEASED.md) as work lands. Before releasing, curate a
+Record user-visible changes in [Unreleased](../changelogs/UNRELEASED.md) as work lands. When adding release notes, curate a
 `changelogs/<version>.md` file using the exact version from `gradle.properties`, and add it to
 the [changelog index](../CHANGELOG.md). Remove empty headings and template placeholders. Include compatibility or
 upgrade steps when they affect players or modpack authors.
 
-The version-specific file will supply the same release body to CurseForge, Modrinth, and GitHub Releases. Keep build
+Release notes are optional. When present and nonblank, the version-specific file supplies the same release body to
+CurseForge, Modrinth, and GitHub Releases. Missing or blank files use
+`Heavy Inventories <version> for Minecraft <minecraft_version>.` instead. Keep build
 logs and internal test details in testing documentation, and keep the README as the project introduction. Published
 changelogs should describe the original build; add later changes to the next version.
 

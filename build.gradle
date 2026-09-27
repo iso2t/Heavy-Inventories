@@ -7,12 +7,16 @@ plugins {
 }
 
 def releaseVersion = project.version.toString()
+def defaultReleaseNotes = "Heavy Inventories ${releaseVersion} for Minecraft ${minecraft_version}.".toString()
+def releaseNotes = providers.fileContents(layout.projectDirectory.file("changelogs/${releaseVersion}.md")).asText
+        .map { notes -> notes.trim() ? notes : defaultReleaseNotes }
+        .orElse(defaultReleaseNotes)
 
 publishMods {
     // Local invocations preview by default. The manual workflow explicitly selects live publishing.
     dryRun = providers.environmentVariable('PUBLISH_DRY_RUN').map { it.toBoolean() }.orElse(true)
     version = releaseVersion
-    changelog = providers.fileContents(layout.projectDirectory.file("changelogs/${releaseVersion}.md")).asText
+    changelog = releaseNotes
     type = releaseVersion.contains('-alpha') ? ALPHA : releaseVersion.contains('-') ? BETA : STABLE
     displayName = "Heavy Inventories ${releaseVersion}"
 

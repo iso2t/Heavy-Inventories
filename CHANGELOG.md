@@ -1,7 +1,8 @@
 # Changelog
 
-Release changes are maintained in one Markdown file per version. These files supply release notes to the publishing
-workflow for CurseForge, Modrinth, and GitHub Releases.
+Optional release notes are maintained in one Markdown file per version. These files supply release notes to the publishing
+workflow for CurseForge, Modrinth, and GitHub Releases. Missing or blank files use a short version and Minecraft version
+description instead and do not block publishing.
 
 - [Unreleased](changelogs/UNRELEASED.md)
 - [4.262.0.0](changelogs/4.262.0.0.md) — prepared release for Minecraft 26.2; not yet published
@@ -11,7 +12,7 @@ workflow for CurseForge, Modrinth, and GitHub Releases.
 - [4.0.0-rc.1](changelogs/4.0.0-rc.1.md) — prepared candidate notes; publication is not implied
 
 Start future entries from the [template](changelogs/TEMPLATE.md). Record changes in Unreleased during development, then
-curate the version-specific file before publishing. Do not edit published entries to describe a different build.
+curate a version-specific file when release notes are needed. Do not edit published entries to describe a different build.
 
 See the [publishing plan](docs/PUBLISHING_PLAN.md) for release checks, or the [setup guide](docs/PUBLISHING.md) for
 repository configuration and the manual Publish action.
