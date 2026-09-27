@@ -7,9 +7,6 @@ import com.iso2t.heavyinventories.client.ClientWeightData;
 import com.iso2t.heavyinventories.config.ConfigOptions;
 import com.iso2t.heavyinventories.gui.GraphicsRenderer;
 import com.iso2t.heavyinventories.gui.WeightRingRenderer;
-import com.iso2t.heavyinventories.neoforge.config.ModClientConfig;
-import com.iso2t.heavyinventories.neoforge.config.ModCommonConfig;
-import com.iso2t.heavyinventories.neoforge.config.ModServerConfig;
 import com.iso2t.heavyinventories.network.PlayerWeightPayload;
 import com.iso2t.heavyinventories.tooltips.Tooltip;
 import lombok.AccessLevel;
@@ -61,20 +58,4 @@ public final class NeoForgeClientHooks {
 		GraphicsRenderer.renderGui(event.getGuiGraphics(), ConfigOptions.WEIGHT_MEASURE, Minecraft.getInstance());
 	}
 
-	public static void openConfig (String type) {
-		switch (type) {
-			case "client" -> {
-				ModClientConfig.init();
-				Minecraft.getInstance().gui.setScreen(ModClientConfig.getBuilder().build());
-			}
-			case "server" -> {
-				ModServerConfig.init();
-				Minecraft.getInstance().gui.setScreen(ModServerConfig.getBuilder().build());
-			}
-			case "common" -> {
-				ModCommonConfig.init();
-				Minecraft.getInstance().gui.setScreen(ModCommonConfig.getBuilder().build());
-			}
-		}
-	}
 }

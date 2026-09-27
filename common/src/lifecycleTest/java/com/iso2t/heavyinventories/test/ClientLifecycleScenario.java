@@ -3,7 +3,6 @@ package com.iso2t.heavyinventories.test;
 import com.iso2t.heavyinventories.HeavyInventories;
 import com.iso2t.heavyinventories.api.events.PlayerEvents;
 import com.iso2t.heavyinventories.api.player.PlayerHolder;
-import com.iso2t.heavyinventories.api.weight.WeightCache;
 import com.iso2t.heavyinventories.client.ClientWeightData;
 import com.iso2t.heavyinventories.config.ConfigFileManager;
 import com.iso2t.heavyinventories.config.ServerSettings;
@@ -106,10 +105,9 @@ public final class ClientLifecycleScenario {
 				// A client-only value must not overwrite the server's state, even for the same UUID.
 				require(PlayerHolder.getOrCreate(client.player).getBaseMaxWeight() == 10.5f, "Fractional capacity was not synchronized");
 				require(PlayerHolder.getOrCreate(client.player).isOverEncumbered(), "Server encumbrance was not synchronized");
-				WeightCache.put(Items.STONE, 9999f);
 				client.player.getInventory().getItem(0).setCount(63);
 				PlayerEvents.onPlayerTick(client.player);
-				require(PlayerHolder.getOrCreate(client.player).getWeight() == 16f, "Client inventory/cache replaced server total");
+				require(PlayerHolder.getOrCreate(client.player).getWeight() == 16f, "Client inventory replaced server total");
 				require(ClientWeightData.weight(BuiltInRegistries.ITEM.getKey(Items.STONE)) == 2f, "Tooltip used client weight definitions");
 				operation = server.submit(() -> {
 					require(PlayerHolder.getOrCreate(serverPlayer).getWeight() == 16f, "Client mutation leaked to server");

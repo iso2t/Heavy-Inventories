@@ -3,9 +3,7 @@ package com.iso2t.heavyinventories.fabric.client;
 import com.iso2t.heavyinventories.HeavyInventories;
 import com.iso2t.heavyinventories.api.player.PlayerHolder;
 import com.iso2t.heavyinventories.client.ClientWeightData;
-import com.iso2t.heavyinventories.fabric.config.ModClientConfig;
-import com.iso2t.heavyinventories.fabric.config.ModCommonConfig;
-import com.iso2t.heavyinventories.fabric.config.ModServerConfig;
+import com.iso2t.heavyinventories.client.ConfigScreens;
 import com.iso2t.heavyinventories.fabric.platform.FabricConfigScreenHelper;
 import com.iso2t.heavyinventories.network.ItemWeightsPayload;
 import com.iso2t.heavyinventories.network.PlayerWeightPayload;
@@ -37,23 +35,7 @@ public final class FabricClientHooks {
 			PlayerHolder.getOrCreate(player).accept(packet);
 		});
 		ClientPlayNetworking.registerGlobalReceiver(ItemWeightsPayload.TYPE, (packet, _) -> ClientWeightData.accept(packet));
-		ClientPlayNetworking.registerGlobalReceiver(FabricConfigScreenHelper.OPEN_CONFIG_PACKET_TYPE, (packet, context) -> context.client().execute(() -> openConfig(packet.configType())));
+		ClientPlayNetworking.registerGlobalReceiver(FabricConfigScreenHelper.OPEN_CONFIG_PACKET_TYPE, (packet, context) -> context.client().execute(() -> ConfigScreens.fromString(packet.configType()).ifPresent(ConfigScreens::open)));
 	}
 
-	public static void openConfig (String type) {
-		switch (type) {
-			case "client" -> {
-				ModClientConfig.init();
-				Minecraft.getInstance().gui.setScreen(ModClientConfig.getBuilder().build());
-			}
-			case "server" -> {
-				ModServerConfig.init();
-				Minecraft.getInstance().gui.setScreen(ModServerConfig.getBuilder().build());
-			}
-			case "common" -> {
-				ModCommonConfig.init();
-				Minecraft.getInstance().gui.setScreen(ModCommonConfig.getBuilder().build());
-			}
-		}
-	}
 }

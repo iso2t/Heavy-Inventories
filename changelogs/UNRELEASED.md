@@ -6,6 +6,8 @@
 
 ## Changed
 
+- Configuration screens now share one entry point and create fresh controls on each open.
+- Tooltips calculate per-item and maximum-stack details only when expanded.
 - Simplified shared configuration screens and internal state handling without changing encumbrance rules.
 
 - Refreshed item weight tooltips with light gray labels, gold values, and a clearer Shift hint using vanilla text
@@ -15,8 +17,8 @@
 
 ## Fixed
 
-- Opening the legacy configuration API before registering a screen no longer throws a null-pointer exception.
-
 ## Removed
+
+- Removed unused legacy weight-file APIs, the old item-weight cache, and obsolete configuration-screen wrappers. Legacy datapack conversion remains available.
 
 ## Compatibility and upgrade notes

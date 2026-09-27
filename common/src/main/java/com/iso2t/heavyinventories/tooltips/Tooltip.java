@@ -18,22 +18,27 @@ import java.util.List;
 public final class Tooltip {
 
 	public static List<Component> addTooltips (List<Component> tooltip, ItemStack stack) {
-		Float weight = ClientWeightData.weight(BuiltInRegistries.ITEM.getKey(stack.getItem()));
-		if (weight == null || stack.isEmpty()) return tooltip;
+		return addTooltips(tooltip, stack, Minecraft.getInstance().hasShiftDown());
+	}
 
-		var single = StackWeight.of(stack.copyWithCount(1), ClientWeightData::unitWeight);
+	static List<Component> addTooltips (List<Component> tooltip, ItemStack stack, boolean showDetails) {
+		if (stack.isEmpty() || ClientWeightData.weight(BuiltInRegistries.ITEM.getKey(stack.getItem())) == null) return tooltip;
+
 		var total = StackWeight.of(stack, ClientWeightData::unitWeight);
-		if (!single.complete() || !total.complete()) {
+		if (!total.complete()) {
 			tooltip.add(calculationLimit());
 			return tooltip;
 		}
 		boolean stacked = stack.getCount() > 1;
 		boolean belowMaxStack = stack.getCount() < stack.getMaxStackSize();
-		tooltip.add(stacked ? weightLine("tooltip.heavyinventories.item_stack_weight", total.weight()) : weightLine("tooltip.heavyinventories.item_weight", single.weight()));
+		tooltip.add(weightLine(stacked ? "tooltip.heavyinventories.item_stack_weight" : "tooltip.heavyinventories.item_weight", total.weight()));
 
 		if (stacked || belowMaxStack) {
-			if (Minecraft.getInstance().hasShiftDown()) {
-				if (stacked) tooltip.add(weightLine("tooltip.heavyinventories.item_weight", single.weight()));
+			if (showDetails) {
+				if (stacked) {
+					var single = StackWeight.of(stack.copyWithCount(1), ClientWeightData::unitWeight);
+					tooltip.add(single.complete() ? weightLine("tooltip.heavyinventories.item_weight", single.weight()) : calculationLimit());
+				}
 				if (belowMaxStack) {
 					var maximum = StackWeight.of(stack.copyWithCount(stack.getMaxStackSize()), ClientWeightData::unitWeight);
 					tooltip.add(maximum.complete() ? weightLine("tooltip.heavyinventories.item_max_stack_weight", maximum.weight()) : calculationLimit());

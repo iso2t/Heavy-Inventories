@@ -2,8 +2,7 @@ package com.iso2t.heavyinventories.command;
 
 import com.iso2t.heavyinventories.HeavyInventories;
 import com.iso2t.heavyinventories.api.player.PlayerWeightCache;
-import com.iso2t.heavyinventories.api.weight.WeightCache;
-import com.iso2t.heavyinventories.api.weight.WeightOverride;
+import com.iso2t.heavyinventories.server.weight.WeightReportExporter;
 import com.iso2t.heavyinventories.helper.RegistryHelper;
 import com.iso2t.heavyinventories.platform.Services;
 import com.iso2t.heavyinventories.server.ServerWeightState;
@@ -67,7 +66,6 @@ public class ModCommands {
 	protected static int executeReloadCommand (CommandContext<CommandSourceStack> context) {
 		try {
 			ServerWeightState.of(context.getSource().getServer()).reload(context.getSource().getServer());
-			WeightCache.clearAll();
 			context.getSource().sendSuccess(() -> Component.translatable("config.heavyinventories.reloaded"), true);
 			return Command.SINGLE_SUCCESS;
 		} catch (IOException | IllegalArgumentException | IllegalStateException e) {
@@ -106,7 +104,7 @@ public class ModCommands {
 		var level = context.getSource().getLevel();
 		Path export;
 		try {
-			export = WeightOverride.putDumpFile(modid, level);
+			export = WeightReportExporter.export(modid, level);
 		} catch (IOException | IllegalArgumentException e) {
 			context.getSource().sendFailure(Component.literal(e.getMessage()));
 			return 0;

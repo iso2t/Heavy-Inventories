@@ -1,16 +1,13 @@
 package com.iso2t.heavyinventories.fabric.platform;
 
 import com.iso2t.heavyinventories.HeavyInventories;
-import com.iso2t.heavyinventories.fabric.client.FabricClientHooks;
 import com.iso2t.heavyinventories.network.ItemWeightsPayload;
 import com.iso2t.heavyinventories.network.PlayerWeightPayload;
 import com.iso2t.heavyinventories.network.ServerConfigUpdatePayload;
 import com.iso2t.heavyinventories.platform.services.IConfigScreenHelper;
 import com.iso2t.heavyinventories.server.ServerConfiguration;
-import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -54,36 +51,8 @@ public class FabricConfigScreenHelper implements IConfigScreenHelper {
 	}
 
 	@Override
-	public void openClientConfig () {
-		if (isClientSide()) {
-			FabricClientHooks.openConfig("client");
-		}
-	}
-
-	@Override
-	public void openServerConfig () {
-		if (isClientSide()) {
-			FabricClientHooks.openConfig("server");
-		}
-	}
-
-	@Override
-	public void openCommonConfig () {
-		if (isClientSide()) {
-			FabricClientHooks.openConfig("common");
-		}
-	}
-
-	@Override
-	public boolean isClientSide () {
-		return FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT;
-	}
-
-	@Override
-	public void sendOpenConfigPacket (Object playerId, String configType) {
-		if (playerId instanceof ServerPlayer player) {
-			OpenConfigPacket packet = new OpenConfigPacket(configType);
-			ServerPlayNetworking.send(player, packet);
-		}
+	public void sendOpenConfigPacket (ServerPlayer player, String configType) {
+		var packet = new OpenConfigPacket(configType);
+		ServerPlayNetworking.send(player, packet);
 	}
 }

@@ -2,6 +2,7 @@ package com.iso2t.heavyinventories.test;
 
 import com.iso2t.heavyinventories.api.util.MeasuringSystem;
 import com.iso2t.heavyinventories.client.ClientConfigScreen;
+import com.iso2t.heavyinventories.client.ConfigScreens;
 import com.iso2t.heavyinventories.config.ClientSettings;
 import com.iso2t.heavyinventories.config.ConfigFileManager;
 import com.iso2t.heavyinventories.platform.Services;
@@ -12,6 +13,7 @@ import net.minecraft.network.chat.Component;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Locale;
 
 public final class FeedbackScenario {
 	public static  int            hudFrames;
@@ -30,6 +32,17 @@ public final class FeedbackScenario {
 	}
 
 	public static void prepare (Minecraft client) {
+		for (var type : ConfigScreens.SettingsType.values()) {
+			ConfigScreens.open(type);
+			var first = client.gui.screen();
+			require(first != null && first.getTitle().equals(Component.translatable("title.heavyinventories.config." + type.name().toLowerCase(Locale.ROOT))), "Incorrect config screen: " + type);
+			ConfigScreens.open(type);
+			require(client.gui.screen() != first, "Config screen was reused: " + type);
+		}
+		var currentScreen = client.gui.screen();
+		ConfigScreens.SettingsType.fromString("unknown").ifPresent(ConfigScreens::open);
+		require(client.gui.screen() == currentScreen, "Unknown config type changed the screen");
+		client.gui.setScreen(null);
 		original = ClientSettings.current();
 		originalHideGui = client.gui.hud.isHidden();
 		originalScale = client.options.guiScale().get();

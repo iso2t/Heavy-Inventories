@@ -2,7 +2,7 @@ package com.iso2t.heavyinventories.server;
 
 import com.iso2t.heavyinventories.HeavyInventories;
 import com.iso2t.heavyinventories.api.events.PlayerEvents;
-import com.iso2t.heavyinventories.api.resource.IResourceList;
+import com.iso2t.heavyinventories.api.weight.RecipeSnapshot;
 import com.iso2t.heavyinventories.api.weight.RecipeWeights;
 import com.iso2t.heavyinventories.api.weight.StackWeight;
 import com.iso2t.heavyinventories.config.ConfigFileManager;
@@ -106,7 +106,7 @@ public final class ServerWeightState {
 	private static ResolvedWeights resolveLoaded (MinecraftServer server) {
 		var data = ((WeightPackAccess) server.getRecipeManager()).heavyinventories$getWeightPackData().orElseThrow(() -> new IllegalStateException("Weight datapack listener did not supply a candidate"));
 		if (server.overworld() == null) throw new IllegalStateException("World must be ready before resolving recipe weights");
-		return ResolvedWeights.resolve(data, IResourceList.snapshot(server.overworld()), BuiltInRegistries.ITEM.keySet());
+		return ResolvedWeights.resolve(data, RecipeSnapshot.capture(server.overworld()), BuiltInRegistries.ITEM.keySet());
 	}
 
 	private static Map<Identifier, Float> defaults () {

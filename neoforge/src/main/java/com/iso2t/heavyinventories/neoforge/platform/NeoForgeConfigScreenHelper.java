@@ -1,7 +1,7 @@
 package com.iso2t.heavyinventories.neoforge.platform;
 
 import com.iso2t.heavyinventories.HeavyInventories;
-import com.iso2t.heavyinventories.api.config.ConfigScreens;
+import com.iso2t.heavyinventories.client.ConfigScreens;
 import com.iso2t.heavyinventories.client.ClientWeightData;
 import com.iso2t.heavyinventories.neoforge.client.NeoForgeClientHooks;
 import com.iso2t.heavyinventories.network.ItemWeightsPayload;
@@ -14,10 +14,8 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.jspecify.annotations.NonNull;
@@ -53,47 +51,14 @@ public class NeoForgeConfigScreenHelper implements IConfigScreenHelper {
 				if (context.player() instanceof ServerPlayer player) ServerConfiguration.update(player, packet);
 			}));
 
-			registrar.playToClient(OpenConfigPacket.TYPE, STREAM_CODEC, (packet, context) -> context.enqueueWork(() -> {
-				switch (packet.configType()) {
-					case "client" -> ConfigScreens.openClientConfig();
-					case "server" -> ConfigScreens.openServerConfig();
-					case "common" -> ConfigScreens.openCommonConfig();
-				}
-			}));
+			registrar.playToClient(OpenConfigPacket.TYPE, STREAM_CODEC,
+					(packet, context) -> context.enqueueWork(() -> ConfigScreens.fromString(packet.configType()).ifPresent(ConfigScreens::open)));
 		}
 	}
 
 	@Override
-	public void openClientConfig () {
-		if (isClientSide()) {
-			NeoForgeClientHooks.openConfig("client");
-		}
-	}
-
-	@Override
-	public void openServerConfig () {
-		if (isClientSide()) {
-			NeoForgeClientHooks.openConfig("server");
-		}
-	}
-
-	@Override
-	public void openCommonConfig () {
-		if (isClientSide()) {
-			NeoForgeClientHooks.openConfig("common");
-		}
-	}
-
-	@Override
-	public boolean isClientSide () {
-		return FMLEnvironment.getDist() == Dist.CLIENT;
-	}
-
-	@Override
-	public void sendOpenConfigPacket (Object playerId, String configType) {
-		if (playerId instanceof ServerPlayer player) {
-			OpenConfigPacket packet = new OpenConfigPacket(configType);
-			player.connection.send(packet);
-		}
+	public void sendOpenConfigPacket (ServerPlayer player, String configType) {
+		var packet = new OpenConfigPacket(configType);
+		player.connection.send(packet);
 	}
 }

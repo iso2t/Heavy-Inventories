@@ -1,6 +1,5 @@
-package com.iso2t.heavyinventories.api.resource;
+package com.iso2t.heavyinventories.api.weight;
 
-import com.iso2t.heavyinventories.api.weight.RecipeWeights;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -17,9 +16,9 @@ import java.util.List;
  * Snapshot only recipes with static outputs and no crafting remainders; custom/dynamic recipes are excluded.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class IResourceList {
+public final class RecipeSnapshot {
 
-	public static List<RecipeWeights.Recipe> snapshot (Level level) {
+	public static List<RecipeWeights.Recipe> capture (Level level) {
 		var server = level.getServer();
 		if (server == null) throw new IllegalArgumentException("Recipe inference requires a server");
 		var result = new ArrayList<RecipeWeights.Recipe>();

@@ -1,7 +1,7 @@
 package com.iso2t.heavyinventories.test;
 
 import com.iso2t.heavyinventories.api.player.PlayerHolder;
-import com.iso2t.heavyinventories.api.resource.IResourceList;
+import com.iso2t.heavyinventories.api.weight.RecipeSnapshot;
 import com.iso2t.heavyinventories.api.weight.RecipeWeights;
 import com.iso2t.heavyinventories.server.ServerWeightState;
 import net.minecraft.core.component.DataComponents;
@@ -59,7 +59,7 @@ public final class WeightCalculationScenario {
 		box.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(List.of(bundle)));
 		check(player, 44, "restore synchronized nested-container fixture");
 
-		var recipes = IResourceList.snapshot(player.level());
+		var recipes = RecipeSnapshot.capture(player.level());
 		var inferred = RecipeWeights.resolve(recipes, Map.of(BuiltInRegistries.ITEM.getKey(Items.OAK_LOG), 8f, BuiltInRegistries.ITEM.getKey(Items.OAK_WOOD), 8f, BuiltInRegistries.ITEM.getKey(Items.STRIPPED_OAK_LOG), 8f, BuiltInRegistries.ITEM.getKey(Items.STRIPPED_OAK_WOOD), 8f, BuiltInRegistries.ITEM.getKey(Items.IRON_INGOT), 2f));
 		require(inferred.get(BuiltInRegistries.ITEM.getKey(Items.OAK_PLANKS)) == 2f, "Loaded log-to-planks recipe must divide by four");
 		require(inferred.get(BuiltInRegistries.ITEM.getKey(Items.IRON_BLOCK)) == 18f, "Loaded compression recipe must use nine anchored ingots");

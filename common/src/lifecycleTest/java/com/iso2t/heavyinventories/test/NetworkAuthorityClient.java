@@ -1,9 +1,8 @@
 package com.iso2t.heavyinventories.test;
 
 import com.iso2t.heavyinventories.HeavyInventories;
-import com.iso2t.heavyinventories.api.config.ConfigScreens;
+import com.iso2t.heavyinventories.client.ConfigScreens;
 import com.iso2t.heavyinventories.api.player.PlayerHolder;
-import com.iso2t.heavyinventories.api.weight.WeightCache;
 import com.iso2t.heavyinventories.client.ClientWeightData;
 import com.iso2t.heavyinventories.network.ServerConfigUpdatePayload;
 import com.iso2t.heavyinventories.platform.Services;
@@ -49,14 +48,13 @@ public final class NetworkAuthorityClient {
 			EffectsConfigScenario.checkReadOnly();
 			require(holder.isOverEncumbered(), "Remote encumbrance missing");
 			require(ClientWeightData.weight(BuiltInRegistries.ITEM.getKey(Items.STONE)) == 2f, "Remote item definitions missing");
-			WeightCache.put(Items.STONE, 9999f);
-			ConfigScreens.openServerConfig();
+			ConfigScreens.open(ConfigScreens.SettingsType.SERVER);
 			require(client.gui.screen() != null, "Read-only server config screen did not build");
 			client.gui.setScreen(null);
 			send(client, 20.25f, holder.serverRevision());
 			clientStage = 1;
 		} else if (clientStage == 1 && holder.canEditServerConfig()) {
-			ConfigScreens.openServerConfig();
+			ConfigScreens.open(ConfigScreens.SettingsType.SERVER);
 			require(client.gui.screen() != null, "Operator server config screen did not build");
 			client.gui.setScreen(null);
 			send(client, Float.NaN, holder.serverRevision());
@@ -69,7 +67,7 @@ public final class NetworkAuthorityClient {
 			require(holder.serverSettings().effects().equals(EffectsConfigScenario.expected()), "Remote effects did not synchronize");
 			EffectsConfigScenario.checkReopened();
 			HeavyInventories.LOGGER.info("MULTIPLAYER EFFECT CONFIG PASSED: read-only controls, operator controls, validation, remote persistence/synchronization and reopen");
-			require(holder.getWeight() == 16f, "Local definitions replaced remote total");
+			require(holder.getWeight() == 16f, "Configuration edit changed the carried weight");
 			require(!holder.isOverEncumbered(), "Capacity edit did not refresh remote encumbrance");
 			HeavyInventories.LOGGER.info("MULTIPLAYER CLIENT AUTHORITY PASSED: remote totals/definitions/encumbrance, read-only and editable screen construction, operator network edits");
 			require(holder.walkingMode() == com.iso2t.heavyinventories.config.WalkingMode.AT_NINETY_PERCENT, "Walking mode did not synchronize");
