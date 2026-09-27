@@ -2,11 +2,11 @@ package com.iso2t.heavyinventories.command;
 
 import com.iso2t.heavyinventories.HeavyInventories;
 import com.iso2t.heavyinventories.api.player.PlayerWeightCache;
-import com.iso2t.heavyinventories.server.weight.WeightReportExporter;
 import com.iso2t.heavyinventories.helper.RegistryHelper;
 import com.iso2t.heavyinventories.platform.Services;
 import com.iso2t.heavyinventories.server.ServerWeightState;
 import com.iso2t.heavyinventories.server.weight.LegacyWeightConverter;
+import com.iso2t.heavyinventories.server.weight.WeightReportExporter;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;

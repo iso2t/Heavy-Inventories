@@ -19,6 +19,7 @@
 
 ## Removed
 
-- Removed unused legacy weight-file APIs, the old item-weight cache, and obsolete configuration-screen wrappers. Legacy datapack conversion remains available.
+- Removed unused legacy weight-file APIs, the old item-weight cache, and obsolete configuration-screen wrappers. Legacy
+  datapack conversion remains available.
 
 ## Compatibility and upgrade notes

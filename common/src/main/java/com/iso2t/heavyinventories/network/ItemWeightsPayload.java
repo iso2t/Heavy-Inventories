@@ -18,7 +18,7 @@ public record ItemWeightsPayload(long revision, int index, int chunks, List<Entr
 
 	public static final int                                              CHUNK_SIZE = 256;
 	public static final int                                              MAX_CHUNKS = 4096;
-	public static final Type<ItemWeightsPayload>                         TYPE       = new Type<>(Identifier.fromNamespaceAndPath(HeavyInventories.MOD_ID, "item_weights"));
+	public static final Type<ItemWeightsPayload>                         TYPE       = new Type<>(HeavyInventories.get("item_weights"));
 	public static final StreamCodec<FriendlyByteBuf, ItemWeightsPayload> CODEC      = StreamCodec.of((buf, p) -> {
 		buf.writeVarLong(p.revision);
 		buf.writeVarInt(p.index);

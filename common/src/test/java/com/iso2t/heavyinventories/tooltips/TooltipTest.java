@@ -38,9 +38,7 @@ class TooltipTest {
 	@BeforeEach
 	void loadDefinitions () {
 		ClientWeightData.clear();
-		ClientWeightData.accept(new ItemWeightsPayload(1, 0, 1, List.of(
-				new ItemWeightsPayload.Entry(BuiltInRegistries.ITEM.getKey(Items.ARROW), 2),
-				new ItemWeightsPayload.Entry(BuiltInRegistries.ITEM.getKey(Items.SHULKER_BOX), 3))));
+		ClientWeightData.accept(new ItemWeightsPayload(1, 0, 1, List.of(new ItemWeightsPayload.Entry(BuiltInRegistries.ITEM.getKey(Items.ARROW), 2), new ItemWeightsPayload.Entry(BuiltInRegistries.ITEM.getKey(Items.SHULKER_BOX), 3))));
 	}
 
 	@AfterEach

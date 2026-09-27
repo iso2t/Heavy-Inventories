@@ -1,5 +1,6 @@
 package com.iso2t.heavyinventories.api.player;
 
+import com.iso2t.heavyinventories.HeavyInventories;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.resources.Identifier;
@@ -12,7 +13,7 @@ import net.minecraft.world.entity.player.Player;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class PlayerKnockback {
-	public static final Identifier MODIFIER_ID = Identifier.fromNamespaceAndPath("heavyinventories", "carried_weight_knockback");
+	public static final Identifier MODIFIER_ID = HeavyInventories.get("carried_weight_knockback");
 
 	public static void update (Player player, float amount) {
 		if (player.level().isClientSide()) return;

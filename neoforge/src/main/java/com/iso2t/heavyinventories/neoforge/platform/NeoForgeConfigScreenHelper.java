@@ -1,8 +1,8 @@
 package com.iso2t.heavyinventories.neoforge.platform;
 
 import com.iso2t.heavyinventories.HeavyInventories;
-import com.iso2t.heavyinventories.client.ConfigScreens;
 import com.iso2t.heavyinventories.client.ClientWeightData;
+import com.iso2t.heavyinventories.client.ConfigScreens;
 import com.iso2t.heavyinventories.neoforge.client.NeoForgeClientHooks;
 import com.iso2t.heavyinventories.network.ItemWeightsPayload;
 import com.iso2t.heavyinventories.network.PlayerWeightPayload;
@@ -22,7 +22,7 @@ import org.jspecify.annotations.NonNull;
 
 public class NeoForgeConfigScreenHelper implements IConfigScreenHelper {
 
-	public static final Identifier OPEN_CONFIG_PACKET_ID = Identifier.fromNamespaceAndPath(HeavyInventories.MOD_ID, "open_config");
+	public static final Identifier OPEN_CONFIG_PACKET_ID = HeavyInventories.get("open_config");
 
 	public static final StreamCodec<FriendlyByteBuf, OpenConfigPacket> STREAM_CODEC = StreamCodec.of((buf, packet) -> buf.writeUtf(packet.configType()), buf -> new OpenConfigPacket(buf.readUtf()));
 
@@ -51,8 +51,7 @@ public class NeoForgeConfigScreenHelper implements IConfigScreenHelper {
 				if (context.player() instanceof ServerPlayer player) ServerConfiguration.update(player, packet);
 			}));
 
-			registrar.playToClient(OpenConfigPacket.TYPE, STREAM_CODEC,
-					(packet, context) -> context.enqueueWork(() -> ConfigScreens.fromString(packet.configType()).ifPresent(ConfigScreens::open)));
+			registrar.playToClient(OpenConfigPacket.TYPE, STREAM_CODEC, (packet, context) -> context.enqueueWork(() -> ConfigScreens.fromString(packet.configType()).ifPresent(ConfigScreens::open)));
 		}
 	}
 

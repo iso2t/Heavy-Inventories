@@ -12,7 +12,7 @@ import net.minecraft.resources.Identifier;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class WeightRingRenderer {
-	private static final Identifier FRAME = Identifier.fromNamespaceAndPath(HeavyInventories.MOD_ID, "textures/gui/hud_ring.png");
+	private static final Identifier FRAME = HeavyInventories.get("textures/gui/hud_ring.png");
 
 	public static boolean visible (Minecraft client) {
 		return ConfigOptions.HUD_MODE.ring() && GraphicsRenderer.visible(client);

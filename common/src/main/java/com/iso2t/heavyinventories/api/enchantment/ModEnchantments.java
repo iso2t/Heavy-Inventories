@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.EquipmentSlotGroup;
@@ -14,9 +13,9 @@ import net.minecraft.world.item.enchantment.Enchantment;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ModEnchantments {
 
-	public static final ResourceKey<Enchantment> BRACING    = ResourceKey.create(Registries.ENCHANTMENT, Identifier.fromNamespaceAndPath(HeavyInventories.MOD_ID, "bracing"));
-	public static final ResourceKey<Enchantment> REINFORCED = ResourceKey.create(Registries.ENCHANTMENT, Identifier.fromNamespaceAndPath(HeavyInventories.MOD_ID, "reinforced"));
-	public static final ResourceKey<Enchantment> SUREFOOTED = ResourceKey.create(Registries.ENCHANTMENT, Identifier.fromNamespaceAndPath(HeavyInventories.MOD_ID, "surefooted"));
+	public static final ResourceKey<Enchantment> BRACING    = ResourceKey.create(Registries.ENCHANTMENT, HeavyInventories.get("bracing"));
+	public static final ResourceKey<Enchantment> REINFORCED = ResourceKey.create(Registries.ENCHANTMENT, HeavyInventories.get("reinforced"));
+	public static final ResourceKey<Enchantment> SUREFOOTED = ResourceKey.create(Registries.ENCHANTMENT, HeavyInventories.get("surefooted"));
 
 	public static void bootstrap (BootstrapContext<Enchantment> context) {
 		var items = context.lookup(Registries.ITEM);

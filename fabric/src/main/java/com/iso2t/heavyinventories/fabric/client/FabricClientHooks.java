@@ -18,7 +18,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.Identifier;
 
 /**
  * Client-only callbacks; loaded exclusively by the physical client bootstrap.
@@ -28,9 +27,9 @@ public final class FabricClientHooks {
 
 	public static void register () {
 		ClientFeedback.register();
-		HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(HeavyInventories.MOD_ID, "weight"), (graphics, _) -> GraphicsRenderer.renderGui(graphics, ConfigOptions.WEIGHT_MEASURE, Minecraft.getInstance()));
+		HudElementRegistry.addLast(HeavyInventories.get("weight"), (graphics, _) -> GraphicsRenderer.renderGui(graphics, ConfigOptions.WEIGHT_MEASURE, Minecraft.getInstance()));
 		// INFO_BAR wraps the background even at XP level zero; EXPERIENCE_LEVEL does not.
-		HudElementRegistry.attachElementAfter(VanillaHudElements.INFO_BAR, Identifier.fromNamespaceAndPath(HeavyInventories.MOD_ID, "weight_ring"), (graphics, _) -> WeightRingRenderer.render(graphics, Minecraft.getInstance()));
+		HudElementRegistry.attachElementAfter(VanillaHudElements.INFO_BAR, HeavyInventories.get("weight_ring"), (graphics, _) -> WeightRingRenderer.render(graphics, Minecraft.getInstance()));
 		HudElementRegistry.replaceElement(VanillaHudElements.EXPERIENCE_LEVEL, original -> (graphics, delta) -> WeightRingRenderer.experienceLevel(graphics, Minecraft.getInstance(), () -> original.extractRenderState(graphics, delta)));
 		ClientPlayConnectionEvents.INIT.register((_, _) -> ClientWeightData.clear());
 		ClientPlayConnectionEvents.DISCONNECT.register((_, _) -> ClientWeightData.clear());

@@ -60,7 +60,7 @@ public final class ConfigScreens {
 	 *             and "common". If the input is null or does not match any valid type, an empty {@link Optional}
 	 *             will be returned.
 	 * @return an {@link Optional} containing the corresponding {@link SettingsType} if the input matches
-	 *         a valid type, or an empty {@link Optional} if the input is null or invalid.
+	 * a valid type, or an empty {@link Optional} if the input is null or invalid.
 	 */
 	public static Optional<SettingsType> fromString (String type) {
 		return switch (type) {
@@ -82,7 +82,9 @@ public final class ConfigScreens {
 	 * </ul>
 	 */
 	public enum SettingsType {
-		CLIENT, SERVER, COMMON;
+		CLIENT,
+		SERVER,
+		COMMON;
 	}
 
 }

@@ -1,5 +1,6 @@
 package com.iso2t.heavyinventories;
 
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
@@ -26,5 +27,9 @@ public interface HeavyInventories {
 	MinecraftServer getCurrentServer ();
 
 	List<String> getModIds ();
+
+	static Identifier get (String path) {
+		return Identifier.fromNamespaceAndPath(MOD_ID, path);
+	}
 
 }

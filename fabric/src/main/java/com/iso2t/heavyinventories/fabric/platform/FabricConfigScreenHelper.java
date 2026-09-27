@@ -17,7 +17,7 @@ import org.jspecify.annotations.NonNull;
 
 public class FabricConfigScreenHelper implements IConfigScreenHelper {
 
-	public static final Identifier OPEN_CONFIG_PACKET_ID = Identifier.fromNamespaceAndPath(HeavyInventories.MOD_ID, "open_config");
+	public static final Identifier OPEN_CONFIG_PACKET_ID = HeavyInventories.get("open_config");
 
 	public static final StreamCodec<FriendlyByteBuf, OpenConfigPacket> STREAM_CODEC = StreamCodec.of((buf, packet) -> buf.writeUtf(packet.configType()), buf -> new OpenConfigPacket(buf.readUtf()));
 

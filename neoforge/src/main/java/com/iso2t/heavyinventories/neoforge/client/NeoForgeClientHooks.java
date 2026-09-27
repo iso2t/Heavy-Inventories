@@ -12,7 +12,6 @@ import com.iso2t.heavyinventories.tooltips.Tooltip;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
@@ -37,7 +36,7 @@ public final class NeoForgeClientHooks {
 
 	private static void registerLayers (RegisterGuiLayersEvent event) {
 		var level = VanillaGuiLayers.EXPERIENCE_LEVEL;
-		event.registerBelow(level, Identifier.fromNamespaceAndPath(HeavyInventories.MOD_ID, "weight_ring"), (graphics, _) -> WeightRingRenderer.render(graphics, Minecraft.getInstance()));
+		event.registerBelow(level, HeavyInventories.get("weight_ring"), (graphics, _) -> WeightRingRenderer.render(graphics, Minecraft.getInstance()));
 		event.wrapLayer(level, original -> (graphics, delta) -> WeightRingRenderer.experienceLevel(graphics, Minecraft.getInstance(), () -> original.render(graphics, delta)));
 	}
 
