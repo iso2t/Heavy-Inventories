@@ -40,7 +40,7 @@ public final class FeedbackScenario {
 			require(client.gui.screen() != first, "Config screen was reused: " + type);
 		}
 		var currentScreen = client.gui.screen();
-		ConfigScreens.SettingsType.fromString("unknown").ifPresent(ConfigScreens::open);
+		ConfigScreens.fromString("unknown").ifPresent(ConfigScreens::open);
 		require(client.gui.screen() == currentScreen, "Unknown config type changed the screen");
 		client.gui.setScreen(null);
 		original = ClientSettings.current();
