@@ -15,6 +15,7 @@ import com.iso2t.heavyinventories.server.weight.WeightProvenance;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.ItemStack;
@@ -89,7 +90,7 @@ public final class ServerWeightState {
 			resolved = resolveLoaded(server);
 		} catch (IllegalArgumentException | IllegalStateException e) {
 			HeavyInventories.LOGGER.error("Weight reload rejected; keeping revision {}: {}", revision, e.getMessage());
-			var message = net.minecraft.network.chat.Component.translatable("config.heavyinventories.weights_reload_failed", e.getMessage());
+			var message = Component.translatable("config.heavyinventories.weights_reload_failed", e.getMessage());
 			server.getPlayerList().getPlayers().stream().filter(ServerConfiguration::canEdit).forEach(player -> player.sendSystemMessage(message));
 			return;
 		}

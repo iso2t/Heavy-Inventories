@@ -1,5 +1,6 @@
 package com.iso2t.heavyinventories.config;
 
+import com.google.gson.JsonObject;
 import com.iso2t.heavyinventories.HeavyInventories;
 import com.iso2t.heavyinventories.api.files.JsonFiles;
 import com.iso2t.heavyinventories.platform.Services;
@@ -44,7 +45,7 @@ public final class ConfigFileManager {
 		JsonFiles.writeObject(path, root);
 	}
 
-	private static void merge (com.google.gson.JsonObject target, com.google.gson.JsonObject source) {
+	private static void merge (JsonObject target, JsonObject source) {
 		// Keep unknown fields inside the new settings groups as well as at the root.
 		source.entrySet().forEach(entry -> {
 			if (entry.getValue().isJsonObject() && target.has(entry.getKey()) && target.get(entry.getKey()).isJsonObject()) merge(target.getAsJsonObject(entry.getKey()), entry.getValue().getAsJsonObject());
@@ -52,9 +53,4 @@ public final class ConfigFileManager {
 		});
 	}
 
-	public static void loadCommonConfig () {
-	}
-
-	public static void saveCommonConfig () {
-	}
 }

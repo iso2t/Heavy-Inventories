@@ -3,6 +3,7 @@ package com.iso2t.heavyinventories.api.files;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.google.gson.Strictness;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -29,7 +30,7 @@ public final class JsonFiles {
 			var root = GSON.fromJson(json, JsonObject.class);
 			if (root == null) throw new IllegalArgumentException("Expected a JSON object in " + path);
 			return root;
-		} catch (com.google.gson.JsonParseException | IllegalStateException e) {
+		} catch (JsonParseException | IllegalStateException e) {
 			throw new IllegalArgumentException("Invalid JSON in " + path + ": " + e.getMessage(), e);
 		}
 	}

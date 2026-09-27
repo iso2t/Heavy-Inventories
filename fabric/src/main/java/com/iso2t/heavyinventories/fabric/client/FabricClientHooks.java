@@ -2,9 +2,13 @@ package com.iso2t.heavyinventories.fabric.client;
 
 import com.iso2t.heavyinventories.HeavyInventories;
 import com.iso2t.heavyinventories.api.player.PlayerHolder;
+import com.iso2t.heavyinventories.client.ClientFeedback;
 import com.iso2t.heavyinventories.client.ClientWeightData;
 import com.iso2t.heavyinventories.client.ConfigScreens;
+import com.iso2t.heavyinventories.config.ConfigOptions;
 import com.iso2t.heavyinventories.fabric.platform.FabricConfigScreenHelper;
+import com.iso2t.heavyinventories.gui.GraphicsRenderer;
+import com.iso2t.heavyinventories.gui.WeightRingRenderer;
 import com.iso2t.heavyinventories.network.ItemWeightsPayload;
 import com.iso2t.heavyinventories.network.PlayerWeightPayload;
 import lombok.AccessLevel;
@@ -23,11 +27,11 @@ import net.minecraft.resources.Identifier;
 public final class FabricClientHooks {
 
 	public static void register () {
-		com.iso2t.heavyinventories.client.ClientFeedback.register();
-		HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(HeavyInventories.MOD_ID, "weight"), (graphics, _) -> com.iso2t.heavyinventories.gui.GraphicsRenderer.renderGui(graphics, com.iso2t.heavyinventories.config.ConfigOptions.WEIGHT_MEASURE, Minecraft.getInstance()));
+		ClientFeedback.register();
+		HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(HeavyInventories.MOD_ID, "weight"), (graphics, _) -> GraphicsRenderer.renderGui(graphics, ConfigOptions.WEIGHT_MEASURE, Minecraft.getInstance()));
 		// INFO_BAR wraps the background even at XP level zero; EXPERIENCE_LEVEL does not.
-		HudElementRegistry.attachElementAfter(VanillaHudElements.INFO_BAR, Identifier.fromNamespaceAndPath(HeavyInventories.MOD_ID, "weight_ring"), (graphics, _) -> com.iso2t.heavyinventories.gui.WeightRingRenderer.render(graphics, Minecraft.getInstance()));
-		HudElementRegistry.replaceElement(VanillaHudElements.EXPERIENCE_LEVEL, original -> (graphics, delta) -> com.iso2t.heavyinventories.gui.WeightRingRenderer.experienceLevel(graphics, Minecraft.getInstance(), () -> original.extractRenderState(graphics, delta)));
+		HudElementRegistry.attachElementAfter(VanillaHudElements.INFO_BAR, Identifier.fromNamespaceAndPath(HeavyInventories.MOD_ID, "weight_ring"), (graphics, _) -> WeightRingRenderer.render(graphics, Minecraft.getInstance()));
+		HudElementRegistry.replaceElement(VanillaHudElements.EXPERIENCE_LEVEL, original -> (graphics, delta) -> WeightRingRenderer.experienceLevel(graphics, Minecraft.getInstance(), () -> original.extractRenderState(graphics, delta)));
 		ClientPlayConnectionEvents.INIT.register((_, _) -> ClientWeightData.clear());
 		ClientPlayConnectionEvents.DISCONNECT.register((_, _) -> ClientWeightData.clear());
 		ClientPlayNetworking.registerGlobalReceiver(PlayerWeightPayload.TYPE, (packet, context) -> {

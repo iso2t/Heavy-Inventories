@@ -1,5 +1,6 @@
 package com.iso2t.heavyinventories.mixin;
 
+import com.iso2t.heavyinventories.api.events.PlayerFeedback;
 import com.iso2t.heavyinventories.api.player.PlayerHolder;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.world.entity.Entity;
@@ -21,7 +22,7 @@ public abstract class EntityMovementMixin {
 		double vertical = movement.y;
 		if (vertical > 0 && holder.preventsFluidAscent()) {
 			vertical = 0;
-			com.iso2t.heavyinventories.api.events.PlayerFeedback.fluidAscentDenied(holder);
+			PlayerFeedback.fluidAscentDenied(holder);
 		}
 		return multiplier == 1 && vertical == movement.y ? movement : new Vec3(movement.x * multiplier, vertical, movement.z * multiplier);
 	}

@@ -1,5 +1,6 @@
 package com.iso2t.heavyinventories.mixin;
 
+import com.iso2t.heavyinventories.api.events.PlayerFeedback;
 import com.iso2t.heavyinventories.api.player.PlayerHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -18,8 +19,8 @@ public class LivingEntityJumpFromGroundMixin {
 		var holder = PlayerHolder.getOrCreate(player);
 
 		if (holder.preventsGroundJump()) {
-			if (holder.preventsFluidAscent()) com.iso2t.heavyinventories.api.events.PlayerFeedback.fluidAscentDenied(holder);
-			else com.iso2t.heavyinventories.api.events.PlayerFeedback.jumpDenied(holder);
+			if (holder.preventsFluidAscent()) PlayerFeedback.fluidAscentDenied(holder);
+			else PlayerFeedback.jumpDenied(holder);
 			ci.cancel();
 		}
 	}

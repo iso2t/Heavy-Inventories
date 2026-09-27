@@ -51,8 +51,8 @@ public final class RecipeWeights {
 		int alternatives = 0;
 		for (var id : overrides.keySet()) graph.put(id, new TreeSet<>(ORDER));
 		for (var recipe : recipes) {
-			var edges = graph.computeIfAbsent(recipe.output, unused -> new TreeSet<>(ORDER));
-			byOutput.computeIfAbsent(recipe.output, unused -> new ArrayList<>()).add(recipe);
+			var edges = graph.computeIfAbsent(recipe.output, _ -> new TreeSet<>(ORDER));
+			byOutput.computeIfAbsent(recipe.output, _ -> new ArrayList<>()).add(recipe);
 			for (var slot : recipe.slots) {
 				alternatives += slot.size();
 				if (alternatives > MAX_ALTERNATIVES) throw new IllegalArgumentException("Too many ingredient alternatives to infer safely");
