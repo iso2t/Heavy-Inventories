@@ -100,7 +100,7 @@ public final class ServerWeightState {
 	}
 
 	private static ResolvedWeights resolveLoaded (MinecraftServer server) {
-		var data = ((WeightPackAccess) server.getResourceManager()).heavyinventories$getWeightPackData().orElseThrow(() -> new IllegalStateException("Weight datapack listener did not supply a candidate"));
+		var data = ((WeightPackAccess) server.getRecipeManager()).heavyinventories$getWeightPackData().orElseThrow(() -> new IllegalStateException("Weight datapack listener did not supply a candidate"));
 		if (server.overworld() == null) throw new IllegalStateException("World must be ready before resolving recipe weights");
 		return ResolvedWeights.resolve(data, IResourceList.snapshot(server.overworld()), BuiltInRegistries.ITEM.keySet());
 	}

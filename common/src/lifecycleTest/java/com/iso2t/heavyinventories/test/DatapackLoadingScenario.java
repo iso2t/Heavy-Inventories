@@ -32,6 +32,7 @@ public final class DatapackLoadingScenario {
 	private static CompletableFuture<Void> reload;
 	private static WeightPackData.Result   initial, first;
 	private static ResourceManager        firstManager;
+	private static WeightPackAccess       firstLoadedData;
 	private static long                   gameplayRevision;
 	private static Map<Identifier, Float> gameplayWeights, baselineWeights;
 	private static          List<com.iso2t.heavyinventories.network.ItemWeightsPayload>                gameplayPackets;
@@ -85,6 +86,14 @@ public final class DatapackLoadingScenario {
 					require(initial.valid(), "Disposable world contains invalid weight definitions");
 					require(initial.warnings().isEmpty(), "Bundled definitions contain unknown item IDs: " + initial.warnings());
 					var state = ServerWeightState.of(server);
+					if (Boolean.getBoolean("heavyinventories.test.newWorldHandoff") && !server.isDedicatedServer()) {
+						require(((WeightPackAccess) server.getResourceManager()).heavyinventories$getWeightPackData().isEmpty(), "New-world path did not replace the staging resource manager");
+						BundledDefaultsScenario.verify(server);
+						var before = state.weights();
+						state.reload(server);
+						require(state.weights().equals(before), "Settings reload lost retained new-world weights");
+						HeavyInventories.LOGGER.info("NEW WORLD WEIGHTS PASSED: bundled weights and settings reload survive vanilla resource-manager replacement");
+					}
 					gameplayRevision = state.revision();
 					gameplayWeights = state.weights();
 					gameplayPackets = state.packets();
@@ -134,6 +143,7 @@ public final class DatapackLoadingScenario {
 				case 1 -> {
 					first = data(server);
 					firstManager = server.getResourceManager();
+					firstLoadedData = loadedData(server);
 					require(first.valid(), "Valid fixture pack was rejected: " + first.errors());
 					require(first.definitions().get(id("minecraft:arrow")).definition().equals(new WeightDefinition.Fixed(0.053125f)), "Pack priority/fraction mismatch");
 					require(first.definitions().get(id("minecraft:arrow")).sourcePack().contains(override.getFileName().toString()), "Missing winning source pack");
@@ -161,6 +171,7 @@ public final class DatapackLoadingScenario {
 					require(rejected.errors().stream().anyMatch(p -> p.resource().endsWith("weights/arrow.json") && p.sourcePack().contains(override.getFileName().toString())), "Error lost file/pack identity");
 					require(server.getResourceManager() != firstManager, "Reload reused resource manager");
 					require(((WeightPackAccess) firstManager).heavyinventories$getWeightPackData().orElseThrow() == first, "New reload mutated old candidate");
+					require(loadedData(server) != firstLoadedData && firstLoadedData.heavyinventories$getWeightPackData().orElseThrow() == first, "New reload mutated old loaded server data");
 					unchangedGameplay(server);
 					try {
 						ServerWeightState.of(server).reload(server);
@@ -237,7 +248,11 @@ public final class DatapackLoadingScenario {
 	}
 
 	private static WeightPackData.Result data (MinecraftServer server) {
-		return ((WeightPackAccess) server.getResourceManager()).heavyinventories$getWeightPackData().orElseThrow(() -> new AssertionError("Weight datapack listener did not run"));
+		return loadedData(server).heavyinventories$getWeightPackData().orElseThrow(() -> new AssertionError("Weight datapack listener did not run"));
+	}
+
+	private static WeightPackAccess loadedData (MinecraftServer server) {
+		return (WeightPackAccess) server.getRecipeManager();
 	}
 
 	private static void unchangedGameplay (MinecraftServer server) {

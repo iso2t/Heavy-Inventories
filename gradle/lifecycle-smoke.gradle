@@ -9,6 +9,7 @@
 // add -PpackagedSmoke to both and -PsmokeMultiplayer to the client.
 // These tests replace the test player's inventory and temporarily edit/restore server config and op status.
 // Dedicated datapack-only checks: use -PdatapackSmoke -PpackagedSmoke (creates/restores fixture packs).
+// Add -PnewWorldHandoff to client datapack checks to exercise vanilla's new-world resource-manager replacement.
 gradle.projectsEvaluated {
     if (gradle.rootProject.findProject(':fabric') == null) return
     [gradle.rootProject.project(':fabric'), gradle.rootProject.project(':neoforge')].each { modProject ->
@@ -25,6 +26,9 @@ gradle.projectsEvaluated {
             modProject.tasks.named(runName) {
                 if (modProject.hasProperty('datapackSmoke')) {
                     systemProperty 'heavyinventories.test.datapacks', 'true'
+                }
+                if (modProject.hasProperty('newWorldHandoff')) {
+                    systemProperty 'heavyinventories.test.newWorldHandoff', 'true'
                 }
                 if (modProject.hasProperty('authorityMultiplayer')) {
                     systemProperty 'heavyinventories.test.multiplayer', 'true'

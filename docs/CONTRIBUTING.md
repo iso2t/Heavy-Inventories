@@ -12,6 +12,14 @@ bash ./gradlew clean build
 
 The build runs common regression tests and checks metadata, mixins, services, enchantment resources, bundled weight definitions, and test-harness exclusion in both loader jars. Distributable jars are under `fabric/build/libs/` and `neoforge/build/libs/`; do not install sources, javadoc, or lifecycle-test jars.
 
+For weight-loading changes, also run the new-world handoff regression against an existing **disposable** `New World` save in each loader's `runs/client/saves/` folder:
+
+```powershell
+.\gradlew.bat :neoforge:runClient :fabric:runClient -I gradle/lifecycle-smoke.gradle -PdatapackSmoke -PnewWorldHandoff -PpackagedSmoke '-PlifecycleClientWorld=New World' --console=plain
+```
+
+The test routes the save through Minecraft's actual new-world resource handoff, replacing its resource manager while keeping loaded recipes. It then checks bundled weights, settings reload, client tooltips/totals, datapack overrides, and failed-reload retention. Both clients must report `NEW WORLD WEIGHTS PASSED` and `CLIENT DATAPACK RELOAD PASSED`. Ordinary existing-world startup does not exercise this handoff. Test only disposable saves: the harness changes inventory and creates/removes fixture datapacks. To check a different NeoForge version, run only `:neoforge:runClient` and add a quoted override such as `'-Pneoforge_version=26.1.2.111'`.
+
 Shared Gradle convention plugins live in the included `build-logic` build, following the [Minecraft 26.1.2 MultiLoader template](https://github.com/jaredlll08/MultiLoader-Template/tree/6c933ec60e02716b657b2dfdf360ddae1e8c9030). It replaces the former `buildSrc` directory; keep Heavy Inventories' resource generation and packaged-jar checks in those conventions. The port uses the template's Fabric Mixin 0.17.3+mixin.0.8.7 and MixinExtras 0.5.3 dependencies while retaining this project's newer Gradle 9.5.0 wrapper.
 
 The 26.1.2 port passed 89 common tests, both packaged-jar checks, both loaders' dedicated/integrated and separate multiplayer runtime suites, datapack reload/conversion checks, and a NeoForge dedicated run without Cloth Config on Windows/JDK 25. No gameplay source changes were needed. Linux runtime, third-party integrations, and long-session balance were not verified in this migration. Published RC2 notes remain unchanged; the port and stable release summary are recorded in `changelogs/4.0.0.md`.

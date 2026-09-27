@@ -3,7 +3,8 @@ package com.iso2t.heavyinventories.server.weight;
 import java.util.Optional;
 
 /**
- * Data belongs to one resource-manager generation, never to a process-wide cache.
+ * A candidate is staged on its resource manager, then retained on that generation's recipe manager.
+ * Neither owner is process-wide; failed reloads cannot replace the active server's candidate.
  */
 public interface WeightPackAccess {
 
