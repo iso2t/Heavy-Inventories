@@ -15,7 +15,6 @@ import net.minecraft.network.protocol.game.ClientboundTrackedWaypointPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.equine.Horse;
@@ -23,6 +22,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.waypoints.Waypoint;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -56,8 +57,8 @@ public final class RingCompatibilityScenario {
 					server.clockManager().setTotalTicks(player.level().dimensionType().defaultClock().orElseThrow(), time);
 					try {
 						ServerWeightState.of(server).reload(server);
-					} catch (java.io.IOException e) {
-						throw new java.io.UncheckedIOException(e);
+					} catch (IOException e) {
+						throw new UncheckedIOException(e);
 					}
 					PlayerEvents.onPlayerTick(player);
 				});

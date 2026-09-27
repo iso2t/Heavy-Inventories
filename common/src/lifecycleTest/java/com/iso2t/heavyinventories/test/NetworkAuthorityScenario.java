@@ -1,24 +1,22 @@
 package com.iso2t.heavyinventories.test;
 
 import com.iso2t.heavyinventories.HeavyInventories;
-import com.iso2t.heavyinventories.api.config.ConfigScreens;
 import com.iso2t.heavyinventories.api.player.PlayerHolder;
-import com.iso2t.heavyinventories.api.weight.WeightCache;
-import com.iso2t.heavyinventories.client.ClientWeightData;
 import com.iso2t.heavyinventories.config.ConfigFileManager;
 import com.iso2t.heavyinventories.config.ServerSettings;
-import com.iso2t.heavyinventories.network.ServerConfigUpdatePayload;
 import com.iso2t.heavyinventories.platform.Services;
 import com.iso2t.heavyinventories.server.ServerWeightState;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.players.NameAndId;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * Opt-in, separate-process localhost test. The server restores its config after the client exits.
@@ -47,7 +45,7 @@ public final class NetworkAuthorityScenario {
 				previousConfig = Files.exists(config) ? Files.readAllBytes(config) : null;
 				prepared = true;
 				players.deop(profile);
-				var weights = new java.util.HashMap<>(state.weights());
+				var weights = new HashMap<>(state.weights());
 				weights.put(BuiltInRegistries.ITEM.getKey(Items.STONE), 2f);
 				state.replace(new ServerSettings(10.5f), weights);
 				initialRevision = state.revision();
@@ -60,7 +58,7 @@ public final class NetworkAuthorityScenario {
 			} else if (serverStage == 1 && ticks - startedAt > 100) {
 				require(state.revision() == initialRevision, "Non-operator network request changed settings");
 				require(state.settings().effects().equals(com.iso2t.heavyinventories.config.EffectsSettings.DEFAULT), "Denied request changed effects");
-				require(java.util.Arrays.equals(previousConfig, Files.exists(config) ? Files.readAllBytes(config) : null), "Non-operator request changed the config file");
+				require(Arrays.equals(previousConfig, Files.exists(config) ? Files.readAllBytes(config) : null), "Non-operator request changed the config file");
 				players.op(profile);
 				serverStage = 2;
 			} else if (serverStage == 2 && state.settings().startingWeight() == 20.25f) {
@@ -75,7 +73,7 @@ public final class NetworkAuthorityScenario {
 				KnockbackScenario.checkBonus(players.getPlayers().getFirst(), 0.4f);
 				serverStage = 4;
 			} else if (serverStage == 4 && players.getPlayers().isEmpty()) {
-				var weights = new java.util.HashMap<>(state.weights());
+				var weights = new HashMap<>(state.weights());
 				weights.put(BuiltInRegistries.ITEM.getKey(Items.STONE), 3f);
 				state.replace(new ServerSettings(512), weights);
 				serverStage = 5;
@@ -95,7 +93,7 @@ public final class NetworkAuthorityScenario {
 				server.halt(false);
 				serverStage = 7;
 			}
-		} catch (java.io.IOException e) {
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -105,7 +103,7 @@ public final class NetworkAuthorityScenario {
 		try {
 			if (previousConfig == null) Files.deleteIfExists(config);
 			else Files.write(config, previousConfig);
-		} catch (java.io.IOException e) {
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} finally {
 			if (wasOp) server.getPlayerList().op(profile);

@@ -11,6 +11,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
+import java.util.ArrayList;
+
 /**
  * Confirms each server checkpoint over real packets before allowing the next reload.
  */
@@ -35,7 +37,7 @@ public final class DatapackReloadClient {
 				return;
 			for (int count : new int[] { 1, 64 }) {
 				String expected = WeightDisplay.weight(checkpoint.arrow() * count, ConfigOptions.WEIGHT_MEASURE);
-				var tooltip = Tooltip.addTooltips(new java.util.ArrayList<>(), new ItemStack(Items.ARROW, count));
+				var tooltip = Tooltip.addTooltips(new ArrayList<>(), new ItemStack(Items.ARROW, count));
 				require(tooltip.stream().anyMatch(line -> line.getString().contains(expected)), "Reloaded tooltip mismatch");
 			}
 			checked = checkpoint.id();

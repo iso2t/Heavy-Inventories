@@ -1,32 +1,33 @@
 package com.iso2t.heavyinventories.test;
 
 import com.iso2t.heavyinventories.HeavyInventories;
-import com.iso2t.heavyinventories.server.ServerWeightState;
-import com.iso2t.heavyinventories.config.ServerSettings;
-import com.iso2t.heavyinventories.client.ClientWeightData;
 import com.iso2t.heavyinventories.api.events.PlayerEvents;
-import net.minecraft.core.registries.BuiltInRegistries;
 import com.iso2t.heavyinventories.api.player.PlayerHolder;
 import com.iso2t.heavyinventories.api.weight.WeightCache;
+import com.iso2t.heavyinventories.client.ClientWeightData;
+import com.iso2t.heavyinventories.config.ConfigFileManager;
+import com.iso2t.heavyinventories.config.ServerSettings;
+import com.iso2t.heavyinventories.network.ServerConfigUpdatePayload;
+import com.iso2t.heavyinventories.platform.Services;
+import com.iso2t.heavyinventories.server.ServerConfiguration;
+import com.iso2t.heavyinventories.server.ServerWeightState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.NameAndId;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 
-import java.util.concurrent.CompletableFuture;
-
-import com.iso2t.heavyinventories.server.ServerConfiguration;
-import com.iso2t.heavyinventories.config.ConfigFileManager;
-import com.iso2t.heavyinventories.network.ServerConfigUpdatePayload;
-import com.iso2t.heavyinventories.platform.Services;
-import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
-import net.minecraft.server.players.NameAndId;
-
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Runs only in disposable singleplayer smoke worlds; mutations run on the server thread.
@@ -65,7 +66,7 @@ public final class ClientLifecycleScenario {
 				if (!PlayerHolder.getOrCreate(client.player).hasServerState() || arrowWeight == null) return;
 				require(Math.abs(arrowWeight - 0.09f) < 0.000001f, "Fresh client did not receive inferred arrow weight");
 				for (int count : new int[] { 1, 64 }) {
-					var lines = com.iso2t.heavyinventories.tooltips.Tooltip.addTooltips(new java.util.ArrayList<>(), new ItemStack(Items.ARROW, count));
+					var lines = com.iso2t.heavyinventories.tooltips.Tooltip.addTooltips(new ArrayList<>(), new ItemStack(Items.ARROW, count));
 					String expected = com.iso2t.heavyinventories.client.WeightDisplay.weight(0.09f * count, com.iso2t.heavyinventories.config.ConfigOptions.WEIGHT_MEASURE);
 					require(lines.stream().anyMatch(line -> line.getString().contains(expected)), "Arrow tooltip differs from inferred weight");
 				}
@@ -81,7 +82,7 @@ public final class ClientLifecycleScenario {
 					player.getInventory().setItem(0, new ItemStack(Items.ARROW, 64));
 					PlayerEvents.onPlayerTick(player);
 					require(Math.abs(PlayerHolder.getOrCreate(player).getWeight() - 5.76f) < 0.00001f, "Arrow inventory total differs");
-					var values = new java.util.HashMap<>(state.weights());
+					var values = new HashMap<>(state.weights());
 					values.put(BuiltInRegistries.ITEM.getKey(Items.STONE), 2f);
 					state.replace(new ServerSettings(10.5f), values);
 					player.getInventory().clearContent();
@@ -175,7 +176,7 @@ public final class ClientLifecycleScenario {
 					configPath = Services.PLATFORM.getGameDirectory().resolve("config/heavyinventories-server.json");
 					try {
 						originalConfig = Files.exists(configPath) ? Files.readAllBytes(configPath) : null;
-					} catch (java.io.IOException e) {
+					} catch (IOException e) {
 						throw new RuntimeException(e);
 					}
 					var profile = new NameAndId(serverPlayer.getGameProfile());
@@ -226,13 +227,13 @@ public final class ClientLifecycleScenario {
 						require(state.revision() == revision && state.settings().startingWeight() == 20.25f, "Failed reload changed active settings");
 						require(state.settings().effects().equals(EffectsConfigScenario.expected()), "Invalid nested reload changed effects");
 						HeavyInventories.LOGGER.info("ENCUMBRANCE CONFIG PASSED: Cloth edits, cross-field validation, packet synchronization, reopen, persistence, atomic nested reload rejection");
-					} catch (java.io.IOException e) {
+					} catch (IOException e) {
 						throw new RuntimeException(e);
 					} finally {
 						try {
 							if (originalConfig == null) Files.deleteIfExists(configPath);
 							else Files.write(configPath, originalConfig);
-						} catch (java.io.IOException e) {
+						} catch (IOException e) {
 							throw new RuntimeException(e);
 						}
 						if (!originallyOp) server.getPlayerList().deop(new NameAndId(serverPlayer.getGameProfile()));
@@ -258,7 +259,7 @@ public final class ClientLifecycleScenario {
 				if (!box.is(Items.SHULKER_BOX)) return;
 				var tooltipWeight = com.iso2t.heavyinventories.api.weight.StackWeight.of(box, ClientWeightData::unitWeight);
 				require(tooltipWeight.complete() && tooltipWeight.weight() == 32f, "Client container contents disagree with server");
-				var tooltip = com.iso2t.heavyinventories.tooltips.Tooltip.addTooltips(new java.util.ArrayList<>(), box);
+				var tooltip = com.iso2t.heavyinventories.tooltips.Tooltip.addTooltips(new ArrayList<>(), box);
 				require(tooltip.stream().anyMatch(line -> line.getString().contains(com.iso2t.heavyinventories.client.WeightDisplay.weight(32, com.iso2t.heavyinventories.config.ConfigOptions.WEIGHT_MEASURE))), "Tooltip omits nested stack weight");
 				HeavyInventories.LOGGER.info("CLIENT LIFECYCLE SMOKE PASSED: server authority, inventory sync, respawn, dimension travel, operator network edit, permission/invalid/stale rejection, persistence, transactional reload, live bonus rebase");
 				HeavyInventories.LOGGER.info("CLIENT WEIGHT CALCULATION PASSED: equipment, cursor/crafting transfers, nested contents, component/definition updates, synchronized container tooltip, recipe output counts");

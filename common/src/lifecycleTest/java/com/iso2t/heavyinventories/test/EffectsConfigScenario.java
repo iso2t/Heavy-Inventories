@@ -6,6 +6,8 @@ import com.iso2t.heavyinventories.network.ServerConfigUpdatePayload;
 import me.shedaniel.clothconfig2.gui.entries.FloatListEntry;
 import net.minecraft.network.chat.Component;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
  * Exercises the actual Cloth controls and their outgoing request in a disposable client.
  */
@@ -16,7 +18,7 @@ public final class EffectsConfigScenario {
 	}
 
 	public static ServerConfigUpdatePayload editThroughScreen () {
-		var sent = new java.util.concurrent.atomic.AtomicReference<ServerConfigUpdatePayload>();
+		var sent = new AtomicReference<ServerConfigUpdatePayload>();
 		var builder = ServerConfigScreen.create(sent::set);
 		net.minecraft.client.Minecraft.getInstance().gui.setScreen(builder.build());
 		var general = builder.getOrCreateCategory(Component.translatable("category.heavyinventories.general")).getEntries();

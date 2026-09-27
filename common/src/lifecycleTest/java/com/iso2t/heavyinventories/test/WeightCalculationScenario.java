@@ -1,6 +1,5 @@
 package com.iso2t.heavyinventories.test;
 
-import com.iso2t.heavyinventories.test.TestPlayerTick;
 import com.iso2t.heavyinventories.api.player.PlayerHolder;
 import com.iso2t.heavyinventories.api.resource.IResourceList;
 import com.iso2t.heavyinventories.api.weight.RecipeWeights;
@@ -8,11 +7,12 @@ import com.iso2t.heavyinventories.server.ServerWeightState;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.BundleContents;
 import net.minecraft.world.item.component.ItemContainerContents;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Real inventory/menu/component and loaded-recipe checks shared by both runtime environments.

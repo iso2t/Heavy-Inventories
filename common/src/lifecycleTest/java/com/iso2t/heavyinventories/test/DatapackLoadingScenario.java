@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -328,7 +329,7 @@ public final class DatapackLoadingScenario {
 		root = root.toAbsolutePath().normalize();
 		require(root.getParent().equals(dataDirectory) && root.getFileName().toString().startsWith("heavyinventories-test-"), "Unsafe fixture cleanup path");
 		try (var paths = Files.walk(root)) {
-			for (var path : paths.sorted(java.util.Comparator.reverseOrder()).toList()) Files.delete(path);
+			for (var path : paths.sorted(Comparator.reverseOrder()).toList()) Files.delete(path);
 		}
 	}
 

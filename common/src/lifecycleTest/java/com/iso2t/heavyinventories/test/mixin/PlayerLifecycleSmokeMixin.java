@@ -1,13 +1,17 @@
 package com.iso2t.heavyinventories.test.mixin;
 
 import com.iso2t.heavyinventories.HeavyInventories;
-import com.iso2t.heavyinventories.test.TestPlayerTick;
 import com.iso2t.heavyinventories.api.player.PlayerHolder;
 import com.iso2t.heavyinventories.api.player.PlayerWeightCache;
-import com.iso2t.heavyinventories.server.ServerWeightState;
 import com.iso2t.heavyinventories.config.ServerSettings;
-import net.minecraft.core.registries.BuiltInRegistries;
+import com.iso2t.heavyinventories.server.ServerWeightState;
+import com.iso2t.heavyinventories.test.DatapackLoadingScenario;
+import com.iso2t.heavyinventories.test.MovementScenario;
+import com.iso2t.heavyinventories.test.NetworkAuthorityScenario;
+import com.iso2t.heavyinventories.test.TestPlayerTick;
+import com.iso2t.heavyinventories.test.WeightCalculationScenario;
 import com.mojang.authlib.GameProfile;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,6 +24,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.HashMap;
 import java.util.UUID;
 import java.util.function.BooleanSupplier;
 
@@ -33,17 +38,17 @@ public abstract class PlayerLifecycleSmokeMixin {
 
 	@Inject(method = "stopServer", at = @At("HEAD"))
 	private void heavyinventories$restoreMultiplayerTest (CallbackInfo ci) {
-		if (Boolean.getBoolean("heavyinventories.test.multiplayer")) com.iso2t.heavyinventories.test.NetworkAuthorityScenario.cleanup((MinecraftServer) (Object) this);
+		if (Boolean.getBoolean("heavyinventories.test.multiplayer")) NetworkAuthorityScenario.cleanup((MinecraftServer) (Object) this);
 	}
 
 	@Inject(method = "tickServer", at = @At("TAIL"))
 	private void heavyinventories$testLifecycle (BooleanSupplier haveTime, CallbackInfo ci) {
 		if (Boolean.getBoolean("heavyinventories.test.datapacks")) {
-			com.iso2t.heavyinventories.test.DatapackLoadingScenario.tick((MinecraftServer) (Object) this);
+			DatapackLoadingScenario.tick((MinecraftServer) (Object) this);
 			return;
 		}
 		if (Boolean.getBoolean("heavyinventories.test.multiplayer")) {
-			com.iso2t.heavyinventories.test.NetworkAuthorityScenario.serverTick((MinecraftServer) (Object) this);
+			NetworkAuthorityScenario.serverTick((MinecraftServer) (Object) this);
 			return;
 		}
 		if (heavyinventories$tested) return;
@@ -57,7 +62,7 @@ public abstract class PlayerLifecycleSmokeMixin {
 		require(holder.getPlayer() == original, "Holder must reference its exact owning entity");
 
 		var state = ServerWeightState.of(server);
-		var values = new java.util.HashMap<>(state.weights());
+		var values = new HashMap<>(state.weights());
 		values.put(BuiltInRegistries.ITEM.getKey(Items.STONE), 2f);
 		values.put(BuiltInRegistries.ITEM.getKey(Items.IRON_CHESTPLATE), 0f);
 		values.put(BuiltInRegistries.ITEM.getKey(Items.IRON_LEGGINGS), 0f);
@@ -68,7 +73,7 @@ public abstract class PlayerLifecycleSmokeMixin {
 		original.getInventory().getItem(0).shrink(3);
 		TestPlayerTick.update(original);
 		require(holder.getWeight() == 10f, "In-place inventory mutation must refresh weight");
-		original.getInventory().setItem(38, com.iso2t.heavyinventories.test.MovementScenario.enchanted(original, Items.IRON_CHESTPLATE, com.iso2t.heavyinventories.api.enchantment.ModEnchantments.BRACING, 1));
+		original.getInventory().setItem(38, MovementScenario.enchanted(original, Items.IRON_CHESTPLATE, com.iso2t.heavyinventories.api.enchantment.ModEnchantments.BRACING, 1));
 		TestPlayerTick.update(original);
 
 		// Same UUID, new entity: death/respawn or reconnect must never recover the old holder.
@@ -99,7 +104,7 @@ public abstract class PlayerLifecycleSmokeMixin {
 
 		require(holder.getBaseMaxWeight() == 2000.5f, "Capacity change must preserve decimals on existing players");
 		require(Math.abs(holder.getBracingOffset() - 200.05f) < 0.01f, "Capacity change must rebase bonuses");
-		original.getInventory().setItem(37, com.iso2t.heavyinventories.test.MovementScenario.enchanted(original, Items.IRON_LEGGINGS, com.iso2t.heavyinventories.api.enchantment.ModEnchantments.REINFORCED, 1));
+		original.getInventory().setItem(37, MovementScenario.enchanted(original, Items.IRON_LEGGINGS, com.iso2t.heavyinventories.api.enchantment.ModEnchantments.REINFORCED, 1));
 		TestPlayerTick.update(original);
 		require(Math.abs(holder.getBracingOffset() - 200.05f) < 0.01f, "Reinforced must not modify Bracing");
 		original.getInventory().setItem(37, ItemStack.EMPTY);
@@ -114,9 +119,9 @@ public abstract class PlayerLifecycleSmokeMixin {
 		require(replacementHolder.getWeight() == 0f, "Invalidation must not affect another entity");
 
 
-		com.iso2t.heavyinventories.test.WeightCalculationScenario.run(original);
+		WeightCalculationScenario.run(original);
 		HeavyInventories.LOGGER.info("LIFECYCLE SMOKE PASSED: entity ownership, same-UUID replacement, inventory mutation, copied inventory, level change, deferred invalidation, equipment/cursor/crafting accounting, nested contents, loaded recipe inference");
-		com.iso2t.heavyinventories.test.MovementScenario.run(original);
+		MovementScenario.run(original);
 		HeavyInventories.LOGGER.info("SERVER MOVEMENT PASSED: both curves, equipped bonuses, replacement/removal, diagonal input, ground jumping");
 		server.halt(false);
 	}

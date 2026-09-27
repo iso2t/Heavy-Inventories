@@ -15,7 +15,7 @@ public final class ConfigScreens {
 	/**
 	 * @deprecated Use {@link #openClientConfig()}, {@link #openServerConfig()}, or {@link #openCommonConfig()} instead.
 	 */
-	@Deprecated
+	@Deprecated(forRemoval = true)
 	public static void register (ConfigScreenOpener opener) {
 		OPENER.set(opener);
 	}
@@ -23,7 +23,7 @@ public final class ConfigScreens {
 	/**
 	 * @deprecated Use {@link #openClientConfig()}, {@link #openServerConfig()}, or {@link #openCommonConfig()} instead.
 	 */
-	@Deprecated
+	@Deprecated(forRemoval = true)
 	public static boolean open () {
 		var o = OPENER.get();
 		if (o == ConfigScreenOpener.NO_OP) return false;

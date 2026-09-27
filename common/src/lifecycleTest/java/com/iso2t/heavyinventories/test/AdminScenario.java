@@ -11,8 +11,14 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Mutates only disposable test files; restores original bytes and permissions in finally.
@@ -27,16 +33,16 @@ public final class AdminScenario {
 		var profile = new NameAndId(player.getGameProfile());
 		boolean wasOp = server.getPlayerList().isOp(profile);
 		byte[] original = read(file), originalConfig = read(config);
-		java.util.Set<Path> oldExports;
+		Set<Path> oldExports;
 		var directory = game.resolve("weight-exports");
-		String packName = "admin-test-" + java.util.UUID.randomUUID();
+		String packName = "admin-test-" + UUID.randomUUID();
 		var converted = game.resolve("weight-packs").resolve(packName + ".zip");
 		try {
 			Files.createDirectories(directory);
 			try (var paths = Files.list(directory)) {
-				oldExports = paths.collect(java.util.stream.Collectors.toSet());
+				oldExports = paths.collect(Collectors.toSet());
 			}
-		} catch (java.io.IOException e) {
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 		try {
@@ -73,13 +79,13 @@ public final class AdminScenario {
 				require(entries.getAsJsonObject("minecraft:barrier").get("source").getAsString().equals("fallback"), "Export lacks fallback provenance");
 				require(report.get("revision").getAsLong() == state.revision(), "Export has wrong revision");
 			}
-			var selectedPacks = java.util.List.copyOf(server.getPackRepository().getSelectedIds());
+			var selectedPacks = List.copyOf(server.getPackRepository().getSelectedIds());
 			require(execute(player, "convert legacy " + packName) == 1, "Conversion command failed");
 			require(Files.exists(converted) && Files.readString(file).equals(valid), "Conversion did not preserve legacy file");
-			require(state.revision() == revision && selectedPacks.equals(java.util.List.copyOf(server.getPackRepository().getSelectedIds())), "Conversion applied or enabled weights");
+			require(state.revision() == revision && selectedPacks.equals(List.copyOf(server.getPackRepository().getSelectedIds())), "Conversion applied or enabled weights");
 			byte[] zipBytes = Files.readAllBytes(converted);
 			require(execute(player, "convert legacy " + packName) == 0, "Conversion overwrote an existing ZIP");
-			require(java.util.Arrays.equals(zipBytes, Files.readAllBytes(converted)), "Existing ZIP changed");
+			require(Arrays.equals(zipBytes, Files.readAllBytes(converted)), "Existing ZIP changed");
 			Files.writeString(file, "{");
 			require(execute(player, "convert legacy " + packName + "-invalid") == 0, "Malformed legacy input converted");
 			require(!Files.exists(game.resolve("weight-packs").resolve(packName + "-invalid.zip")), "Invalid conversion published a pack");
@@ -89,12 +95,12 @@ public final class AdminScenario {
 			server.getPlayerList().deop(profile);
 			require(execute(player, "reload") == 0 && execute(player, "dump minecraft") == 0 && execute(player, "convert legacy " + packName + "-denied") == 0, "Non-operator could write");
 			HeavyInventories.LOGGER.info("ADMIN TOOLS PASSED: ignored legacy files, failed configuration retention, invalid commands, active-table provenance export, conversion without application, collision rejection, reload, permission checks");
-		} catch (java.io.IOException e) {
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} finally {
 			try {
 				Files.deleteIfExists(converted);
-			} catch (java.io.IOException e) {
+			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
 			restore(file, original);
@@ -104,7 +110,7 @@ public final class AdminScenario {
 			try (var paths = Files.list(directory)) {
 				for (var path : paths.filter(path -> !oldExports.contains(path)).toList()) Files.delete(path);
 				state.reload(server);
-			} catch (java.io.IOException e) {
+			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -121,7 +127,7 @@ public final class AdminScenario {
 	private static byte[] read (Path path) {
 		try {
 			return Files.exists(path) ? Files.readAllBytes(path) : null;
-		} catch (java.io.IOException e) {
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -130,7 +136,7 @@ public final class AdminScenario {
 		try {
 			if (contents == null) Files.deleteIfExists(path);
 			else Files.write(path, contents);
-		} catch (java.io.IOException e) {
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}

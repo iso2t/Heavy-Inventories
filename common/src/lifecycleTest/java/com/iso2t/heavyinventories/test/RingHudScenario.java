@@ -16,6 +16,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -57,8 +59,8 @@ public final class RingHudScenario {
 					player.setExperienceLevels(originalLevel);
 					try {
 						ServerWeightState.of(client.getSingleplayerServer()).reload(client.getSingleplayerServer());
-					} catch (java.io.IOException e) {
-						throw new java.io.UncheckedIOException(e);
+					} catch (IOException e) {
+						throw new UncheckedIOException(e);
 					}
 					PlayerEvents.onPlayerTick(player);
 				});

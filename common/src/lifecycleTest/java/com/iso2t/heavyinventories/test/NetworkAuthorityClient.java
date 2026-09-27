@@ -5,21 +5,13 @@ import com.iso2t.heavyinventories.api.config.ConfigScreens;
 import com.iso2t.heavyinventories.api.player.PlayerHolder;
 import com.iso2t.heavyinventories.api.weight.WeightCache;
 import com.iso2t.heavyinventories.client.ClientWeightData;
-import com.iso2t.heavyinventories.config.ConfigFileManager;
-import com.iso2t.heavyinventories.config.ServerSettings;
 import com.iso2t.heavyinventories.network.ServerConfigUpdatePayload;
 import com.iso2t.heavyinventories.platform.Services;
-import com.iso2t.heavyinventories.server.ServerWeightState;
+import com.iso2t.heavyinventories.test.mixin.GuiFeedbackTestAccess;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.players.NameAndId;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 public final class NetworkAuthorityClient {
 	private static int clientStage, ticks, reconnectTicks;
@@ -90,7 +82,7 @@ public final class NetworkAuthorityClient {
 			require(holder.getStrengthOffset() == 200 && holder.isOverEncumbered(), "Remote Strength/encumbrance mismatch");
 			MovementScenario.checkImpulse(client.player, 0.2);
 			FluidMovementScenario.checkClient(client.player);
-			var fluidNotice = (com.iso2t.heavyinventories.test.mixin.GuiFeedbackTestAccess) client.gui.hud;
+			var fluidNotice = (GuiFeedbackTestAccess) client.gui.hud;
 			require(fluidNotice.heavyinventories$message() != null && fluidNotice.heavyinventories$message().getString().contains("swim upward"), "Missing fluid denial feedback");
 			fluidNotice.heavyinventories$messageTime(20);
 			FluidMovementScenario.checkClient(client.player);

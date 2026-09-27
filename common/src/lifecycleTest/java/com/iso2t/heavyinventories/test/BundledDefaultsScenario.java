@@ -6,6 +6,7 @@ import com.iso2t.heavyinventories.server.weight.WeightReport;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -16,7 +17,7 @@ public final class BundledDefaultsScenario {
 	private BundledDefaultsScenario () {
 	}
 
-	public static void verify (MinecraftServer server) throws java.io.IOException {
+	public static void verify (MinecraftServer server) throws IOException {
 		var state = ServerWeightState.of(server);
 		Files.writeString(Path.of("bundled-defaults-report.json"), WeightReport.create("minecraft", state.revision(), state.weights(), state.provenance()).toString());
 		String[] items = { "stone", "oak_log", "iron_ingot", "gold_ingot", "oak_planks", "stick", "arrow", "iron_pickaxe", "iron_chestplate", "shield", "bow", "torch", "furnace", "crafting_table", "bucket", "bundle", "iron_block", "mace", "diamond_pickaxe", "netherite_pickaxe", "bone_block", "dried_kelp_block", "honey_block", "red_bundle", "red_shulker_box", "copper_lantern", "oxidized_copper_lantern" };

@@ -9,6 +9,7 @@ import com.iso2t.heavyinventories.test.mixin.GuiFeedbackTestAccess;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -61,7 +62,7 @@ public final class FeedbackScenario {
 			if (client.gui.hud.isHidden() != false) client.gui.hud.toggle();
 			client.gui.setScreen(null);
 			hudFrames = 0;
-		} catch (java.io.IOException e) {
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -109,7 +110,7 @@ public final class FeedbackScenario {
 		try {
 			if (originalFile == null) Files.deleteIfExists(file);
 			else Files.write(file, originalFile);
-		} catch (java.io.IOException e) {
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 		original.apply();

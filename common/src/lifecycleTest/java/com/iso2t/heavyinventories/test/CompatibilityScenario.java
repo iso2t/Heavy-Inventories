@@ -5,17 +5,19 @@ import com.iso2t.heavyinventories.api.events.PlayerEvents;
 import com.iso2t.heavyinventories.api.player.PlayerHolder;
 import com.iso2t.heavyinventories.test.mixin.FluidTestAccess;
 import com.iso2t.heavyinventories.test.mixin.FluidTravelTestAccess;
+import com.iso2t.heavyinventories.test.mixin.FoodDataTestAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.LinkedHashMap;
 
 /**
  * Runs after MovementScenario's deterministic capacity and item definitions are installed.
@@ -41,7 +43,7 @@ public final class CompatibilityScenario {
 			require(player.startRiding(boat, true, false), "Test player did not mount");
 			MovementScenario.checkImpulse(player, 1);
 			require(!holder.preventsGroundJump(), "Mounted player got ground-jump penalty");
-			var food = (com.iso2t.heavyinventories.test.mixin.FoodDataTestAccess) player.getFoodData();
+			var food = (FoodDataTestAccess) player.getFoodData();
 			float beforeRiding = food.heavyinventories$getExhaustion();
 			player.checkMovementStatistics(0, 0, 10);
 			require(food.heavyinventories$getExhaustion() == beforeRiding, "Riding consumed movement exhaustion");
@@ -81,7 +83,7 @@ public final class CompatibilityScenario {
 		var originalPosition = player.position();
 		// Test at build height inside the already loaded player chunk. Restore every touched block.
 		var center = new BlockPos((player.getBlockX() >> 4) * 16 + 8, level.getMaxY() - 12, (player.getBlockZ() >> 4) * 16 + 8);
-		var original = new java.util.LinkedHashMap<BlockPos, net.minecraft.world.level.block.state.BlockState>();
+		var original = new LinkedHashMap<BlockPos, net.minecraft.world.level.block.state.BlockState>();
 		var access = (FluidTestAccess) player;
 		var travel = (FluidTravelTestAccess) player;
 		try {
