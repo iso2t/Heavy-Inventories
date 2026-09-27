@@ -83,7 +83,7 @@ public final class ExhaustionScenario {
 			movement(player, 0, 0, 1, 0, "external push with matching input");
 			player.tickCount += 21;
 			movement(player, 0, 0, 1, .01 * burden, "normal movement after push grace");
-			player.knockback(.5, 0, 1);
+			player.knockback(.5, 0, 1, player.damageSources().generic(), 0);
 			movement(player, 0, 0, 1, 0, "knockback with input");
 			player.tickCount += 21;
 			player.move(MoverType.PISTON, new Vec3(.1, 0, 0));

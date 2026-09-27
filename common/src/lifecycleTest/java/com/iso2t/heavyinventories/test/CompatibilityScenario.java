@@ -34,7 +34,7 @@ public final class CompatibilityScenario {
 		PlayerEvents.onPlayerTick(player);
 		require(!player.hasEffect(MobEffects.STRENGTH) && holder.getMaxWeight() == 1000, "Strength expiry retained capacity");
 
-		var boat = EntityType.OAK_BOAT.create(player.level(), EntitySpawnReason.COMMAND);
+		var boat = net.minecraft.world.entity.EntityTypes.OAK_BOAT.create(player.level(), EntitySpawnReason.COMMAND);
 		require(boat != null, "Boat creation failed");
 		boat.setPos(player.position());
 		try {

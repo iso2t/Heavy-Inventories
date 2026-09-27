@@ -43,15 +43,15 @@ public final class FabricClientHooks {
 		switch (type) {
 			case "client" -> {
 				ModClientConfig.init();
-				Minecraft.getInstance().setScreen(ModClientConfig.getBuilder().build());
+				Minecraft.getInstance().gui.setScreen(ModClientConfig.getBuilder().build());
 			}
 			case "server" -> {
 				ModServerConfig.init();
-				Minecraft.getInstance().setScreen(ModServerConfig.getBuilder().build());
+				Minecraft.getInstance().gui.setScreen(ModServerConfig.getBuilder().build());
 			}
 			case "common" -> {
 				ModCommonConfig.init();
-				Minecraft.getInstance().setScreen(ModCommonConfig.getBuilder().build());
+				Minecraft.getInstance().gui.setScreen(ModCommonConfig.getBuilder().build());
 			}
 		}
 	}

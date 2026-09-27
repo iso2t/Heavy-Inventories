@@ -26,6 +26,9 @@ public final class BundledDefaultsScenario {
 			if (Math.abs(actual - expected[i]) > .00001f) throw new AssertionError("Bundled " + items[i] + ": expected " + expected[i] + ", got " + actual);
 		}
 		var creativeFallbacks = java.util.Set.of("barrier", "bedrock", "chain_command_block", "command_block", "command_block_minecart", "debug_stick", "end_portal_frame", "jigsaw", "knowledge_book", "light", "repeating_command_block", "spawner", "structure_block", "structure_void", "test_block", "test_instance_block", "trial_spawner", "vault");
+		java.util.Map.of("cinnabar", 4f, "sulfur", 4f, "potent_sulfur", 4f, "sulfur_spike", 1f, "sulfur_cube_bucket", 10f, "music_disc_bounce", .1f, "cinnabar_slab", 2f, "sulfur_brick_stairs", 4f).forEach((item, weight) -> {
+			if (Math.abs(state.unitWeight(Identifier.withDefaultNamespace(item)) - weight) > .00001f) throw new AssertionError("Incorrect 26.2 material/recipe weight: " + item);
+		});
 		state.provenance().forEach((id, source) -> {
 			if (id.getNamespace().equals("minecraft") && source.source() == com.iso2t.heavyinventories.server.weight.WeightProvenance.Source.FALLBACK && !id.getPath().endsWith("_spawn_egg") && !creativeFallbacks.contains(id.getPath()))
 				throw new AssertionError("Unexpected survival-item fallback: " + id);

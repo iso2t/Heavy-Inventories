@@ -59,14 +59,14 @@ public final class NetworkAuthorityClient {
 			require(ClientWeightData.weight(BuiltInRegistries.ITEM.getKey(Items.STONE)) == 2f, "Remote item definitions missing");
 			WeightCache.put(Items.STONE, 9999f);
 			ConfigScreens.openServerConfig();
-			require(client.screen != null, "Read-only server config screen did not build");
-			client.setScreen(null);
+			require(client.gui.screen() != null, "Read-only server config screen did not build");
+			client.gui.setScreen(null);
 			send(client, 20.25f, holder.serverRevision());
 			clientStage = 1;
 		} else if (clientStage == 1 && holder.canEditServerConfig()) {
 			ConfigScreens.openServerConfig();
-			require(client.screen != null, "Operator server config screen did not build");
-			client.setScreen(null);
+			require(client.gui.screen() != null, "Operator server config screen did not build");
+			client.gui.setScreen(null);
 			send(client, Float.NaN, holder.serverRevision());
 			send(client, 20.25f, holder.serverRevision() - 1);
 			client.getConnection().send(new ServerboundCustomPayloadPacket(new ServerConfigUpdatePayload(20.25f, "invalid", holder.serverRevision())));
@@ -90,7 +90,7 @@ public final class NetworkAuthorityClient {
 			require(holder.getStrengthOffset() == 200 && holder.isOverEncumbered(), "Remote Strength/encumbrance mismatch");
 			MovementScenario.checkImpulse(client.player, 0.2);
 			FluidMovementScenario.checkClient(client.player);
-			var fluidNotice = (com.iso2t.heavyinventories.test.mixin.GuiFeedbackTestAccess) client.gui;
+			var fluidNotice = (com.iso2t.heavyinventories.test.mixin.GuiFeedbackTestAccess) client.gui.hud;
 			require(fluidNotice.heavyinventories$message() != null && fluidNotice.heavyinventories$message().getString().contains("swim upward"), "Missing fluid denial feedback");
 			fluidNotice.heavyinventories$messageTime(20);
 			FluidMovementScenario.checkClient(client.player);
@@ -118,8 +118,8 @@ public final class NetworkAuthorityClient {
 
 	private static boolean verifyRing (Minecraft client, String name) {
 		if (ringWait == 0) {
-			client.setScreen(null);
-			client.gui.getChat().clearMessages(true);
+			client.gui.setScreen(null);
+			client.gui.hud.getChat().clearMessages(true);
 			ringStart = RingHudScenario.ringFrames;
 			xpStart = RingHudScenario.xpFrames;
 			captured = false;
@@ -127,7 +127,7 @@ public final class NetworkAuthorityClient {
 		if (++ringWait < 12) return false;
 		require(com.iso2t.heavyinventories.gui.WeightRingRenderer.verticalOffset(client) == 7, "Remote ring hidden or offset lost");
 		require(RingHudScenario.ringFrames > ringStart && RingHudScenario.xpFrames > xpStart, "Remote ring/XP not rendered");
-		if (ringWait == 12) net.minecraft.client.Screenshot.grab(Services.PLATFORM.getGameDirectory().toFile(), "ring-" + name + ".png", client.getMainRenderTarget(), 1, message -> captured = true);
+		if (ringWait == 12) net.minecraft.client.Screenshot.grab(Services.PLATFORM.getGameDirectory().toFile(), "ring-" + name + ".png", client.gameRenderer.mainRenderTarget(), 1, message -> captured = true);
 		if (!captured) return false;
 		ringWait = 0;
 		return true;

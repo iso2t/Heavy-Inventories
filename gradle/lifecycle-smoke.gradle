@@ -10,6 +10,7 @@
 // These tests replace the test player's inventory and temporarily edit/restore server config and op status.
 // Dedicated datapack-only checks: use -PdatapackSmoke -PpackagedSmoke (creates/restores fixture packs).
 // Add -PnewWorldHandoff to client datapack checks to exercise vanilla's new-world resource-manager replacement.
+// Add -PallowTestWorldUpgrade to back up and upgrade disposable saves from an older Minecraft release.
 gradle.projectsEvaluated {
     if (gradle.rootProject.findProject(':fabric') == null) return
     [gradle.rootProject.project(':fabric'), gradle.rootProject.project(':neoforge')].each { modProject ->
@@ -29,6 +30,9 @@ gradle.projectsEvaluated {
                 }
                 if (modProject.hasProperty('newWorldHandoff')) {
                     systemProperty 'heavyinventories.test.newWorldHandoff', 'true'
+                }
+                if (modProject.hasProperty('allowTestWorldUpgrade')) {
+                    systemProperty 'heavyinventories.test.allowWorldUpgrade', 'true'
                 }
                 if (modProject.hasProperty('authorityMultiplayer')) {
                     systemProperty 'heavyinventories.test.multiplayer', 'true'

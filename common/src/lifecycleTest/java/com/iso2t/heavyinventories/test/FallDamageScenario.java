@@ -73,11 +73,15 @@ public final class FallDamageScenario {
 			load(player, 50);
 			landing(player, Blocks.HAY_BLOCK, 13, 4, "hay reduction");
 			landing(player, Blocks.HONEY_BLOCK, 13, 4, "honey reduction");
-			landing(player, Blocks.RED_BED, 10, 4, "bed reduction");
+			landing(player, BuiltInRegistries.BLOCK.getValue(net.minecraft.resources.Identifier.withDefaultNamespace("red_bed")), 10, 4, "bed reduction");
 			landing(player, Blocks.HAY_BLOCK, 7, 0, "harmless cushioned fall stays harmless");
 			landing(player, Blocks.SLIME_BLOCK, 30, 0, "slime immunity");
 			player.setDeltaMovement(0, -1, 0);
-			Blocks.SLIME_BLOCK.updateEntityMovementAfterFallOn(level, player);
+			player.verticalCollision = true;
+			player.verticalCollisionBelow = true;
+			((FluidTestAccess) player).heavyinventories$restituteMovement(Blocks.SLIME_BLOCK.defaultBlockState(), false, false, Vec3.ZERO);
+			player.verticalCollision = false;
+			player.verticalCollisionBelow = false;
 			close(1, player.getDeltaMovement().y, "slime bounce");
 			player.getInventory().setItem(36, MovementScenario.enchanted(player, Items.IRON_BOOTS, Enchantments.FEATHER_FALLING, 4));
 			landing(player, Blocks.STONE, 8, 5.2, "Feather Falling IV");

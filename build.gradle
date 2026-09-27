@@ -1,6 +1,6 @@
 plugins {
     // see https://fabricmc.net/develop/ for new versions
-    id 'net.fabricmc.fabric-loom' version '1.15.5' apply false
+    id 'net.fabricmc.fabric-loom' version '1.16.3' apply false
     // see https://projects.neoforged.net/neoforged/moddevgradle for new versions
     id 'net.neoforged.moddev' version '2.0.141' apply false
     id 'me.modmuss50.mod-publish-plugin' version '2.2.0'
@@ -43,7 +43,7 @@ publishMods {
             from mrOptions
             file project(":${loader}")
             modLoaders.add(loader)
-            version = "${releaseVersion}+${loader}"
+            version = releaseVersion
             displayName = "Heavy Inventories ${releaseVersion} (${label})"
             requires { id = '9s6osm5g' } // Cloth Config; only clients need it on NeoForge.
             if (loader == 'fabric') requires { id = 'P7dR8mSH' }
@@ -53,7 +53,7 @@ publishMods {
     github {
         accessToken = providers.environmentVariable('GITHUB_TOKEN')
         repository = providers.environmentVariable('GITHUB_REPOSITORY').orElse('iso2t/Heavy-Inventories')
-        commitish = providers.environmentVariable('GITHUB_SHA').orElse('26.1.2')
+        commitish = providers.environmentVariable('GITHUB_SHA').orElse('26.2')
         tagName = "v${releaseVersion}"
         file project(':fabric')
         additionalFile project(':neoforge')

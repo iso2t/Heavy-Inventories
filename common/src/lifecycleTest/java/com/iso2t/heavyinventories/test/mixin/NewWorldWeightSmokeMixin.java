@@ -12,7 +12,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Optional;
 
-/** Exercises the actual new-world resource handoff using the disposable client's existing save. */
+/**
+ * Exercises the actual new-world resource handoff using the disposable client's existing save.
+ */
 @Mixin(WorldOpenFlows.class)
 public abstract class NewWorldWeightSmokeMixin {
 
@@ -20,8 +22,7 @@ public abstract class NewWorldWeightSmokeMixin {
 	private void heavyinventories$newWorldHandoff (LevelStorageSource.LevelStorageAccess access, WorldStem stem, PackRepository packs, CallbackInfo ci) {
 		if (!Boolean.getBoolean("heavyinventories.test.newWorldHandoff")) return;
 		stem.close();
-		((WorldOpenFlows) (Object) this).createLevelFromExistingSettings(
-				access, stem.dataPackResources(), stem.registries(), stem.worldDataAndGenSettings(), Optional.empty());
+		((WorldOpenFlows) (Object) this).createLevelFromExistingSettings(access, stem.dataPackResources(), stem.registries(), stem.worldDataAndGenSettings(), Optional.empty());
 		HeavyInventories.LOGGER.info("NEW WORLD HANDOFF EXERCISED: vanilla replaced the resource manager while retaining loaded server data");
 		ci.cancel();
 	}

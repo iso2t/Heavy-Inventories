@@ -21,7 +21,7 @@ public final class FeedbackScenario {
 	private static int            originalScale, visibilityPhase, phaseTicks, previousFrames;
 
 	public static void checkJump (Minecraft client) {
-		var gui = (GuiFeedbackTestAccess) client.gui;
+		var gui = (GuiFeedbackTestAccess) client.gui.hud;
 		require(gui.heavyinventories$message() != null && gui.heavyinventories$message().getString().contains("cannot jump"), "No local jump feedback");
 		gui.heavyinventories$messageTime(20);
 		client.player.jumpFromGround();
@@ -30,7 +30,7 @@ public final class FeedbackScenario {
 
 	public static void prepare (Minecraft client) {
 		original = ClientSettings.current();
-		originalHideGui = client.options.hideGui;
+		originalHideGui = client.gui.hud.isHidden();
 		originalScale = client.options.guiScale().get();
 		file = Services.PLATFORM.getGameDirectory().resolve("config/heavyinventories-client.json");
 		try {
@@ -58,8 +58,8 @@ public final class FeedbackScenario {
 			require(((me.shedaniel.clothconfig2.gui.entries.ColorEntry) fresh.get(3)).getValue() == colors[1], "Reopened screen retained stale state");
 			require(((me.shedaniel.clothconfig2.gui.entries.IntegerListEntry) fresh.get(6)).getValue() == 12, "Reopened offset is stale");
 			ConfigFileManager.saveClientConfig(new ClientSettings(MeasuringSystem.KGS, true, 0xFFFFFF, 0xFFFF55, 0xFF5555));
-			client.options.hideGui = false;
-			client.setScreen(null);
+			if (client.gui.hud.isHidden() != false) client.gui.hud.toggle();
+			client.gui.setScreen(null);
 			hudFrames = 0;
 		} catch (java.io.IOException e) {
 			throw new RuntimeException(e);
@@ -72,21 +72,21 @@ public final class FeedbackScenario {
 		switch (visibilityPhase) {
 			case 0 -> {
 				previousFrames = hudFrames;
-				client.options.hideGui = true;
+				if (client.gui.hud.isHidden() != true) client.gui.hud.toggle();
 			}
 			case 1 -> {
 				require(hudFrames == previousFrames, "F1 did not hide the weight HUD");
-				client.options.hideGui = false;
+				if (client.gui.hud.isHidden() != false) client.gui.hud.toggle();
 				com.iso2t.heavyinventories.config.ConfigOptions.ENABLE_GUI_OVERLAY = false;
 			}
 			case 2 -> {
 				require(hudFrames == previousFrames, "Overlay toggle did not hide the weight HUD");
 				com.iso2t.heavyinventories.config.ConfigOptions.ENABLE_GUI_OVERLAY = true;
-				client.setScreen(ClientConfigScreen.create().build());
+				client.gui.setScreen(ClientConfigScreen.create().build());
 			}
 			case 3 -> {
 				require(hudFrames == previousFrames, "HUD rendered over a config screen");
-				client.setScreen(null);
+				client.gui.setScreen(null);
 				client.options.guiScale().set(1);
 			}
 			case 4 -> {
@@ -114,7 +114,7 @@ public final class FeedbackScenario {
 		}
 		original.apply();
 		var client = Minecraft.getInstance();
-		client.options.hideGui = originalHideGui;
+		if (client.gui.hud.isHidden() != originalHideGui) client.gui.hud.toggle();
 		client.options.guiScale().set(originalScale);
 	}
 

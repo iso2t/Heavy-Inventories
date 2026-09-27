@@ -32,7 +32,7 @@ import java.util.concurrent.CompletableFuture;
  */
 public final class RingCompatibilityScenario {
 	private static final String[] NAMES    = { "locator", "mounted-jump", "experience-return", "day-small-crowded", "night-large-crowded" };
-	private static final String[] BARS     = { "LocatorBarRenderer", "JumpableVehicleBarRenderer", "ExperienceBarRenderer", "ExperienceBarRenderer", "ExperienceBarRenderer" };
+	private static final String[] BARS     = { "LocatorBar", "JumpableVehicleBar", "ExperienceBar", "ExperienceBar", "ExperienceBar" };
 	private static final UUID     WAYPOINT = UUID.fromString("5157cc0f-1f54-479a-970c-5d831ee234ec");
 	private static       int      index, phase, waiting, ringStart, xpStart, width, height, level;
 	private static          float                   health;
@@ -78,8 +78,8 @@ public final class RingCompatibilityScenario {
 			ConfigOptions.HUD_MODE = HudMode.RING;
 			ConfigOptions.RING_VERTICAL_OFFSET = 7;
 			ConfigOptions.ENABLE_GUI_OVERLAY = true;
-			client.setScreen(null);
-			client.gui.getChat().clearMessages(true);
+			client.gui.setScreen(null);
+			client.gui.hud.getChat().clearMessages(true);
 			operation = server.submit(() -> {
 				if (index == 0) {
 					level = player.experienceLevel;
@@ -94,7 +94,7 @@ public final class RingCompatibilityScenario {
 					player.connection.send(ClientboundTrackedWaypointPacket.addWaypointAzimuth(WAYPOINT, new Waypoint.Icon(), 0));
 				} else if (index == 1) {
 					player.connection.send(ClientboundTrackedWaypointPacket.removeWaypoint(WAYPOINT));
-					horse = EntityType.HORSE.create(player.level(), EntitySpawnReason.COMMAND);
+					horse = net.minecraft.world.entity.EntityTypes.HORSE.create(player.level(), EntitySpawnReason.COMMAND);
 					if (horse == null) throw new AssertionError("Horse fixture could not spawn");
 					horse.setPos(player.position());
 					horse.setNoAi(true);
@@ -124,7 +124,7 @@ public final class RingCompatibilityScenario {
 		} else if (phase == 1) {
 			if (!operation.isDone()) return false;
 			operation.join();
-			var bar = ((GuiFeedbackTestAccess) client.gui).heavyinventories$contextualBar().getRight();
+			var bar = ((GuiFeedbackTestAccess) client.gui.hud).heavyinventories$contextualBar().getSecond();
 			if (++waiting > 240)
 				throw new AssertionError("Contextual bar/fixture did not settle: " + NAMES[index] + ", bar=" + bar.getClass().getSimpleName() + ", weight=" + PlayerHolder.getOrCreate(client.player).getWeight() + ", XP=" + client.player.experienceLevel + ", health=" + client.player.getMaxHealth() + ", armor=" + client.player.getArmorValue());
 			if (!bar.getClass().getSimpleName().equals(BARS[index])) return false;
@@ -141,7 +141,7 @@ public final class RingCompatibilityScenario {
 			if (RingHudScenario.ringFrames <= ringStart || RingHudScenario.xpFrames <= xpStart) throw new AssertionError("Ring or vanilla XP missing over " + NAMES[index]);
 			if (index >= 3 && (client.getWindow().getScreenWidth() != (index == 3 ? 800 : 1600) || client.getWindow().getScreenHeight() != (index == 3 ? 600 : 900))) throw new AssertionError("Window fixture did not resize");
 			captured = false;
-			Screenshot.grab(Services.PLATFORM.getGameDirectory().toFile(), "ring-" + NAMES[index] + ".png", client.getMainRenderTarget(), 1, message -> captured = true);
+			Screenshot.grab(Services.PLATFORM.getGameDirectory().toFile(), "ring-" + NAMES[index] + ".png", client.gameRenderer.mainRenderTarget(), 1, message -> captured = true);
 			phase = 3;
 		} else if (phase == 3 && captured) {
 			index++;

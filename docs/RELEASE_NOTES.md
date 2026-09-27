@@ -1,6 +1,7 @@
 # Release notes
 
-Each version has one canonical Markdown changelog, intended for publication on CurseForge, Modrinth, and GitHub Releases. The presence of a changelog file does not mean that version has been published.
+Each version has one canonical Markdown changelog, intended for publication on CurseForge, Modrinth, and GitHub
+Releases. The presence of a changelog file does not mean that version has been published.
 
 - [4.0.0](../changelogs/4.0.0.md) — prepared stable release for Minecraft 26.1.2; not yet published.
 - [4.0.0-rc.2](../changelogs/4.0.0-rc.2.md) — published beta candidate for Minecraft 26.1.

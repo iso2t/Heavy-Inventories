@@ -15,7 +15,7 @@ public final class GraphicsRenderer {
 	}
 
 	public static boolean visible (Minecraft client) {
-		return ConfigOptions.ENABLE_GUI_OVERLAY && client.player != null && !client.player.isCreative() && !client.player.isSpectator() && !client.options.hideGui && client.screen == null && PlayerHolder.getOrCreate(client.player).hasServerState();
+		return ConfigOptions.ENABLE_GUI_OVERLAY && client.player != null && !client.player.isCreative() && !client.player.isSpectator() && !client.gui.hud.isHidden() && client.gui.screen() == null && PlayerHolder.getOrCreate(client.player).hasServerState();
 	}
 
 	public static void renderGui (GuiGraphicsExtractor graphics, MeasuringSystem measurement, Minecraft client) {

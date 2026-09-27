@@ -21,16 +21,13 @@ import java.util.concurrent.Executor;
 @Mixin(ReloadableServerResources.class)
 public abstract class LoadedWeightPackMixin {
 
-	/** New-world creation replaces the resource manager but keeps these loaded recipes and datapack results. */
+	/**
+	 * New-world creation replaces the resource manager but keeps these loaded recipes and datapack results.
+	 */
 	@Inject(method = "loadResources", at = @At("RETURN"), cancellable = true)
-	private static void heavyinventories$retainLoadedWeights (
-			ResourceManager manager, LayeredRegistryAccess<RegistryLayer> layers, List<Registry.PendingTags<?>> tags,
-			FeatureFlagSet features, Commands.CommandSelection commands, PermissionSet permissions,
-			Executor backgroundExecutor, Executor mainThreadExecutor,
-			CallbackInfoReturnable<CompletableFuture<ReloadableServerResources>> cir) {
+	private static void heavyinventories$retainLoadedWeights (ResourceManager manager, LayeredRegistryAccess<RegistryLayer> layers, List<Registry.PendingTags<?>> tags, FeatureFlagSet features, Commands.CommandSelection commands, PermissionSet permissions, Executor backgroundExecutor, Executor mainThreadExecutor, CallbackInfoReturnable<CompletableFuture<ReloadableServerResources>> cir) {
 		cir.setReturnValue(cir.getReturnValue().thenApply(resources -> {
-			((WeightPackAccess) manager).heavyinventories$getWeightPackData()
-					.ifPresent(candidate -> ((WeightPackAccess) resources.getRecipeManager()).heavyinventories$setWeightPackData(candidate));
+			((WeightPackAccess) manager).heavyinventories$getWeightPackData().ifPresent(candidate -> ((WeightPackAccess) resources.getRecipeManager()).heavyinventories$setWeightPackData(candidate));
 			return resources;
 		}));
 	}

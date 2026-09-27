@@ -20,6 +20,6 @@ public final class ModClientConfig implements ConfigScreenOpener {
 	@Override
 	public void openConfigScreen () {
 		init();
-		Minecraft.getInstance().setScreen(builder.build());
+		Minecraft.getInstance().gui.setScreen(builder.build());
 	}
 }

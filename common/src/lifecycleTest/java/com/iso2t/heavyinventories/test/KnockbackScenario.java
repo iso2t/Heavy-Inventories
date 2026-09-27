@@ -72,7 +72,7 @@ public final class KnockbackScenario {
 				close(bonus, attribute.getValue(), "resistance curve");
 				player.setOnGround(false);
 				player.setDeltaMovement(Vec3.ZERO);
-				player.knockback(1, 1, 0);
+				player.knockback(1, 1, 0, player.damageSources().generic(), 0);
 				close(1 - bonus, player.getDeltaMovement().horizontalDistance(), "ordinary knockback");
 				player.setDeltaMovement(Vec3.ZERO);
 				((ArrowKnockbackTestAccess) arrow).heavyinventories$knockback(player, player.damageSources().arrow(arrow, null));

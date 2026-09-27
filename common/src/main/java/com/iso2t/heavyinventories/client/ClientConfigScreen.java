@@ -4,9 +4,13 @@ import com.iso2t.heavyinventories.HeavyInventories;
 import com.iso2t.heavyinventories.api.util.MeasuringSystem;
 import com.iso2t.heavyinventories.config.ClientSettings;
 import com.iso2t.heavyinventories.config.ConfigFileManager;
+import com.iso2t.heavyinventories.config.HudMode;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+
+import java.io.IOException;
+import java.util.Locale;
 
 /**
  * Fresh entries on every open; both loaders share the exact same value bindings.
@@ -20,7 +24,7 @@ public final class ClientConfigScreen {
 		var defaults = ClientSettings.DEFAULT;
 		var measure = new MeasuringSystem[] { current.measure() };
 		var overlay = new boolean[] { current.overlay() };
-		var mode = new com.iso2t.heavyinventories.config.HudMode[] { current.hudMode() };
+		var mode = new HudMode[] { current.hudMode() };
 		var offset = new int[] { current.ringVerticalOffset() };
 		var colors = new int[] { current.normal(), current.encumbered(), current.overloaded() };
 		var builder = ConfigBuilder.create().setParentScreen(null).setTitle(Component.translatable("title.heavyinventories.config.client"));
@@ -34,16 +38,16 @@ public final class ClientConfigScreen {
 			int index = i;
 			category.addEntry(entries.startColorField(Component.translatable("option.heavyinventories." + names[i]), colors[i]).setDefaultValue(defaultColors[i]).setSaveConsumer(value -> colors[index] = value).build());
 		}
-		category.addEntry(entries.startEnumSelector(Component.translatable("option.heavyinventories.hud_mode"), com.iso2t.heavyinventories.config.HudMode.class, mode[0]).setEnumNameProvider(value -> Component.translatable("option.heavyinventories.hud_mode." + value.name().toLowerCase(java.util.Locale.ROOT))).setDefaultValue(defaults.hudMode()).setSaveConsumer(value -> mode[0] = value).build());
+		category.addEntry(entries.startEnumSelector(Component.translatable("option.heavyinventories.hud_mode"), HudMode.class, mode[0]).setEnumNameProvider(value -> Component.translatable("option.heavyinventories.hud_mode." + value.name().toLowerCase(Locale.ROOT))).setDefaultValue(defaults.hudMode()).setSaveConsumer(value -> mode[0] = value).build());
 		category.addEntry(entries.startIntField(Component.translatable("option.heavyinventories.ring_vertical_offset"), offset[0]).setMin(0).setMax(64).setDefaultValue(defaults.ringVerticalOffset()).setTooltip(Component.translatable("option.heavyinventories.ring_vertical_offset.tooltip")).setSaveConsumer(value -> offset[0] = value).build());
 		builder.setSavingRunnable(() -> {
 			var settings = new ClientSettings(measure[0], overlay[0], colors[0], colors[1], colors[2], mode[0], offset[0]);
 			if (settings.equals(current)) return;
 			try {
 				ConfigFileManager.saveClientConfig(settings);
-			} catch (java.io.IOException | IllegalArgumentException e) {
+			} catch (IOException | IllegalArgumentException e) {
 				HeavyInventories.LOGGER.error("Client preferences were not saved", e);
-				Minecraft.getInstance().gui.setOverlayMessage(Component.translatable("config.heavyinventories.client_failed", e.getMessage()), false);
+				Minecraft.getInstance().gui.hud.setOverlayMessage(Component.translatable("config.heavyinventories.client_failed", e.getMessage()), false);
 			}
 		});
 		return builder;

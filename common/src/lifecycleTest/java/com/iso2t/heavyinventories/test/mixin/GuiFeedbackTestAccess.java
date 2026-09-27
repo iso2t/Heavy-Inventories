@@ -1,14 +1,14 @@
 package com.iso2t.heavyinventories.test.mixin;
 
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.Hud;
 import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(Gui.class)
+@Mixin(Hud.class)
 public interface GuiFeedbackTestAccess {
 	@Accessor("contextualInfoBar")
-	org.apache.commons.lang3.tuple.Pair<?, ?> heavyinventories$contextualBar ();
+	com.mojang.datafixers.util.Pair<?, ?> heavyinventories$contextualBar ();
 
 	@Accessor("overlayMessageString")
 	Component heavyinventories$message ();

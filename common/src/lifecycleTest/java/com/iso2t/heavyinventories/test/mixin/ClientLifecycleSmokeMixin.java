@@ -11,10 +11,38 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Minecraft.class)
 public abstract class ClientLifecycleSmokeMixin {
 	@Unique
-	private final ClientLifecycleScenario heavyinventories$scenario = new ClientLifecycleScenario();
+	private final ClientLifecycleScenario                 heavyinventories$scenario = new ClientLifecycleScenario();
+	@Unique
+	private       int                                     heavyinventories$startupTicks;
+	@Unique
+	private       boolean                                 heavyinventories$joined;
+	@Unique
+	private       net.minecraft.client.gui.screens.Screen heavyinventories$handledUpgrade;
 
 	@Inject(method = "tick", at = @At("TAIL"))
 	private void heavyinventories$testClient (CallbackInfo ci) {
-		heavyinventories$scenario.tick((Minecraft) (Object) this);
+		var client = (Minecraft) (Object) this;
+		if (client.player != null) heavyinventories$joined = true;
+		if (!heavyinventories$joined) {
+			var upgrade = client.gui.screen();
+			if (Boolean.getBoolean("heavyinventories.test.allowWorldUpgrade") && upgrade != heavyinventories$handledUpgrade && upgrade != null) {
+				var confirm = upgrade instanceof net.minecraft.client.gui.screens.BackupConfirmScreen ? net.minecraft.client.gui.screens.BackupConfirmScreen.BACKUP_AND_JOIN : upgrade instanceof net.minecraft.client.gui.screens.ConfirmScreen && upgrade.getTitle().equals(net.minecraft.network.chat.Component.translatable("upgradeWorld.done")) ? net.minecraft.network.chat.CommonComponents.GUI_YES : null;
+				if (confirm != null) {
+					for (var child : upgrade.children()) {
+						if (child instanceof net.minecraft.client.gui.components.Button button && button.getMessage().equals(confirm)) {
+							heavyinventories$handledUpgrade = upgrade;
+							button.onPress(new net.minecraft.client.input.KeyEvent(org.lwjgl.glfw.GLFW.GLFW_KEY_ENTER, 0, 0));
+							break;
+						}
+					}
+				}
+			}
+			if (++heavyinventories$startupTicks % 200 == 0) {
+				var screen = client.gui.screen();
+				com.iso2t.heavyinventories.HeavyInventories.LOGGER.info("CLIENT STARTUP WAIT: {}", screen == null ? "no screen" : screen.getClass().getName() + ": " + screen.getTitle().getString());
+			}
+			if (heavyinventories$startupTicks > 2400) throw new AssertionError("Test client did not join the disposable world/server within two minutes");
+		}
+		heavyinventories$scenario.tick(client);
 	}
 }

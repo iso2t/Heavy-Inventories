@@ -72,9 +72,9 @@ public final class RingHudScenario {
 		var test = CASES.get(index);
 		if (phase == 0) {
 			HeavyInventories.LOGGER.info("Ring checkpoint {}", test.name());
-			client.setScreen(null);
-			client.gui.getChat().clearMessages(true);
-			client.gui.setOverlayMessage(net.minecraft.network.chat.Component.empty(), false);
+			client.gui.setScreen(null);
+			client.gui.hud.getChat().clearMessages(true);
+			client.gui.hud.setOverlayMessage(net.minecraft.network.chat.Component.empty(), false);
 			client.options.guiScale().set(2);
 			ConfigOptions.HUD_MODE = test.mode();
 			ConfigOptions.RING_VERTICAL_OFFSET = test.offset();
@@ -125,7 +125,7 @@ public final class RingHudScenario {
 			if ((ringFrames > beforeRing) != ring) throw new AssertionError("Ring registration/visibility mismatch: " + test.name());
 			if (test.level() > 0 && xpFrames <= beforeXp) throw new AssertionError("Vanilla XP draw was missing");
 			captured = false;
-			Screenshot.grab(Services.PLATFORM.getGameDirectory().toFile(), "ring-" + test.name() + ".png", client.getMainRenderTarget(), 1, message -> captured = true);
+			Screenshot.grab(Services.PLATFORM.getGameDirectory().toFile(), "ring-" + test.name() + ".png", client.gameRenderer.mainRenderTarget(), 1, message -> captured = true);
 			phase = 3;
 		} else if (phase == 3 && captured) {
 			index++;

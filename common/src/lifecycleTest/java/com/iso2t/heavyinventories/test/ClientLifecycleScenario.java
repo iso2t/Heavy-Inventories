@@ -317,20 +317,20 @@ public final class ClientLifecycleScenario {
 				if (++feedbackTicks < 12) return;
 				require(FeedbackScenario.hudFrames > 0, "HUD was not registered or rendered");
 				screenshotDone = false;
-				net.minecraft.client.Screenshot.grab(Services.PLATFORM.getGameDirectory().toFile(), "step7-hud.png", client.getMainRenderTarget(), 1, message -> screenshotDone = true);
+				net.minecraft.client.Screenshot.grab(Services.PLATFORM.getGameDirectory().toFile(), "step7-hud.png", client.gameRenderer.mainRenderTarget(), 1, message -> screenshotDone = true);
 				stage++;
 			}
 			case 15 -> {
 				if (!screenshotDone) return;
-				client.setScreen(com.iso2t.heavyinventories.client.ClientConfigScreen.create().build());
+				client.gui.setScreen(com.iso2t.heavyinventories.client.ClientConfigScreen.create().build());
 				feedbackTicks = 0;
 				screenshotDone = false;
 				stage++;
 			}
 			case 16 -> {
-				if (++feedbackTicks == 12) net.minecraft.client.Screenshot.grab(Services.PLATFORM.getGameDirectory().toFile(), "step7-settings.png", client.getMainRenderTarget(), 1, message -> screenshotDone = true);
+				if (++feedbackTicks == 12) net.minecraft.client.Screenshot.grab(Services.PLATFORM.getGameDirectory().toFile(), "step7-settings.png", client.gameRenderer.mainRenderTarget(), 1, message -> screenshotDone = true);
 				if (!screenshotDone) return;
-				client.setScreen(null);
+				client.gui.setScreen(null);
 				stage++;
 			}
 			case 17 -> {

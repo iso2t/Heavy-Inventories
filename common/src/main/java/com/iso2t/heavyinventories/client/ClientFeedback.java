@@ -13,14 +13,14 @@ public final class ClientFeedback {
 			if (!holder.getPlayer().level().isClientSide()) return;
 			var client = Minecraft.getInstance();
 			if (holder.getPlayer() != client.player || !holder.allowJumpNotice()) return;
-			client.gui.setOverlayMessage(Component.translatable("chat.heavyinventories.no_swim_up"), false);
+			client.gui.hud.setOverlayMessage(Component.translatable("chat.heavyinventories.no_swim_up"), false);
 		});
 		PlayerFeedback.registerJumpNotice(holder -> {
 			// The integrated server shares this callback but must never touch the client GUI.
 			if (!holder.getPlayer().level().isClientSide()) return;
 			var client = Minecraft.getInstance();
 			if (holder.getPlayer() != client.player || !holder.allowJumpNotice()) return;
-			client.gui.setOverlayMessage(Component.translatable("chat.heavyinventories.no_jump", Component.translatable(holder.isOverEncumbered() ? "chat.heavyinventories.over_encumbered" : "chat.heavyinventories.encumbered")), false);
+			client.gui.hud.setOverlayMessage(Component.translatable("chat.heavyinventories.no_jump", Component.translatable(holder.isOverEncumbered() ? "chat.heavyinventories.over_encumbered" : "chat.heavyinventories.encumbered")), false);
 		});
 	}
 }
