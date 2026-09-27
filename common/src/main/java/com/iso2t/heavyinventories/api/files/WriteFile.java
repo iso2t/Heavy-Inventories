@@ -2,6 +2,8 @@ package com.iso2t.heavyinventories.api.files;
 
 import com.google.gson.JsonObject;
 import com.iso2t.heavyinventories.config.ServerSettings;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -10,9 +12,8 @@ import java.util.Locale;
 /**
  * Validated edits preserve unknown fields and report failures to their caller.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class WriteFile {
-	private WriteFile () {
-	}
 
 	public static JsonObject readWeights (Path path) throws IOException {
 		var root = JsonFiles.readObject(path);

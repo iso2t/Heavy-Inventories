@@ -3,6 +3,8 @@ package com.iso2t.heavyinventories.api.files;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.iso2t.heavyinventories.HeavyInventories;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.ItemLike;
@@ -10,8 +12,10 @@ import net.minecraft.world.level.ItemLike;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Locale;
 
-public class ReadFile {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class ReadFile {
 
 	public static float get (ItemLike item, DataType type) {
 		Identifier id = BuiltInRegistries.ITEM.getKey(item.asItem());
@@ -21,10 +25,10 @@ public class ReadFile {
 	/**
 	 * Reads a specific property (weight or density) for a given item from the JSON file.
 	 *
-	 * @param fileName The JSON file path.
+	 * @param fileName The registry namespace of the legacy weight file.
 	 * @param item     The Minecraft ItemLike.
 	 * @param type     The property to read.
-	 * @return The value if found, otherwise 0.
+	 * @return The stored value, or 0.1 when unavailable.
 	 */
 	public static float readFromFile (String fileName, ItemLike item, DataType type) {
 		File file = new File(FileValidator.validate(fileName).toString());
@@ -46,20 +50,18 @@ public class ReadFile {
 
 			if (root.has(field)) {
 				JsonObject fieldObj = root.getAsJsonObject(field);
-				String property = type.name().toLowerCase();
+				String property = type.name().toLowerCase(Locale.ROOT);
 
 				if (fieldObj.has(property)) {
 					return fieldObj.get(property).getAsFloat();
 				}
 			}
 		} catch (IOException e) {
-			// Fail gracefully
 			HeavyInventories.LOGGER.warn("Failed to read file: {}!", fileName);
 		} catch (Exception e) {
-			// Handle any other JSON parsing errors
 			HeavyInventories.LOGGER.warn("Failed to parse JSON file: {}! Error: {}", fileName, e.getMessage());
 		}
 
-		return 0.1f; // default if not found
+		return 0.1f;
 	}
 }

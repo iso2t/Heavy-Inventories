@@ -3,16 +3,16 @@ package com.iso2t.heavyinventories.gui;
 import com.iso2t.heavyinventories.HeavyInventories;
 import com.iso2t.heavyinventories.api.player.PlayerHolder;
 import com.iso2t.heavyinventories.config.ConfigOptions;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class WeightRingRenderer {
 	private static final Identifier FRAME = Identifier.fromNamespaceAndPath(HeavyInventories.MOD_ID, "textures/gui/hud_ring.png");
-
-	private WeightRingRenderer () {
-	}
 
 	public static boolean visible (Minecraft client) {
 		return ConfigOptions.HUD_MODE.ring() && GraphicsRenderer.visible(client);

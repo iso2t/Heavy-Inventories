@@ -3,13 +3,14 @@ package com.iso2t.heavyinventories.config;
 import com.iso2t.heavyinventories.HeavyInventories;
 import com.iso2t.heavyinventories.api.files.JsonFiles;
 import com.iso2t.heavyinventories.platform.Services;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ConfigFileManager {
-	private ConfigFileManager () {
-	}
 
 	public static void loadClientConfig () {
 		try {

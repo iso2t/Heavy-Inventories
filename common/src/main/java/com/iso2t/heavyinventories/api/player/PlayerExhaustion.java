@@ -1,6 +1,8 @@
 package com.iso2t.heavyinventories.api.player;
 
 import com.iso2t.heavyinventories.server.ServerWeightState;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.FluidTags;
@@ -11,9 +13,8 @@ import net.minecraft.world.phys.Vec3;
 /**
  * Adds exhaustion only at vanilla's server movement/jump call sites, never to unrelated food costs.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class PlayerExhaustion {
-	private PlayerExhaustion () {
-	}
 
 	public static float movement (ServerPlayer player, float vanillaCost, double dx, double dy, double dz) {
 		var holder = PlayerHolder.getOrCreate(player);

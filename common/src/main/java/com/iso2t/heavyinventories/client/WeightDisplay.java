@@ -1,6 +1,8 @@
 package com.iso2t.heavyinventories.client;
 
 import com.iso2t.heavyinventories.api.util.MeasuringSystem;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -8,13 +10,11 @@ import java.util.Locale;
 /**
  * One display-only conversion/rounding path for HUD and tooltips.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class WeightDisplay {
 
 	private static final int    MAX_SMALL_FRACTION_DIGITS = 6;
 	private static final double MIN_DISPLAY_VALUE         = 0.000001;
-
-	private WeightDisplay () {
-	}
 
 	public static String number (double value) {
 		var format = NumberFormat.getNumberInstance(Locale.getDefault());

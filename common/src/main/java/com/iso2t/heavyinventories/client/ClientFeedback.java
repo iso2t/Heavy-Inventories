@@ -1,12 +1,13 @@
 package com.iso2t.heavyinventories.client;
 
 import com.iso2t.heavyinventories.api.events.PlayerFeedback;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ClientFeedback {
-	private ClientFeedback () {
-	}
 
 	public static void register () {
 		PlayerFeedback.registerFluidNotice(holder -> {

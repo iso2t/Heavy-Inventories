@@ -1,6 +1,8 @@
 package com.iso2t.heavyinventories.server.weight;
 
 import com.google.gson.JsonObject;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minecraft.resources.Identifier;
 
 import java.util.Comparator;
@@ -10,10 +12,8 @@ import java.util.Map;
 /**
  * Review format, deliberately distinct from legacy input and installable datapack definitions.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class WeightReport {
-
-	private WeightReport () {
-	}
 
 	public static JsonObject create (String namespace, long revision, Map<Identifier, Float> weights, Map<Identifier, WeightProvenance> sources) {
 		var root = new JsonObject();

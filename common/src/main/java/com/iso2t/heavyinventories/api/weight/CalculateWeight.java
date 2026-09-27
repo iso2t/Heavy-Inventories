@@ -2,16 +2,16 @@ package com.iso2t.heavyinventories.api.weight;
 
 import com.iso2t.heavyinventories.api.player.PlayerHolder;
 import com.iso2t.heavyinventories.server.ServerWeightState;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CalculateWeight {
-
-	private CalculateWeight () {
-	}
 
 	/**
 	 * Main hand is already a hotbar slot. Equipment, cursor, and personal crafting inputs appear once.

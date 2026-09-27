@@ -6,6 +6,8 @@ import com.iso2t.heavyinventories.config.EffectsSettings;
 import com.iso2t.heavyinventories.config.ServerSettings;
 import com.iso2t.heavyinventories.config.WalkingMode;
 import com.iso2t.heavyinventories.network.ServerConfigUpdatePayload;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
 import net.minecraft.client.Minecraft;
@@ -14,15 +16,15 @@ import net.minecraft.network.chat.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * Displays the current server snapshot; saving sends a permission-checked request.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ServerConfigScreen {
-	private ServerConfigScreen () {
-	}
 
-	public static ConfigBuilder create (java.util.function.Consumer<ServerConfigUpdatePayload> send) {
+	public static ConfigBuilder create (Consumer<ServerConfigUpdatePayload> send) {
 		var builder = ConfigBuilder.create().setParentScreen(null).setTitle(Component.translatable("title.heavyinventories.config.server"));
 		var category = builder.getOrCreateCategory(Component.translatable("category.heavyinventories.general"));
 		var entries = builder.entryBuilder();

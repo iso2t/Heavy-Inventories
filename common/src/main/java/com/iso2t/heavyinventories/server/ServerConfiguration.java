@@ -6,6 +6,8 @@ import com.iso2t.heavyinventories.config.ServerSettings;
 import com.iso2t.heavyinventories.config.WalkingMode;
 import com.iso2t.heavyinventories.network.ServerConfigUpdatePayload;
 import com.iso2t.heavyinventories.platform.Services;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,10 +16,8 @@ import net.minecraft.server.permissions.Permissions;
 
 import java.io.IOException;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ServerConfiguration {
-
-	private ServerConfiguration () {
-	}
 
 	public static boolean canEdit (ServerPlayer player) {
 		return Commands.hasPermission(new PermissionCheck.Require(Permissions.COMMANDS_GAMEMASTER)).test(player.createCommandSourceStack());

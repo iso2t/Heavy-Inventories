@@ -2,14 +2,14 @@ package com.iso2t.heavyinventories.api.player;
 
 import com.iso2t.heavyinventories.api.weight.StackWeight;
 import com.iso2t.heavyinventories.config.WalkingMode;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 /**
  * Pure balance rules; all bonuses are additive percentages of the configured base capacity.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Encumbrance {
-
-	private Encumbrance () {
-	}
 
 	public record State(float bracing, float reinforced, float strength, float capacity, boolean encumbered, boolean overloaded, float walkingMultiplier) {
 	}

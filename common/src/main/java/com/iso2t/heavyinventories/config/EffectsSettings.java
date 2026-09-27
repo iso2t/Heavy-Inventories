@@ -79,13 +79,13 @@ public record EffectsSettings(boolean water, boolean lava, Exhaustion exhaustion
 
 	public static EffectsSettings parse (JsonObject json) {
 		if (json == null) throw new IllegalArgumentException("effects must be a JSON object");
-		var e = object(json, "exhaustion");
-		var f = object(json, "fallDamage");
-		var w = object(json, "swimming");
-		var s = object(json, "sinking");
-		var u = object(json, "upwardMovement");
-		var k = object(json, "knockback");
-		return new EffectsSettings(bool(json, "water", DEFAULT.water), bool(json, "lava", DEFAULT.lava), new Exhaustion(bool(e, "enabled", DEFAULT.exhaustion.enabled), number(e, "maxMultiplier", DEFAULT.exhaustion.maxMultiplier), number(e, "walkingCostPerBlock", DEFAULT.exhaustion.walkingCostPerBlock)), new FallDamage(bool(f, "enabled", DEFAULT.fallDamage.enabled), number(f, "startPercent", DEFAULT.fallDamage.startPercent), number(f, "fullPercent", DEFAULT.fallDamage.fullPercent), number(f, "maxMultiplier", DEFAULT.fallDamage.maxMultiplier)), new Swimming(bool(w, "enabled", DEFAULT.swimming.enabled), number(w, "startPercent", DEFAULT.swimming.startPercent), number(w, "fullPercent", DEFAULT.swimming.fullPercent), number(w, "minMultiplier", DEFAULT.swimming.minMultiplier)), new Sinking(bool(s, "enabled", DEFAULT.sinking.enabled), number(s, "startPercent", DEFAULT.sinking.startPercent), number(s, "fullPercent", DEFAULT.sinking.fullPercent), number(s, "maxMultiplier", DEFAULT.sinking.maxMultiplier)), new UpwardMovement(bool(u, "enabled", DEFAULT.upwardMovement.enabled), number(u, "thresholdPercent", DEFAULT.upwardMovement.thresholdPercent)), new Knockback(bool(k, "enabled", DEFAULT.knockback.enabled), number(k, "referenceWeight", DEFAULT.knockback.referenceWeight), number(k, "maxResistance", DEFAULT.knockback.maxResistance)));
+		var exhaustion = object(json, "exhaustion");
+		var fallDamage = object(json, "fallDamage");
+		var swimming = object(json, "swimming");
+		var sinking = object(json, "sinking");
+		var upwardMovement = object(json, "upwardMovement");
+		var knockback = object(json, "knockback");
+		return new EffectsSettings(bool(json, "water", DEFAULT.water), bool(json, "lava", DEFAULT.lava), new Exhaustion(bool(exhaustion, "enabled", DEFAULT.exhaustion.enabled), number(exhaustion, "maxMultiplier", DEFAULT.exhaustion.maxMultiplier), number(exhaustion, "walkingCostPerBlock", DEFAULT.exhaustion.walkingCostPerBlock)), new FallDamage(bool(fallDamage, "enabled", DEFAULT.fallDamage.enabled), number(fallDamage, "startPercent", DEFAULT.fallDamage.startPercent), number(fallDamage, "fullPercent", DEFAULT.fallDamage.fullPercent), number(fallDamage, "maxMultiplier", DEFAULT.fallDamage.maxMultiplier)), new Swimming(bool(swimming, "enabled", DEFAULT.swimming.enabled), number(swimming, "startPercent", DEFAULT.swimming.startPercent), number(swimming, "fullPercent", DEFAULT.swimming.fullPercent), number(swimming, "minMultiplier", DEFAULT.swimming.minMultiplier)), new Sinking(bool(sinking, "enabled", DEFAULT.sinking.enabled), number(sinking, "startPercent", DEFAULT.sinking.startPercent), number(sinking, "fullPercent", DEFAULT.sinking.fullPercent), number(sinking, "maxMultiplier", DEFAULT.sinking.maxMultiplier)), new UpwardMovement(bool(upwardMovement, "enabled", DEFAULT.upwardMovement.enabled), number(upwardMovement, "thresholdPercent", DEFAULT.upwardMovement.thresholdPercent)), new Knockback(bool(knockback, "enabled", DEFAULT.knockback.enabled), number(knockback, "referenceWeight", DEFAULT.knockback.referenceWeight), number(knockback, "maxResistance", DEFAULT.knockback.maxResistance)));
 	}
 
 	static JsonObject object (JsonObject root, String key) {

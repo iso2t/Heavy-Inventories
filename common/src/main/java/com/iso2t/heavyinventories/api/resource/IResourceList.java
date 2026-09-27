@@ -1,6 +1,8 @@
 package com.iso2t.heavyinventories.api.resource;
 
 import com.iso2t.heavyinventories.api.weight.RecipeWeights;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.*;
@@ -14,9 +16,8 @@ import java.util.List;
 /**
  * Snapshot only recipes with static outputs and no crafting remainders; custom/dynamic recipes are excluded.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class IResourceList {
-	private IResourceList () {
-	}
 
 	public static List<RecipeWeights.Recipe> snapshot (Level level) {
 		var server = level.getServer();

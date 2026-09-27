@@ -9,6 +9,8 @@ import com.iso2t.heavyinventories.fabric.config.ModServerConfig;
 import com.iso2t.heavyinventories.fabric.platform.FabricConfigScreenHelper;
 import com.iso2t.heavyinventories.network.ItemWeightsPayload;
 import com.iso2t.heavyinventories.network.PlayerWeightPayload;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
@@ -19,9 +21,8 @@ import net.minecraft.resources.Identifier;
 /**
  * Client-only callbacks; loaded exclusively by the physical client bootstrap.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class FabricClientHooks {
-	private FabricClientHooks () {
-	}
 
 	public static void register () {
 		com.iso2t.heavyinventories.client.ClientFeedback.register();

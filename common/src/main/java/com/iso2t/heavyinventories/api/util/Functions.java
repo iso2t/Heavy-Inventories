@@ -1,17 +1,11 @@
 package com.iso2t.heavyinventories.api.util;
 
-public class Functions {
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-	/**
-	 * This is fairly pointless since ternary operators are already available.
-	 * However, it looks cleaner than spamming ternary operators everywhere.
-	 *
-	 * @param conditionTrue  The value to return if the condition is true.
-	 * @param conditionFalse The value to return if the condition is false.
-	 * @param condition      The condition to check.
-	 * @param <T>            The type of the values. Both must be of the same type.
-	 * @return The value of either conditionTrue or conditionFalse.
-	 */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class Functions {
+
 	public static <T> T either (T conditionTrue, T conditionFalse, boolean condition) {
 		return condition ? conditionTrue : conditionFalse;
 	}

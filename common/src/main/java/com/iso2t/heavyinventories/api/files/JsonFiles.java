@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.Strictness;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -15,11 +17,9 @@ import java.nio.file.StandardCopyOption;
 /**
  * Strict reads and complete-file replacement. A failed read never becomes an empty document.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class JsonFiles {
 	private static final Gson GSON = new GsonBuilder().setStrictness(Strictness.STRICT).setPrettyPrinting().create();
-
-	private JsonFiles () {
-	}
 
 	public static JsonObject readObject (Path path) throws IOException {
 		if (Files.notExists(path)) return new JsonObject();

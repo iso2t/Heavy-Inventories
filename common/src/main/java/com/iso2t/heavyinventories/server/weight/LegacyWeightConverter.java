@@ -3,6 +3,8 @@ package com.iso2t.heavyinventories.server.weight;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minecraft.resources.Identifier;
 
 import java.io.IOException;
@@ -22,12 +24,10 @@ import java.util.zip.ZipOutputStream;
 /**
  * Explicit conversion of legacy namespace files; never reads dump reports or installs/enables packs.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class LegacyWeightConverter {
 	private static final Gson JSON           = new GsonBuilder().setPrettyPrinting().create();
 	private static final int  MAX_FILE_CHARS = 16 * 1024 * 1024, MAX_TOTAL_CHARS = 64 * 1024 * 1024;
-
-	private LegacyWeightConverter () {
-	}
 
 	public record Result(Path file, int converted, int skipped) {
 	}

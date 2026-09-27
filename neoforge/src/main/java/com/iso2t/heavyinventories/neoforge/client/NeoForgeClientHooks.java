@@ -12,6 +12,8 @@ import com.iso2t.heavyinventories.neoforge.config.ModCommonConfig;
 import com.iso2t.heavyinventories.neoforge.config.ModServerConfig;
 import com.iso2t.heavyinventories.network.PlayerWeightPayload;
 import com.iso2t.heavyinventories.tooltips.Tooltip;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
@@ -25,9 +27,8 @@ import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 /**
  * Keeps client event parameter types out of server-loaded event handlers.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class NeoForgeClientHooks {
-	private NeoForgeClientHooks () {
-	}
 
 	public static void register (IEventBus modBus) {
 		modBus.addListener(NeoForgeClientHooks::registerLayers);
@@ -55,7 +56,6 @@ public final class NeoForgeClientHooks {
 	private static void hookTooltip (ItemTooltipEvent event) {
 		Tooltip.addTooltips(event.getToolTip(), event.getItemStack());
 	}
-
 
 	private static void hookGui (RenderGuiEvent.Post event) {
 		GraphicsRenderer.renderGui(event.getGuiGraphics(), ConfigOptions.WEIGHT_MEASURE, Minecraft.getInstance());

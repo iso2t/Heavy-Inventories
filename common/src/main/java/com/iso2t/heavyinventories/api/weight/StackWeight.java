@@ -1,5 +1,8 @@
 package com.iso2t.heavyinventories.api.weight;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
@@ -13,14 +16,12 @@ import java.util.function.ToDoubleFunction;
 /**
  * Shared aggregation with server-owned or synchronized item definitions supplied by the caller.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class StackWeight {
 
 	public static final int   MAX_DEPTH   = 16;
 	public static final int   MAX_VISITS  = 4096;
 	public static final float TOO_COMPLEX = Float.MAX_VALUE;
-
-	private StackWeight () {
-	}
 
 	public record Result(float weight, boolean complete) {
 	}
@@ -40,14 +41,11 @@ public final class StackWeight {
 		return new Result((float) total, true);
 	}
 
+	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 	private static final class Calculation {
 		private final ToDoubleFunction<Identifier> definitions;
 		private       int                          remaining = MAX_VISITS;
 		private       boolean                      complete  = true;
-
-		private Calculation (ToDoubleFunction<Identifier> definitions) {
-			this.definitions = definitions;
-		}
 
 		private double visit (ItemInstance stack, int depth) {
 			if (!complete) return 0;

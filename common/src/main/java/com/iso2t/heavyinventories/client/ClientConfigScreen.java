@@ -5,6 +5,8 @@ import com.iso2t.heavyinventories.api.util.MeasuringSystem;
 import com.iso2t.heavyinventories.config.ClientSettings;
 import com.iso2t.heavyinventories.config.ConfigFileManager;
 import com.iso2t.heavyinventories.config.HudMode;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -15,9 +17,8 @@ import java.util.Locale;
 /**
  * Fresh entries on every open; both loaders share the exact same value bindings.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ClientConfigScreen {
-	private ClientConfigScreen () {
-	}
 
 	public static ConfigBuilder create () {
 		var current = ClientSettings.current();

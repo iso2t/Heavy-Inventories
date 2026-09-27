@@ -5,14 +5,15 @@ import com.iso2t.heavyinventories.api.util.MeasuringSystem;
 import com.iso2t.heavyinventories.api.weight.StackWeight;
 import com.iso2t.heavyinventories.client.WeightDisplay;
 import com.iso2t.heavyinventories.config.ConfigOptions;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.TextAlignment;
 import net.minecraft.network.chat.Component;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class GraphicsRenderer {
-	private GraphicsRenderer () {
-	}
 
 	public static boolean visible (Minecraft client) {
 		return ConfigOptions.ENABLE_GUI_OVERLAY && client.player != null && !client.player.isCreative() && !client.player.isSpectator() && !client.gui.hud.isHidden() && client.gui.screen() == null && PlayerHolder.getOrCreate(client.player).hasServerState();

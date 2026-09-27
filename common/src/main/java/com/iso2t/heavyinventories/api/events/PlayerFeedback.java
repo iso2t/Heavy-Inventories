@@ -1,21 +1,21 @@
 package com.iso2t.heavyinventories.api.events;
 
 import com.iso2t.heavyinventories.api.player.PlayerHolder;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.util.function.Consumer;
 
 /**
  * The physical client installs presentation; dedicated servers keep the no-op handler.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class PlayerFeedback {
 
 	private static Consumer<PlayerHolder> jumpDenied  = _ -> {
 	};
 	private static Consumer<PlayerHolder> fluidDenied = _ -> {
 	};
-
-	private PlayerFeedback () {
-	}
 
 	public static void registerJumpNotice (Consumer<PlayerHolder> listener) {
 		jumpDenied = listener;

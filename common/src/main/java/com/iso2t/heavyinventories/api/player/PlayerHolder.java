@@ -2,13 +2,17 @@ package com.iso2t.heavyinventories.api.player;
 
 import com.iso2t.heavyinventories.api.enchantment.ModEnchantments;
 import com.iso2t.heavyinventories.api.weight.StackWeight;
+import com.iso2t.heavyinventories.config.EffectsSettings;
 import com.iso2t.heavyinventories.config.ServerSettings;
 import com.iso2t.heavyinventories.config.WalkingMode;
 import com.iso2t.heavyinventories.network.PlayerWeightPayload;
 import com.iso2t.heavyinventories.platform.Services;
 import com.iso2t.heavyinventories.server.ServerConfiguration;
 import com.iso2t.heavyinventories.server.ServerWeightState;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.Accessors;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -21,32 +25,45 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 /**
  * One entity's transient derived state. The server rebuilds it; clients consume snapshots.
  */
+@RequiredArgsConstructor
 public final class PlayerHolder {
 
-	@Getter
-	private final Player            player;
-	private final PlayerWeightCache weightCache       = new PlayerWeightCache();
-	@Getter
-	private       float             weight;
-	private       float             baseCapacity      = ServerSettings.DEFAULT.startingWeight();
-	@Getter
-	private       float             bracingOffset;
-	@Getter
-	private       float             reinforcedOffset;
-	@Getter
-	private       float             strengthOffset;
-	private       float             walkingMultiplier = 1;
-	private       boolean           encumbered, overloaded, receivedState, canEditServerConfig;
-	private WalkingMode                                       walkingMode         = ServerSettings.DEFAULT.walkingMode();
-	private com.iso2t.heavyinventories.config.EffectsSettings effectSettings      = ServerSettings.DEFAULT.effects();
-	private long                                              definitionsRevision = -1, serverRevision;
-	private PlayerWeightPayload lastSent;
-	private long                lastDefinitionsSent = -1, lastJumpNotice = Long.MIN_VALUE;
-	private long movementExhaustionSuppressedUntil = Long.MIN_VALUE;
+	private static final int EXTERNAL_MOMENTUM_GRACE_TICKS = 20;
+	private static final int JUMP_NOTICE_COOLDOWN_TICKS    = 40;
 
-	public PlayerHolder (Player player) {
-		this.player = player;
-	}
+	@Getter
+	private final Player              player;
+	@Getter(AccessLevel.PACKAGE)
+	@Accessors(fluent = true)
+	private final PlayerWeightCache   weightCache                       = new PlayerWeightCache();
+	@Getter
+	private       float               weight;
+	private       float               baseCapacity                      = ServerSettings.DEFAULT.startingWeight();
+	@Getter
+	private       float               bracingOffset;
+	@Getter
+	private       float               reinforcedOffset;
+	@Getter
+	private       float               strengthOffset;
+	private       float               walkingMultiplier                 = 1;
+	private       boolean             encumbered;
+	private       boolean             overloaded;
+	private       boolean             receivedState;
+	@Getter
+	@Accessors(fluent = true)
+	private       boolean             canEditServerConfig;
+	@Getter
+	@Accessors(fluent = true)
+	private       WalkingMode         walkingMode                       = ServerSettings.DEFAULT.walkingMode();
+	private       EffectsSettings     effectSettings                    = ServerSettings.DEFAULT.effects();
+	private       long                definitionsRevision               = -1;
+	@Getter
+	@Accessors(fluent = true)
+	private       long                serverRevision;
+	private       PlayerWeightPayload lastSent;
+	private       long                lastDefinitionsSent               = -1;
+	private       long                lastJumpNotice                    = Long.MIN_VALUE;
+	private       long                movementExhaustionSuppressedUntil = Long.MIN_VALUE;
 
 	public void update () {
 		if (player.level().isClientSide()) return;
@@ -59,26 +76,26 @@ public final class PlayerHolder {
 		walkingMode = state.settings().walkingMode();
 		effectSettings = state.settings().effects();
 		float nextWeight = PlayerWeightCache.getOrCompute(player);
-		if (nextWeight == StackWeight.TOO_COMPLEX && nextWeight != weight && player instanceof ServerPlayer target && target.connection != null) player.sendSystemMessage(Component.translatable("tooltip.heavyinventories.calculation_limit"));
+		if (nextWeight == StackWeight.TOO_COMPLEX && nextWeight != weight && player instanceof ServerPlayer target && target.connection != null) {
+			player.sendSystemMessage(Component.translatable("tooltip.heavyinventories.calculation_limit"));
+		}
 		weight = nextWeight;
 		var strength = player.getEffect(MobEffects.STRENGTH);
-		var calculated = Encumbrance.calculate(weight, baseCapacity, level(ModEnchantments.BRACING), level(ModEnchantments.REINFORCED), strength == null ? 0 : (int) Math.min(256L, 1L + strength.getAmplifier()), level(ModEnchantments.SUREFOOTED), walkingMode, player.isCreative() || player.isSpectator());
+		int strengthLevel = strength == null ? 0 : (int) Math.min(256L, 1L + strength.getAmplifier());
+		boolean gameModeExempt = player.isCreative() || player.isSpectator();
+		var calculated = Encumbrance.calculate(weight, baseCapacity, level(ModEnchantments.BRACING), level(ModEnchantments.REINFORCED), strengthLevel, level(ModEnchantments.SUREFOOTED), walkingMode, gameModeExempt);
 		bracingOffset = calculated.bracing();
 		reinforcedOffset = calculated.reinforced();
 		strengthOffset = calculated.strength();
 		encumbered = calculated.encumbered();
 		overloaded = calculated.overloaded();
 		walkingMultiplier = calculated.walkingMultiplier();
-		float resistance = effectSettings.knockback().enabled() ? EncumbranceEffects.calculate(weight, getMaxWeight(), walkingMode, effectSettings, EncumbranceEffects.Fluid.NONE, player.isCreative() || player.isSpectator(), false).knockbackResistance() : 0;
+		float resistance = effectSettings.knockback().enabled() ? EncumbranceEffects.calculate(weight, getMaxWeight(), walkingMode, effectSettings, EncumbranceEffects.Fluid.NONE, gameModeExempt, false).knockbackResistance() : 0;
 		PlayerKnockback.update(player, resistance);
 	}
 
 	private int level (ResourceKey<Enchantment> key) {
 		return player.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).get(key).map(enchantment -> EnchantmentHelper.getEnchantmentLevel(enchantment, player)).orElse(0);
-	}
-
-	PlayerWeightCache weightCache () {
-		return weightCache;
 	}
 
 	public float getBaseMaxWeight () {
@@ -89,17 +106,12 @@ public final class PlayerHolder {
 		return baseCapacity + bracingOffset + reinforcedOffset + strengthOffset;
 	}
 
-	public WalkingMode walkingMode () {
-		return walkingMode;
-	}
-
 	public ServerSettings serverSettings () {
 		return new ServerSettings(baseCapacity, walkingMode, effectSettings);
 	}
 
 	public void suppressMovementExhaustion () {
-		// Conservatively ignore residual external momentum for one second.
-		movementExhaustionSuppressedUntil = (long) player.tickCount + 20;
+		movementExhaustionSuppressedUntil = (long) player.tickCount + EXTERNAL_MOMENTUM_GRACE_TICKS;
 	}
 
 	public boolean movementExhaustionSuppressed () {
@@ -108,14 +120,6 @@ public final class PlayerHolder {
 
 	public boolean hasServerState () {
 		return !player.level().isClientSide() || receivedState;
-	}
-
-	public boolean canEditServerConfig () {
-		return canEditServerConfig;
-	}
-
-	public long serverRevision () {
-		return serverRevision;
 	}
 
 	private boolean exempt () {
@@ -181,7 +185,7 @@ public final class PlayerHolder {
 	 */
 	public boolean allowJumpNotice () {
 		long now = player.tickCount;
-		if (lastJumpNotice != Long.MIN_VALUE && now >= lastJumpNotice && now - lastJumpNotice < 40) return false;
+		if (lastJumpNotice != Long.MIN_VALUE && now >= lastJumpNotice && now - lastJumpNotice < JUMP_NOTICE_COOLDOWN_TICKS) return false;
 		lastJumpNotice = now;
 		return true;
 	}

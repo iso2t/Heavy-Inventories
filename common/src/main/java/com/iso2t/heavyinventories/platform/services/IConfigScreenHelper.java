@@ -2,7 +2,7 @@ package com.iso2t.heavyinventories.platform.services;
 
 /**
  * Platform abstraction for opening config screens.
- * Each platform (Fabric, Forge, NeoForge) should implement this interface.
+ * Fabric and NeoForge supply client-side implementations.
  */
 public interface IConfigScreenHelper {
 
@@ -24,11 +24,6 @@ public interface IConfigScreenHelper {
 	 */
 	void openCommonConfig ();
 
-	/**
-	 * Checks if the current side is the client.
-	 *
-	 * @return true if on client side, false otherwise
-	 */
 	boolean isClientSide ();
 
 	/**
@@ -39,9 +34,6 @@ public interface IConfigScreenHelper {
 	 */
 	void sendOpenConfigPacket (Object playerId, String configType);
 
-	/**
-	 * A no-op implementation for when the platform doesn't support config screens.
-	 */
 	IConfigScreenHelper NO_OP = new IConfigScreenHelper() {
 		@Override
 		public void openClientConfig () {

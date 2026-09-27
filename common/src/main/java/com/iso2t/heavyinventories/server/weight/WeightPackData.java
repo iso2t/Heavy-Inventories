@@ -1,5 +1,7 @@
 package com.iso2t.heavyinventories.server.weight;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.jspecify.annotations.NonNull;
@@ -11,13 +13,11 @@ import java.util.function.Predicate;
 /**
  * Reads only winning pack resources. Invalid candidates never expose partial definitions.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class WeightPackData {
 
 	public static final String DIRECTORY       = "heavyinventories/weights";
 	public static final int    MAX_DEFINITIONS = 100_000;
-
-	private WeightPackData () {
-	}
 
 	public record Entry(WeightDefinition definition, Identifier resource, String sourcePack) {
 		public Entry {

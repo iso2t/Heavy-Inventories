@@ -1,6 +1,8 @@
 package com.iso2t.heavyinventories.api.player;
 
 import com.iso2t.heavyinventories.api.weight.CalculateWeight;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -14,6 +16,7 @@ import java.util.function.DoubleSupplier;
  * One entity's inventory snapshot and total. No UUID map or global player references.
  * All access runs on the owning entity's game thread.
  */
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 public final class PlayerWeightCache {
 
 	static final  int             FALLBACK_TICKS = 20;
@@ -22,9 +25,6 @@ public final class PlayerWeightCache {
 	private       long            lastComputedTick;
 	private       float           weight;
 	private       boolean         dirty          = true;
-
-	PlayerWeightCache () {
-	}
 
 	public static float getOrCompute (Player player) {
 		if (player.level().isClientSide()) return PlayerHolder.getOrCreate(player).getWeight();

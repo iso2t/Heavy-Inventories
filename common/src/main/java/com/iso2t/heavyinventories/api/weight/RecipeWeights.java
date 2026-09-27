@@ -1,6 +1,8 @@
 package com.iso2t.heavyinventories.api.weight;
 
 import com.iso2t.heavyinventories.config.ServerSettings;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minecraft.resources.Identifier;
 
 import java.util.*;
@@ -8,15 +10,13 @@ import java.util.*;
 /**
  * One immutable inference run. No process-wide cache or file access during calculation.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class RecipeWeights {
 
 	public static final  float                  FALLBACK         = 0.1f;
 	public static final  int                    MAX_RECIPES      = 100_000;
 	public static final  int                    MAX_ALTERNATIVES = 1_000_000;
 	private static final Comparator<Identifier> ORDER            = Comparator.comparing(Identifier::toString);
-
-	private RecipeWeights () {
-	}
 
 	/**
 	 * Each slot consumes one item chosen from its alternatives; repeated slots retain multiplicity.

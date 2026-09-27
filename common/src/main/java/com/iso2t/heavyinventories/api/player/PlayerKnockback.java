@@ -1,5 +1,7 @@
 package com.iso2t.heavyinventories.api.player;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -8,11 +10,9 @@ import net.minecraft.world.entity.player.Player;
 /**
  * Owns only HI's temporary contribution; vanilla combines and bounds the complete attribute.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class PlayerKnockback {
 	public static final Identifier MODIFIER_ID = Identifier.fromNamespaceAndPath("heavyinventories", "carried_weight_knockback");
-
-	private PlayerKnockback () {
-	}
 
 	public static void update (Player player, float amount) {
 		if (player.level().isClientSide()) return;

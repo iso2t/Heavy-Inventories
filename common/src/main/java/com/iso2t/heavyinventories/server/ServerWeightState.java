@@ -12,6 +12,8 @@ import com.iso2t.heavyinventories.platform.Services;
 import com.iso2t.heavyinventories.server.weight.ResolvedWeights;
 import com.iso2t.heavyinventories.server.weight.WeightPackAccess;
 import com.iso2t.heavyinventories.server.weight.WeightProvenance;
+import lombok.Getter;
+import lombok.experimental.Accessors;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
@@ -27,6 +29,8 @@ import java.util.Map;
 /**
  * Gameplay definitions/configuration live as long as this logical server. Access on its thread.
  */
+@Getter
+@Accessors(fluent = true)
 public final class ServerWeightState {
 
 	private ServerSettings                    settings        = ServerSettings.DEFAULT;
@@ -165,27 +169,4 @@ public final class ServerWeightState {
 		return weights.getOrDefault(item, RecipeWeights.FALLBACK);
 	}
 
-	public Map<Identifier, Float> explicitWeights () {
-		return explicitWeights;
-	}
-
-	public ServerSettings settings () {
-		return settings;
-	}
-
-	public long revision () {
-		return revision;
-	}
-
-	public List<ItemWeightsPayload> packets () {
-		return packets;
-	}
-
-	public Map<Identifier, Float> weights () {
-		return weights;
-	}
-
-	public Map<Identifier, WeightProvenance> provenance () {
-		return provenance;
-	}
 }

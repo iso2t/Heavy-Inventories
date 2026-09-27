@@ -1,11 +1,12 @@
 package com.iso2t.heavyinventories.api.events;
 
 import com.iso2t.heavyinventories.api.player.PlayerHolder;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minecraft.world.entity.player.Player;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class PlayerEvents {
-	private PlayerEvents () {
-	}
 
 	/**
 	 * Called after each server tick; clients consume the resulting snapshot.

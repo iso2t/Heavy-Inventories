@@ -1,8 +1,10 @@
 package com.iso2t.heavyinventories.api.util;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
+@RequiredArgsConstructor
 public enum MeasuringSystem {
 	KGS("Metric", "Kilograms", "kg"),
 	LBS("Imperial", "Pounds", "lbs"),
@@ -11,12 +13,6 @@ public enum MeasuringSystem {
 	final String unit;
 	final String name;
 	final String sub;
-
-	MeasuringSystem (String unit, String name, String sub) {
-		this.unit = unit;
-		this.name = name;
-		this.sub = sub;
-	}
 
 	/**
 	 * Stored weights are pounds; preferences affect presentation only.

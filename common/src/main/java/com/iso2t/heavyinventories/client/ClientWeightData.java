@@ -1,6 +1,8 @@
 package com.iso2t.heavyinventories.client;
 
 import com.iso2t.heavyinventories.network.ItemWeightsPayload;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minecraft.resources.Identifier;
 
 import java.util.HashMap;
@@ -9,12 +11,10 @@ import java.util.Map;
 /**
  * Client-thread-only connection data. Server code never reads or writes this store.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ClientWeightData {
 
 	private static final DefinitionReceiver DEFINITIONS = new DefinitionReceiver();
-
-	private ClientWeightData () {
-	}
 
 	public static void accept (ItemWeightsPayload payload) {
 		DEFINITIONS.accept(payload);
