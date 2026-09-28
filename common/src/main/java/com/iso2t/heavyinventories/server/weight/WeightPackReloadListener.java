@@ -13,7 +13,7 @@ import org.jspecify.annotations.NonNull;
  */
 public final class WeightPackReloadListener extends SimplePreparableReloadListener<WeightPackData.Result> {
 
-	public static final Identifier ID = Identifier.fromNamespaceAndPath(HeavyInventories.MOD_ID, "weights");
+	public static final Identifier ID = HeavyInventories.get("weights");
 
 	@Override
 	protected WeightPackData.@NonNull Result prepare (@NonNull ResourceManager manager, @NonNull ProfilerFiller profiler) {

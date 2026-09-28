@@ -1,11 +1,11 @@
 package com.iso2t.heavyinventories.client;
 
 import com.google.gson.JsonObject;
-import com.iso2t.heavyinventories.player.PlayerHolder;
 import com.iso2t.heavyinventories.config.EffectsSettings;
 import com.iso2t.heavyinventories.config.ServerSettings;
 import com.iso2t.heavyinventories.config.WalkingMode;
 import com.iso2t.heavyinventories.network.ServerConfigUpdatePayload;
+import com.iso2t.heavyinventories.player.PlayerHolder;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;

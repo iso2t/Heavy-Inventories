@@ -39,8 +39,7 @@ public record ItemWeightsPayload(long revision, int index, int chunks, List<Entr
 	});
 
 	public ItemWeightsPayload {
-		Preconditions.checkArgument(revision >= 1 && chunks >= 1 && chunks <= MAX_CHUNKS
-				&& index >= 0 && index < chunks && entries.size() <= CHUNK_SIZE, "Invalid definition chunk");
+		Preconditions.checkArgument(revision >= 1 && chunks >= 1 && chunks <= MAX_CHUNKS && index >= 0 && index < chunks && entries.size() <= CHUNK_SIZE, "Invalid definition chunk");
 		entries = List.copyOf(entries);
 	}
 

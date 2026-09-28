@@ -1,7 +1,6 @@
 package com.iso2t.heavyinventories.fabric.client;
 
 import com.iso2t.heavyinventories.HeavyInventories;
-import com.iso2t.heavyinventories.player.PlayerHolder;
 import com.iso2t.heavyinventories.client.ClientFeedback;
 import com.iso2t.heavyinventories.client.ClientWeightData;
 import com.iso2t.heavyinventories.client.ConfigScreens;
@@ -11,6 +10,7 @@ import com.iso2t.heavyinventories.gui.WeightRingRenderer;
 import com.iso2t.heavyinventories.network.ItemWeightsPayload;
 import com.iso2t.heavyinventories.network.OpenConfigPayload;
 import com.iso2t.heavyinventories.network.PlayerWeightPayload;
+import com.iso2t.heavyinventories.player.PlayerHolder;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;

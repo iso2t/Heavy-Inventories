@@ -1,8 +1,8 @@
 package com.iso2t.heavyinventories.server.weight;
 
-import com.iso2t.heavyinventories.util.JsonFiles;
 import com.iso2t.heavyinventories.platform.Services;
 import com.iso2t.heavyinventories.server.ServerWeightState;
+import com.iso2t.heavyinventories.util.JsonFiles;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.world.level.Level;

@@ -140,7 +140,8 @@ Create or edit `config/heavyinventories-server.json`:
 Use `"at_ninety_percent"` for the alternative walking mode. Older files without `walkingMode` default to progressive.
 Capacity must be finite, greater than zero, and no greater than 1,000,000,000.
 
-Operators can also open `/heavyinventories config server` and edit these settings. Saving sends a validated request to the
+Operators can also open `/heavyinventories config server` and edit these settings. Saving sends a validated request to
+the
 server; accepted changes are written before they apply. Non-operators can view the server screen. Singleplayer requires
 command permission for server edits.
 
@@ -168,7 +169,9 @@ data/minecraft/heavyinventories/weights/feather.json
 ```
 
 ```json
-{ "weight": 0.02 }
+{
+  "weight": 0.02
+}
 ```
 
 This is an example override, not a bundled balance value. The resource namespace and path identify the item. A block

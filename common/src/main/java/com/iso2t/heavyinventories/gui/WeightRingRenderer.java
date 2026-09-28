@@ -1,8 +1,8 @@
 package com.iso2t.heavyinventories.gui;
 
 import com.iso2t.heavyinventories.HeavyInventories;
-import com.iso2t.heavyinventories.player.PlayerHolder;
 import com.iso2t.heavyinventories.config.ConfigOptions;
+import com.iso2t.heavyinventories.player.PlayerHolder;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.client.Minecraft;

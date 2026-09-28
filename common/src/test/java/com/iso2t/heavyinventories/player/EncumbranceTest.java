@@ -1,7 +1,7 @@
 package com.iso2t.heavyinventories.player;
 
-import com.iso2t.heavyinventories.weight.StackWeight;
 import com.iso2t.heavyinventories.config.WalkingMode;
+import com.iso2t.heavyinventories.weight.StackWeight;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

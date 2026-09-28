@@ -4,7 +4,8 @@ import com.iso2t.heavyinventories.config.EffectsSettings;
 import com.iso2t.heavyinventories.weight.StackWeight;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ElytraFlightTest {
 

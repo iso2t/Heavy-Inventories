@@ -1,11 +1,11 @@
 package com.iso2t.heavyinventories.network;
 
-import com.iso2t.heavyinventories.player.EncumbranceEffects;
-import com.iso2t.heavyinventories.player.ElytraFlight;
 import com.iso2t.heavyinventories.client.ClientWeightData;
 import com.iso2t.heavyinventories.config.EffectsSettings;
 import com.iso2t.heavyinventories.config.ServerSettings;
 import com.iso2t.heavyinventories.config.WalkingMode;
+import com.iso2t.heavyinventories.player.ElytraFlight;
+import com.iso2t.heavyinventories.player.EncumbranceEffects;
 import com.iso2t.heavyinventories.server.ServerWeightState;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
@@ -123,12 +123,7 @@ class WeightProtocolTest {
 
 	@Test
 	void definitionChunksRejectInvalidMetadata () {
-		assertAll(
-				() -> assertThrows(IllegalArgumentException.class, () -> chunk(0, 0, 1, STONE, 1)),
-				() -> assertThrows(IllegalArgumentException.class, () -> chunk(1, 0, 0, STONE, 1)),
-				() -> assertThrows(IllegalArgumentException.class, () -> chunk(1, 0, ItemWeightsPayload.MAX_CHUNKS + 1, STONE, 1)),
-				() -> assertThrows(IllegalArgumentException.class, () -> chunk(1, -1, 1, STONE, 1)),
-				() -> assertThrows(IllegalArgumentException.class, () -> chunk(1, 1, 1, STONE, 1)));
+		assertAll(() -> assertThrows(IllegalArgumentException.class, () -> chunk(0, 0, 1, STONE, 1)), () -> assertThrows(IllegalArgumentException.class, () -> chunk(1, 0, 0, STONE, 1)), () -> assertThrows(IllegalArgumentException.class, () -> chunk(1, 0, ItemWeightsPayload.MAX_CHUNKS + 1, STONE, 1)), () -> assertThrows(IllegalArgumentException.class, () -> chunk(1, -1, 1, STONE, 1)), () -> assertThrows(IllegalArgumentException.class, () -> chunk(1, 1, 1, STONE, 1)));
 	}
 
 	@Test

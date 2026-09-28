@@ -1,13 +1,13 @@
 package com.iso2t.heavyinventories.neoforge.client;
 
 import com.iso2t.heavyinventories.HeavyInventories;
-import com.iso2t.heavyinventories.player.PlayerHolder;
 import com.iso2t.heavyinventories.client.ClientFeedback;
 import com.iso2t.heavyinventories.client.ClientWeightData;
 import com.iso2t.heavyinventories.config.ConfigOptions;
 import com.iso2t.heavyinventories.gui.GraphicsRenderer;
 import com.iso2t.heavyinventories.gui.WeightRingRenderer;
 import com.iso2t.heavyinventories.network.PlayerWeightPayload;
+import com.iso2t.heavyinventories.player.PlayerHolder;
 import com.iso2t.heavyinventories.tooltips.Tooltip;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

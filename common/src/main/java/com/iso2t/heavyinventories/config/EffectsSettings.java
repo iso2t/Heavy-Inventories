@@ -19,7 +19,8 @@ public record EffectsSettings(boolean water, boolean lava, Exhaustion exhaustion
 	public static final  StreamCodec<FriendlyByteBuf, EffectsSettings> CODEC          = StreamCodec.of((buf, settings) -> buf.writeUtf(settings.toJson().toString(), 8192), buf -> parse(JsonParser.parseString(buf.readUtf(8192)).getAsJsonObject()));
 
 	public EffectsSettings {
-		if (exhaustion == null || fallDamage == null || swimming == null || sinking == null || upwardMovement == null || knockback == null || elytra == null) throw new IllegalArgumentException("Every encumbrance settings group must be specified");
+		if (exhaustion == null || fallDamage == null || swimming == null || sinking == null || upwardMovement == null || knockback == null || elytra == null)
+			throw new IllegalArgumentException("Every encumbrance settings group must be specified");
 	}
 
 	public record Exhaustion(boolean enabled, float maxMultiplier, float walkingCostPerBlock) {

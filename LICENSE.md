@@ -7,7 +7,6 @@ _Copyright © 2007 Free Software Foundation, Inc. &lt;<http://fsf.org/>&gt;_
 Everyone is permitted to copy and distribute verbatim copies
 of this license document, but changing it is not allowed.
 
-
 This version of the GNU Lesser General Public License incorporates
 the terms and conditions of version 3 of the GNU General Public
 License, supplemented by the additional permissions listed below.
@@ -27,7 +26,7 @@ Defining a subclass of a class defined by the Library is deemed a mode
 of using an interface provided by the Library.
 
 A “Combined Work” is a work produced by combining or linking an
-Application with the Library.  The particular version of the Library
+Application with the Library. The particular version of the Library
 with which the Combined Work was made is also called the “Linked
 Version”.
 
@@ -65,11 +64,11 @@ version:
 ### 3. Object Code Incorporating Material from Library Header Files
 
 The object code form of an Application may incorporate material from
-a header file that is part of the Library.  You may convey such object
+a header file that is part of the Library. You may convey such object
 code under terms of your choice, provided that, if the incorporated
 material is not limited to numerical parameters, data structure
-layouts and accessors, or small macros, inline functions and templates
-(ten or fewer lines in length), you do both of the following:
+layouts and accessors, or small macros, inline functions and templates (ten or fewer lines in length), you do both of
+the following:
 
 * **a)** Give prominent notice with each copy of the object code that the
   Library is used in it and that the Library and its use are
@@ -106,7 +105,7 @@ the following:
       manner specified by section 6 of the GNU GPL for conveying
       Corresponding Source.
     - **1)** Use a suitable shared library mechanism for linking with the
-      Library.  A suitable mechanism is one that **(a)** uses at run time
+      Library. A suitable mechanism is one that **(a)** uses at run time
       a copy of the Library already present on the user's computer
       system, and **(b)** will operate properly with a modified version
       of the Library that is interface-compatible with the Linked

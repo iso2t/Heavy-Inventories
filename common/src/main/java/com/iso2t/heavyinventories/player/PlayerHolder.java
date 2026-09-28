@@ -1,14 +1,14 @@
 package com.iso2t.heavyinventories.player;
 
-import com.iso2t.heavyinventories.enchantment.ModEnchantments;
-import com.iso2t.heavyinventories.weight.StackWeight;
 import com.iso2t.heavyinventories.config.EffectsSettings;
 import com.iso2t.heavyinventories.config.ServerSettings;
 import com.iso2t.heavyinventories.config.WalkingMode;
+import com.iso2t.heavyinventories.enchantment.ModEnchantments;
 import com.iso2t.heavyinventories.network.PlayerWeightPayload;
 import com.iso2t.heavyinventories.platform.Services;
 import com.iso2t.heavyinventories.server.ServerConfiguration;
 import com.iso2t.heavyinventories.server.ServerWeightState;
+import com.iso2t.heavyinventories.weight.StackWeight;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

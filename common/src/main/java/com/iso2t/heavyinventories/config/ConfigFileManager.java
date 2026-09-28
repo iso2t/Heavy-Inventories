@@ -2,8 +2,8 @@ package com.iso2t.heavyinventories.config;
 
 import com.google.gson.JsonObject;
 import com.iso2t.heavyinventories.HeavyInventories;
-import com.iso2t.heavyinventories.util.JsonFiles;
 import com.iso2t.heavyinventories.platform.Services;
+import com.iso2t.heavyinventories.util.JsonFiles;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

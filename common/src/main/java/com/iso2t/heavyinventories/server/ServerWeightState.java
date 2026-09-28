@@ -1,17 +1,17 @@
 package com.iso2t.heavyinventories.server;
 
 import com.iso2t.heavyinventories.HeavyInventories;
-import com.iso2t.heavyinventories.player.PlayerEvents;
-import com.iso2t.heavyinventories.weight.RecipeSnapshot;
-import com.iso2t.heavyinventories.weight.RecipeWeights;
-import com.iso2t.heavyinventories.weight.StackWeight;
 import com.iso2t.heavyinventories.config.ConfigFileManager;
 import com.iso2t.heavyinventories.config.ServerSettings;
 import com.iso2t.heavyinventories.network.ItemWeightsPayload;
 import com.iso2t.heavyinventories.platform.Services;
+import com.iso2t.heavyinventories.player.PlayerEvents;
 import com.iso2t.heavyinventories.server.weight.ResolvedWeights;
 import com.iso2t.heavyinventories.server.weight.WeightPackAccess;
 import com.iso2t.heavyinventories.server.weight.WeightProvenance;
+import com.iso2t.heavyinventories.weight.RecipeSnapshot;
+import com.iso2t.heavyinventories.weight.RecipeWeights;
+import com.iso2t.heavyinventories.weight.StackWeight;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import net.minecraft.core.registries.BuiltInRegistries;

@@ -8,10 +8,8 @@ import org.jspecify.annotations.NonNull;
 
 public record OpenConfigPayload(String configType) implements CustomPacketPayload {
 
-	public static final Type<OpenConfigPayload> TYPE = new Type<>(HeavyInventories.get("open_config"));
-	public static final StreamCodec<FriendlyByteBuf, OpenConfigPayload> CODEC = StreamCodec.of(
-			(buf, packet) -> buf.writeUtf(packet.configType()),
-			buf -> new OpenConfigPayload(buf.readUtf()));
+	public static final Type<OpenConfigPayload>                         TYPE  = new Type<>(HeavyInventories.get("open_config"));
+	public static final StreamCodec<FriendlyByteBuf, OpenConfigPayload> CODEC = StreamCodec.of((buf, packet) -> buf.writeUtf(packet.configType()), buf -> new OpenConfigPayload(buf.readUtf()));
 
 	@Override
 	public @NonNull Type<? extends CustomPacketPayload> type () {

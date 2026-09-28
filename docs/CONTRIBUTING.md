@@ -27,7 +27,8 @@ failed-reload retention. Both clients must report `NEW WORLD WEIGHTS PASSED` and
 Ordinary existing-world startup does not exercise this handoff. Test only disposable saves: the harness changes
 inventory and creates/removes fixture datapacks. When upgrading those saves from an older Minecraft release, add
 `-PallowTestWorldUpgrade` to let the harness choose Minecraft's backup-and-upgrade option and continue after conversion.
-To check a different NeoForge version, run only `:neoforge:runClient` and add a quoted override for the desired 26.3 release using
+To check a different NeoForge version, run only `:neoforge:runClient` and add a quoted override for the desired 26.3
+release using
 `'-Pneoforge_version=<version>'`.
 
 Shared Gradle convention plugins live in the included `build-logic` build, following
@@ -38,11 +39,14 @@ Gradle 9.7.1 wrapper.
 
 NeoForge uses 26.3.0.3-beta instead of the template's 26.3.0.1-beta to meet Cloth Config 26.3.159's minimum requirement.
 
-The 26.3 candidate passed 100 common tests, both packaged-jar checks, both loaders' dedicated/singleplayer and separate-process
+The 26.3 candidate passed 100 common tests, both packaged-jar checks, both loaders' dedicated/singleplayer and
+separate-process
 multiplayer suites, new-world
-weight handoff and datapack reload/conversion checks, and a NeoForge dedicated run without Cloth Config on Windows/JDK 25.
+weight handoff and datapack reload/conversion checks, and a NeoForge dedicated run without Cloth Config on Windows/JDK
+25.
 The bundled catalog contains 579 definitions and resolves all vanilla survival items without unexpected fallbacks.
-HUD screenshots were checked on both loaders. A publishing dry run selected the 4.263.0.0-rc.1 jars and changelog for all five
+HUD screenshots were checked on both loaders. A publishing dry run selected the 4.263.0.0-rc.1 jars and changelog for
+all five
 upload targets. Elytra checks cover glide range, rocket thrust, configuration edits, Soaring levels/equipment, and
 client synchronization.
 Linux runtime and third-party integrations have not been verified for this port. Historical changelogs retain their
@@ -51,7 +55,8 @@ original version numbers.
 The GitHub Actions workflow is configured to build/test on Linux and Windows and upload reports and mod artifacts; local
 checks do not establish a hosted CI result. Branch and PR builds do not publish releases or start Minecraft. The
 separate publishing workflow is manual-only, reads the selected branch commit, and creates its version tag
-automatically. The [runtime test module](../tests/README.md) documents opt-in local test runs; its sources are included in a normal Gradle import.
+automatically. The [runtime test module](../tests/README.md) documents opt-in local test runs; its sources are included
+in a normal Gradle import.
 
 Source and issue tracking: [iso2t/Heavy-Inventories](https://github.com/iso2t/Heavy-Inventories). Contributions and
 translations are welcome. Licensed under [MIT](../LICENSE.md).
@@ -63,7 +68,8 @@ and `262` identifies Minecraft 26.2.x. The first release is `4.262.0.0`; a bug f
 update becomes `4.262.1.0`. Reset patch to zero when incrementing feature, and reset both counters when moving to a new
 Minecraft line. The 26.1.2 branch retains its existing `4.0.1` numbering.
 
-Stable releases use four dot-separated numeric components without leading zeros. Release candidates append `-rc.<number>`,
+Stable releases use four dot-separated numeric components without leading zeros. Release candidates append
+`-rc.<number>`,
 such as `4.263.0.0-rc.1`; these publish as Beta on CurseForge and Modrinth and as prereleases on GitHub.
 Keep the exact supported Minecraft version
 in `minecraft_version`, dependency metadata, and release notes. Four components are supported

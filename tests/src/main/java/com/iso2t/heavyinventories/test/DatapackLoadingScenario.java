@@ -5,11 +5,7 @@ import com.iso2t.heavyinventories.network.ItemWeightsPayload;
 import com.iso2t.heavyinventories.player.PlayerEvents;
 import com.iso2t.heavyinventories.player.PlayerHolder;
 import com.iso2t.heavyinventories.server.ServerWeightState;
-import com.iso2t.heavyinventories.server.weight.LegacyWeightConverter;
-import com.iso2t.heavyinventories.server.weight.WeightDefinition;
-import com.iso2t.heavyinventories.server.weight.WeightPackAccess;
-import com.iso2t.heavyinventories.server.weight.WeightPackData;
-import com.iso2t.heavyinventories.server.weight.WeightProvenance;
+import com.iso2t.heavyinventories.server.weight.*;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
@@ -40,14 +36,14 @@ public final class DatapackLoadingScenario {
 	private static WeightPackAccess       firstLoadedData;
 	private static long                   gameplayRevision;
 	private static Map<Identifier, Float> gameplayWeights, baselineWeights;
-	private static          List<ItemWeightsPayload>                                                   gameplayPackets;
+	private static          List<ItemWeightsPayload>          gameplayPackets;
 	private static          Map<Identifier, WeightProvenance> gameplayProvenance;
-	private static          ResourceManager                                                            beforeFailure;
-	private static          Runnable                                                                   afterClient;
-	private static          int                                                                        checkpointId;
-	private static volatile Checkpoint                                                                 checkpoint;
-	private static volatile int                                                                        acknowledged;
-	private static volatile boolean                                                                    complete;
+	private static          ResourceManager                   beforeFailure;
+	private static          Runnable                          afterClient;
+	private static          int                               checkpointId;
+	private static volatile Checkpoint                        checkpoint;
+	private static volatile int                               acknowledged;
+	private static volatile boolean                           complete;
 
 	public record Checkpoint(int id, long revision, float arrow, float stone, float total) {
 	}

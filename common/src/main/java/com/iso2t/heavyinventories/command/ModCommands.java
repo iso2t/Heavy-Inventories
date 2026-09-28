@@ -1,8 +1,8 @@
 package com.iso2t.heavyinventories.command;
 
-import com.iso2t.heavyinventories.player.PlayerWeightCache;
 import com.iso2t.heavyinventories.helper.RegistryHelper;
 import com.iso2t.heavyinventories.platform.Services;
+import com.iso2t.heavyinventories.player.PlayerWeightCache;
 import com.iso2t.heavyinventories.server.ServerWeightState;
 import com.iso2t.heavyinventories.server.weight.LegacyWeightConverter;
 import com.iso2t.heavyinventories.server.weight.WeightReportExporter;
@@ -33,24 +33,10 @@ public final class ModCommands {
 
 	public static void registerCommands (CommandDispatcher<CommandSourceStack> dispatcher) {
 		var operatorPermission = Commands.<CommandSourceStack>hasPermission(new PermissionCheck.Require(Permissions.COMMANDS_GAMEMASTER));
-		var reload = Commands.literal("reload")
-				.requires(operatorPermission)
-				.executes(ModCommands::executeReloadCommand)
-				.then(Commands.literal("weight").executes(ModCommands::executeReloadCommand))
-				.then(Commands.literal("players").executes(ModCommands::executeReloadPlayersCommand));
-		var convert = Commands.literal("convert")
-				.requires(operatorPermission)
-				.then(Commands.literal("legacy")
-						.then(Commands.argument("pack_name", StringArgumentType.word()).executes(ModCommands::executeConvertCommand)));
-		var dump = Commands.literal("dump")
-				.requires(operatorPermission)
-				.then(Commands.argument("modid", StringArgumentType.string())
-						.suggests(ModCommands::suggestModIds)
-						.executes(ModCommands::executeDumpCommand));
-		var config = Commands.literal("config")
-				.then(Commands.argument("config", StringArgumentType.string())
-						.suggests(ModCommands::suggestConfigTypes)
-						.executes(context -> executeOpenConfig(context, StringArgumentType.getString(context, "config"))));
+		var reload = Commands.literal("reload").requires(operatorPermission).executes(ModCommands::executeReloadCommand).then(Commands.literal("weight").executes(ModCommands::executeReloadCommand)).then(Commands.literal("players").executes(ModCommands::executeReloadPlayersCommand));
+		var convert = Commands.literal("convert").requires(operatorPermission).then(Commands.literal("legacy").then(Commands.argument("pack_name", StringArgumentType.word()).executes(ModCommands::executeConvertCommand)));
+		var dump = Commands.literal("dump").requires(operatorPermission).then(Commands.argument("modid", StringArgumentType.string()).suggests(ModCommands::suggestModIds).executes(ModCommands::executeDumpCommand));
+		var config = Commands.literal("config").then(Commands.argument("config", StringArgumentType.string()).suggests(ModCommands::suggestConfigTypes).executes(context -> executeOpenConfig(context, StringArgumentType.getString(context, "config"))));
 		dispatcher.register(Commands.literal("heavyinventories").then(reload).then(convert).then(dump).then(config));
 	}
 
