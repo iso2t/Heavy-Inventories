@@ -22,4 +22,4 @@ in [release notes](docs/RELEASE_NOTES.md).
 
 ## License
 
-Heavy Inventories is licensed under the [MIT License](LICENSE.md).
+Heavy Inventories is licensed under the [LGPL-3.0 License](LICENSE.md).
