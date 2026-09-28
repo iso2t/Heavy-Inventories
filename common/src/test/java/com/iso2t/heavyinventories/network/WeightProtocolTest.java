@@ -58,11 +58,22 @@ class WeightProtocolTest {
 		var effects = new EffectsSettings(false, true, new EffectsSettings.Exhaustion(false, 2.25f, 0.02f), new EffectsSettings.FallDamage(true, 67.5f, 140, 4.25f), d.swimming(), d.sinking(), new EffectsSettings.UpwardMovement(true, 98.25f), new EffectsSettings.Knockback(true, 456.25f, 0.75f), new EffectsSettings.Elytra(true, 750, 0.2f, 0.4f));
 		var request = new ServerConfigUpdatePayload(new ServerSettings(500, WalkingMode.AT_NINETY_PERCENT, effects), 12);
 		assertEquals(request, roundTrip(ServerConfigUpdatePayload.CODEC, request));
-		var packet = new PlayerWeightPayload(7, Identifier.parse("minecraft:overworld"), 550, 500, 0, 0, 0, 0, WalkingMode.AT_NINETY_PERCENT, false, true, false, 12, effects);
+		var packet = new PlayerWeightPayload(7, Identifier.parse("minecraft:overworld"), 550, 500, 0, 0, 0, 0, WalkingMode.AT_NINETY_PERCENT, false, true, false, 12, 4, effects);
 		var decoded = roundTrip(PlayerWeightPayload.CODEC, packet);
 		assertEquals(packet, decoded);
-		assertEquals(ElytraFlight.calculate(packet.weight(), effects.elytra(), false), ElytraFlight.calculate(decoded.weight(), decoded.effects().elytra(), false));
+		assertEquals(ElytraFlight.calculate(packet.weight(), effects.elytra(), packet.soaringLevel(), false), ElytraFlight.calculate(decoded.weight(), decoded.effects().elytra(), decoded.soaringLevel(), false));
 		assertEquals(EncumbranceEffects.calculate(550, 500, packet.walkingMode(), effects, EncumbranceEffects.Fluid.LAVA, false, false), EncumbranceEffects.calculate(decoded.weight(), decoded.baseCapacity(), decoded.walkingMode(), decoded.effects(), EncumbranceEffects.Fluid.LAVA, false, false));
+	}
+
+	@Test
+	void soaringLevelSurvivesTheSnapshotAndRejectsInvalidLevels () {
+		assertEquals(Identifier.parse("heavyinventories:player_weight_v4"), PlayerWeightPayload.TYPE.id());
+		for (int level = 0; level <= 4; level++) {
+			var packet = new PlayerWeightPayload(7, Identifier.parse("minecraft:overworld"), 1000, 1000, 0, 0, 0, 0, WalkingMode.PROGRESSIVE, false, true, false, 1, level, EffectsSettings.DEFAULT);
+			assertEquals(packet, roundTrip(PlayerWeightPayload.CODEC, packet));
+		}
+		for (int level : new int[] { -1, 5, Integer.MAX_VALUE })
+			assertThrows(IllegalArgumentException.class, () -> new PlayerWeightPayload(7, Identifier.parse("minecraft:overworld"), 1000, 1000, 0, 0, 0, 0, WalkingMode.PROGRESSIVE, false, true, false, 1, level, EffectsSettings.DEFAULT));
 	}
 
 	@Test

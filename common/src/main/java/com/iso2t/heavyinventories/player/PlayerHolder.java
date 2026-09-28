@@ -18,7 +18,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 
@@ -46,6 +48,7 @@ public final class PlayerHolder {
 	@Getter
 	private       float               strengthOffset;
 	private       float               walkingMultiplier                 = 1;
+	private       int                 soaringLevel;
 	private       boolean             encumbered;
 	private       boolean             overloaded;
 	private       boolean             receivedState;
@@ -90,6 +93,8 @@ public final class PlayerHolder {
 		encumbered = calculated.encumbered();
 		overloaded = calculated.overloaded();
 		walkingMultiplier = calculated.walkingMultiplier();
+		var chest = player.getItemBySlot(EquipmentSlot.CHEST);
+		soaringLevel = chest.is(Items.ELYTRA) ? player.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).get(ModEnchantments.SOARING).map(enchantment -> Math.clamp(EnchantmentHelper.getItemEnchantmentLevel(enchantment, chest), 0, 4)).orElse(0) : 0;
 		float resistance = effectSettings.knockback().enabled() ? EncumbranceEffects.calculate(weight, getMaxWeight(), walkingMode, effectSettings, EncumbranceEffects.Fluid.NONE, gameModeExempt, false).knockbackResistance() : 0;
 		PlayerKnockback.update(player, resistance);
 	}
@@ -152,7 +157,7 @@ public final class PlayerHolder {
 	public ElytraFlight.State elytraEffects () {
 		if (exempt() || player.getAbilities().flying || player.isPassenger() || !player.isFallFlying()) return ElytraFlight.State.NONE;
 		var settings = player.level().isClientSide() ? effectSettings : ServerWeightState.of(player.level().getServer()).settings().effects();
-		return ElytraFlight.calculate(weight, settings.elytra(), false);
+		return ElytraFlight.calculate(weight, settings.elytra(), soaringLevel, false);
 	}
 
 	public float getFluidSwimMultiplier () {
@@ -210,6 +215,7 @@ public final class PlayerHolder {
 		walkingMultiplier = snapshot.walkingMultiplier();
 		walkingMode = snapshot.walkingMode();
 		effectSettings = snapshot.effects();
+		soaringLevel = snapshot.soaringLevel();
 		encumbered = snapshot.encumbered();
 		overloaded = snapshot.overEncumbered();
 		canEditServerConfig = snapshot.canEdit();
@@ -223,7 +229,7 @@ public final class PlayerHolder {
 			state.packets().forEach(packet -> Services.PLATFORM.sendToPlayer(target, packet));
 			lastDefinitionsSent = state.revision();
 		}
-		var snapshot = new PlayerWeightPayload(target.getId(), target.level().dimension().identifier(), weight, baseCapacity, bracingOffset, reinforcedOffset, strengthOffset, walkingMultiplier, walkingMode, isEncumbered(), isOverEncumbered(), ServerConfiguration.canEdit(target), state.revision(), effectSettings);
+		var snapshot = new PlayerWeightPayload(target.getId(), target.level().dimension().identifier(), weight, baseCapacity, bracingOffset, reinforcedOffset, strengthOffset, walkingMultiplier, walkingMode, isEncumbered(), isOverEncumbered(), ServerConfiguration.canEdit(target), state.revision(), soaringLevel, effectSettings);
 		if (!snapshot.equals(lastSent)) {
 			Services.PLATFORM.sendToPlayer(target, snapshot);
 			lastSent = snapshot;

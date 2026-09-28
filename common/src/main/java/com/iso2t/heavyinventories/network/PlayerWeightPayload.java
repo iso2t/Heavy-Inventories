@@ -10,8 +10,8 @@ import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
 
 public record PlayerWeightPayload(int entityId, Identifier dimension, float weight, float baseCapacity, float bracing, float reinforced, float strength, float walkingMultiplier, WalkingMode walkingMode, boolean encumbered,
-								  boolean overEncumbered, boolean canEdit, long revision, EffectsSettings effects) implements CustomPacketPayload {
-	public static final Type<PlayerWeightPayload>                         TYPE  = new Type<>(HeavyInventories.get("player_weight_v3"));
+								  boolean overEncumbered, boolean canEdit, long revision, int soaringLevel, EffectsSettings effects) implements CustomPacketPayload {
+	public static final Type<PlayerWeightPayload>                         TYPE  = new Type<>(HeavyInventories.get("player_weight_v4"));
 	public static final StreamCodec<FriendlyByteBuf, PlayerWeightPayload> CODEC = StreamCodec.of((buf, p) -> {
 		buf.writeVarInt(p.entityId);
 		buf.writeIdentifier(p.dimension);
@@ -26,16 +26,17 @@ public record PlayerWeightPayload(int entityId, Identifier dimension, float weig
 		buf.writeBoolean(p.overEncumbered);
 		buf.writeBoolean(p.canEdit);
 		buf.writeVarLong(p.revision);
+		buf.writeVarInt(p.soaringLevel);
 		EffectsSettings.CODEC.encode(buf, p.effects);
-	}, buf -> new PlayerWeightPayload(buf.readVarInt(), buf.readIdentifier(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readEnum(WalkingMode.class), buf.readBoolean(), buf.readBoolean(), buf.readBoolean(), buf.readVarLong(), EffectsSettings.CODEC.decode(buf)));
+	}, buf -> new PlayerWeightPayload(buf.readVarInt(), buf.readIdentifier(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readEnum(WalkingMode.class), buf.readBoolean(), buf.readBoolean(), buf.readBoolean(), buf.readVarLong(), buf.readVarInt(), EffectsSettings.CODEC.decode(buf)));
 
 	public PlayerWeightPayload (int entityId, Identifier dimension, float weight, float baseCapacity, float bracing, float reinforced, float strength, float walkingMultiplier, WalkingMode walkingMode, boolean encumbered, boolean overEncumbered, boolean canEdit, long revision) {
-		this(entityId, dimension, weight, baseCapacity, bracing, reinforced, strength, walkingMultiplier, walkingMode, encumbered, overEncumbered, canEdit, revision, EffectsSettings.DEFAULT);
+		this(entityId, dimension, weight, baseCapacity, bracing, reinforced, strength, walkingMultiplier, walkingMode, encumbered, overEncumbered, canEdit, revision, 0, EffectsSettings.DEFAULT);
 	}
 
 	public PlayerWeightPayload {
 		if (effects == null) throw new IllegalArgumentException("Missing server effect settings");
-		if (revision < 1 || !Float.isFinite(weight) || weight < 0 || !Float.isFinite(baseCapacity) || baseCapacity <= 0 || !Float.isFinite(bracing) || bracing < 0 || !Float.isFinite(reinforced) || reinforced < 0 || !Float.isFinite(strength) || strength < 0 || !Float.isFinite(baseCapacity + bracing + reinforced + strength) || walkingMode == null || !Float.isFinite(walkingMultiplier) || walkingMultiplier < 0 || walkingMultiplier > 1)
+		if (soaringLevel < 0 || soaringLevel > 4 || revision < 1 || !Float.isFinite(weight) || weight < 0 || !Float.isFinite(baseCapacity) || baseCapacity <= 0 || !Float.isFinite(bracing) || bracing < 0 || !Float.isFinite(reinforced) || reinforced < 0 || !Float.isFinite(strength) || strength < 0 || !Float.isFinite(baseCapacity + bracing + reinforced + strength) || walkingMode == null || !Float.isFinite(walkingMultiplier) || walkingMultiplier < 0 || walkingMultiplier > 1)
 			throw new IllegalArgumentException("Invalid player weight snapshot");
 	}
 

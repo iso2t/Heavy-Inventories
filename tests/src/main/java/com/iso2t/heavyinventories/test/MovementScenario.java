@@ -123,6 +123,7 @@ public final class MovementScenario {
 		player.setDeltaMovement(Vec3.ZERO);
 		if (player.connection != null) {
 			CompatibilityScenario.run(player);
+			ElytraFlightScenario.prepareSoaringClient(player);
 			FluidMovementScenario.prepareClientCheck(player);
 		}
 	}

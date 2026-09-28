@@ -32,6 +32,7 @@
   "enchantment.heavyinventories.bracing": "Bracing",
   "enchantment.heavyinventories.reinforced": "Reinforced",
   "enchantment.heavyinventories.surefooted": "Surefooted",
+  "enchantment.heavyinventories.soaring": "Soaring",
   "config.heavyinventories.denied": "Only server operators can change server settings.",
   "config.heavyinventories.stale": "Server settings changed while this screen was open. Reopen it and try again.",
   "config.heavyinventories.saved": "Server settings saved. The change applies to all players.",

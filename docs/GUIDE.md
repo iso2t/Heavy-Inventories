@@ -106,6 +106,11 @@ Flight uses actual carried weight, including container contents. Strength, carry
 walking mode do not reduce flight penalties. Players can still deploy their elytra while overloaded. Steering, rocket
 duration, and ordinary elytra durability rules remain vanilla; creative, spectator, and ability flight are exempt.
 
+**Soaring I-IV** applies to elytra and reduces both weight penalties by 20% per level, up to 80%. At level IV,
+the default maximum penalties become 3% less lift and 5% less rocket thrust. It only works while the enchanted
+elytra is equipped. Enchant books at an enchanting table and apply them with an anvil; combine matching levels
+to reach higher levels. Soaring remains compatible with Unbreaking and Mending.
+
 Configure the Elytra flight category in the server settings screen, or the `effects.elytra` object below. Setting either
 maximum reduction to zero disables that part of the penalty. Setting `enabled` to false restores vanilla flight.
 Existing configurations without this group use the enabled defaults.
@@ -251,7 +256,7 @@ freeze recipe chains.
 - Custom backpack/Ender storage, third-party movement mods, and resource-pack compatibility have not been verified.
 - Nested-content work is bounded to depth 16 and 4096 visited entries. Exceeding a limit marks the load over capacity
   and displays a calculation-limit message.
-- Enchantment bonuses use the three supplied enchantment identities and their equipment slots. Legacy effect codecs
+- Enchantment bonuses use the supplied enchantment identities and their equipment slots. Legacy effect codecs
   still decode old data but no longer execute tick effects; datapacks reusing them for other enchantments or conditional
   effects need redesign.
 - Clients require matching updated packet formats; this version does not support older Heavy Inventories network peers.

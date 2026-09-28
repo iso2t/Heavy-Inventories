@@ -2,6 +2,8 @@ package com.iso2t.heavyinventories.test;
 
 import com.iso2t.heavyinventories.HeavyInventories;
 import com.iso2t.heavyinventories.config.ServerSettings;
+import com.iso2t.heavyinventories.enchantment.ModEnchantments;
+import com.iso2t.heavyinventories.player.PlayerEvents;
 import com.iso2t.heavyinventories.player.PlayerHolder;
 import com.iso2t.heavyinventories.server.ServerWeightState;
 import com.iso2t.heavyinventories.test.mixin.ElytraFlightTestAccess;
@@ -9,6 +11,8 @@ import com.iso2t.heavyinventories.test.mixin.FireworkFlightTestAccess;
 import com.iso2t.heavyinventories.test.mixin.FluidTravelTestAccess;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.level.ClientInformation;
@@ -58,6 +62,7 @@ public final class ElytraFlightScenario {
 				HeavyInventories.LOGGER.info("ELYTRA RANGE: pitch={}, 100-block descent, empty={} blocks, 500 lb={} blocks, 1000 lb={} blocks", pitch, empty, half, full);
 			}
 			load(player, 10);
+			checkSoaring(player);
 			player.stopFallFlying();
 			require(player.tryToStartFallFlying(), "Loaded elytra could not deploy");
 			var holder = PlayerHolder.getOrCreate(player);
@@ -112,17 +117,62 @@ public final class ElytraFlightScenario {
 		}
 	}
 
+	private static void checkSoaring (ServerPlayer player) {
+		var enchantment = player.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(ModEnchantments.SOARING);
+		require(enchantment.value().getMaxLevel() == 4 && enchantment.value().canEnchant(new ItemStack(Items.ELYTRA)), "Soaring definition does not support elytra I-IV");
+		require(!enchantment.value().canEnchant(new ItemStack(Items.IRON_CHESTPLATE)), "Soaring supports armor");
+		require(enchantment.is(EnchantmentTags.IN_ENCHANTING_TABLE), "Soaring is missing from the book enchantment pool");
+		var holder = PlayerHolder.getOrCreate(player);
+		double unenchanted = glideDistance(player, 0), previous = unenchanted;
+		for (int level : new int[] { 1, 2, 3, 4, 255 }) {
+			player.getInventory().setItem(38, MovementScenario.enchanted(player, Items.ELYTRA, ModEnchantments.SOARING, level));
+			holder.update();
+			int capped = Math.min(level, 4);
+			close(.85 + .03 * capped, holder.elytraEffects().liftMultiplier(), "Soaring lift " + level);
+			checkBoost(player, .75 + .05 * capped);
+			double distance = glideDistance(player, 0);
+			if (level <= 4) require(distance > previous, "Soaring did not improve glide range");
+			else close(previous, distance, "Command enchantment level bypassed cap");
+			previous = distance;
+		}
+		load(player, 0);
+		require(glideDistance(player, 0) > previous, "Soaring completely removed the weight penalty");
+		load(player, 10);
+		player.getInventory().setItem(38, ItemStack.EMPTY);
+		player.getInventory().setItem(1, MovementScenario.enchanted(player, Items.ELYTRA, ModEnchantments.SOARING, 4));
+		holder.update();
+		close(.85, holder.elytraEffects().liftMultiplier(), "Carried elytra granted Soaring");
+		player.getInventory().setItem(1, ItemStack.EMPTY);
+		player.getInventory().setItem(38, MovementScenario.enchanted(player, Items.IRON_CHESTPLATE, ModEnchantments.SOARING, 4));
+		holder.update();
+		close(.85, holder.elytraEffects().liftMultiplier(), "Command-enchanted armor granted Soaring");
+		player.getInventory().setItem(38, new ItemStack(Items.ELYTRA));
+		holder.update();
+		close(unenchanted, glideDistance(player, 0), "Unequipping Soaring retained its bonus");
+		HeavyInventories.LOGGER.info("SOARING PASSED: elytra-only definition, book availability, levels I-IV, lift/range/rockets, 80% cap, equipment removal");
+	}
+
+	public static void prepareSoaringClient (ServerPlayer player) {
+		var state = ServerWeightState.of(player.level().getServer());
+		var weights = new HashMap<>(state.weights());
+		weights.put(BuiltInRegistries.ITEM.getKey(Items.ELYTRA), 0f);
+		state.replace(state.settings(), weights);
+		player.getInventory().setItem(38, MovementScenario.enchanted(player, Items.ELYTRA, ModEnchantments.SOARING, 4));
+		PlayerEvents.onPlayerTick(player);
+	}
+
 	public static void checkClient (Player player) {
 		var movement = player.getDeltaMovement();
 		float pitch = player.getXRot(), yaw = player.getYRot();
 		boolean gliding = player.isFallFlying();
 		try {
 			player.startFallFlying();
-			close(.85, PlayerHolder.getOrCreate(player).elytraEffects().liftMultiplier(), "client synchronized lift");
-			checkBoost(player, .75);
+			close(.97, PlayerHolder.getOrCreate(player).elytraEffects().liftMultiplier(), "client synchronized Soaring lift");
+			checkBoost(player, .95);
 			player.setDeltaMovement(new Vec3(0, 0, 1));
 			var result = ((ElytraFlightTestAccess) player).heavyinventories$glide(player.getDeltaMovement());
-			require(result.y < -.02, "Client flight hook did not reduce lift");
+			close(-.019291692, result.y, "client Soaring glide lift");
+			HeavyInventories.LOGGER.info("CLIENT SOARING PASSED: server equipment level synchronized into glide and rocket physics");
 			HeavyInventories.LOGGER.info("CLIENT ELYTRA FLIGHT PASSED: server weight/settings, glide lift and rocket physics");
 		} finally {
 			if (!gliding) player.stopFallFlying();

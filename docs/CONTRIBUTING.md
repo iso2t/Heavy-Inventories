@@ -38,12 +38,13 @@ Gradle 9.7.1 wrapper.
 
 NeoForge uses 26.3.0.3-beta instead of the template's 26.3.0.1-beta to meet Cloth Config 26.3.159's minimum requirement.
 
-The 26.3 candidate passed 98 common tests, both packaged-jar checks, both loaders' dedicated/singleplayer and separate-process
+The 26.3 candidate passed 100 common tests, both packaged-jar checks, both loaders' dedicated/singleplayer and separate-process
 multiplayer suites, new-world
 weight handoff and datapack reload/conversion checks, and a NeoForge dedicated run without Cloth Config on Windows/JDK 25.
 The bundled catalog contains 579 definitions and resolves all vanilla survival items without unexpected fallbacks.
 HUD screenshots were checked on both loaders. A publishing dry run selected the 4.263.0.0-rc.1 jars and changelog for all five
-upload targets. Elytra checks cover glide range, rocket thrust, configuration edits, and client synchronization.
+upload targets. Elytra checks cover glide range, rocket thrust, configuration edits, Soaring levels/equipment, and
+client synchronization.
 Linux runtime and third-party integrations have not been verified for this port. Historical changelogs retain their
 original version numbers.
 

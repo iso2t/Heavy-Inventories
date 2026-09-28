@@ -112,7 +112,7 @@ def verifyModJar = tasks.register('verifyModJar') {
                     }
                 }
             }
-            ['bracing', 'reinforced', 'surefooted'].each {
+            ['bracing', 'reinforced', 'surefooted', 'soaring'].each {
                 requireEntry("data/${mod_id}/enchantment/${it}.json")
             }
             requireEntry("assets/${mod_id}/textures/gui/hud_ring.png")

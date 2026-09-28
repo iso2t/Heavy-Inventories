@@ -64,3 +64,6 @@ Modes are `Server`, `Client`, `MultiplayerServer`, `MultiplayerClient`, `Datapac
 `DatapackClient`. The task fails on runtime errors, missing completion markers, or an
 unfinished Gradle run. Use a separate log for each loader and run. This task reads an
 existing log; it does not launch Minecraft or require `-PruntimeTests`.
+
+Soaring checks cover elytra-only application, all four levels, the mitigation cap, equipment removal,
+and synchronized glide/rocket behavior in singleplayer and separate-process multiplayer.
