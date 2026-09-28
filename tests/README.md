@@ -26,6 +26,12 @@ Replace `fabric` with `neoforge` for the other loader. On Linux/macOS, use `./gr
 Without `-PruntimeTests`, the normal client and server tasks do not load the harness.
 `-PpackagedSmoke` tests the built production jar under the development launcher.
 
+The gameplay suite includes elytra flight checks using Minecraft's glide update and rocket tick methods. It compares
+fixed-pitch, 100-block descents from an initial horizontal speed of one block per tick, checks loaded deployment and
+boosts, and exercises config edits, exemptions, and Slow Falling. With the default 15% maximum lift reduction, a level
+glide measured approximately 961 blocks at zero load, 846 at 500 pounds, and 735 at 1,000 pounds on both loaders.
+These controlled measurements exclude terrain collisions and steering changes; they are not a promised travel distance.
+
 Additional modes:
 
 | Option                    | Purpose                                                                                           |

@@ -80,12 +80,13 @@ Surefooted on boots provides minimum walking multipliers:
 | III   | 30%              | 15%              |
 | IV    | 40%              | 20%              |
 
-Both encumbered states prevent ground jumping. Encumbered/overloaded horizontal swimming input is 75%/50%, sinking
-gravity is multiplied by 1.5/3, and fall damage by 1.5/3. Surefooted changes walking floors only.
+Both encumbered states prevent ground jumping. By default, swimming input decreases from full speed at 90% capacity
+to half speed at 100%, while fluid gravity increases to twice normal. Fall damage increases from normal at 90% capacity
+to twice normal at 125%. These effects are configurable. Surefooted changes walking floors only.
 
-Creative and spectator players are exempt. Ability flight, gliding, and riding bypass movement penalties. Weight still
-displays when appropriate. The mod scales normalized horizontal input, preserving vanilla momentum, knockback, vertical
-input, and movement modifiers; these are not absolute speed limits or an anti-cheat system.
+Creative and spectator players are exempt. Ability flight and riding bypass locomotion penalties. Gliding uses its own
+flight penalties described below. Ground slowdown scales normalized horizontal input rather than setting an absolute
+speed limit. The server supplies weight and settings for client movement prediction; this is not an anti-cheat system.
 
 The default weight HUD is a 16×16 ring behind the XP level. Its center fills upward using current weight and effective
 capacity: green below 90%, yellow from 90% to below 100%, and red at 100% or more. It remains visible at XP level zero.
@@ -93,6 +94,21 @@ Choose Ring, Numbers, or Ring and numbers in client settings; the numeric displa
 and status at the bottom right. Disable the GUI overlay to hide both. A calculation-limit warning remains visible even
 in ring-only mode. Ground-jump denial appears briefly in the action bar, throttled to once per 40 client ticks. Item
 tooltips include current stack weight; hold Shift for maximum-stack weight.
+
+## Elytra flight
+
+Carried weight reduces elytra lift and rocket thrust, shortening glides and making powered flight less efficient.
+The default penalties increase linearly from zero load to **15% less lift and 25% less rocket thrust at 1,000 pounds**,
+then stop increasing. Flight distance depends on starting speed, height, pitch, and rocket use; the lift percentage is
+not a fixed distance reduction.
+
+Flight uses actual carried weight, including container contents. Strength, carrying-capacity enchantments, and the
+walking mode do not reduce flight penalties. Players can still deploy their elytra while overloaded. Steering, rocket
+duration, and ordinary elytra durability rules remain vanilla; creative, spectator, and ability flight are exempt.
+
+Configure the Elytra flight category in the server settings screen, or the `effects.elytra` object below. Setting either
+maximum reduction to zero disables that part of the penalty. Setting `enabled` to false restores vanilla flight.
+Existing configurations without this group use the enabled defaults.
 
 ## Server configuration
 
@@ -104,14 +120,22 @@ Create or edit `config/heavyinventories-server.json`:
 ```json
 {
   "startingWeight": 1000.0,
-  "walkingMode": "progressive"
+  "walkingMode": "progressive",
+  "effects": {
+    "elytra": {
+      "enabled": true,
+      "referenceWeight": 1000.0,
+      "maxLiftReduction": 0.15,
+      "maxRocketReduction": 0.25
+    }
+  }
 }
 ```
 
 Use `"at_ninety_percent"` for the alternative walking mode. Older files without `walkingMode` default to progressive.
 Capacity must be finite, greater than zero, and no greater than 1,000,000,000.
 
-Operators can also open `/heavyinventories config server` and edit both values. Saving sends a validated request to the
+Operators can also open `/heavyinventories config server` and edit these settings. Saving sends a validated request to the
 server; accepted changes are written before they apply. Non-operators can view the server screen. Singleplayer requires
 command permission for server edits.
 

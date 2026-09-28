@@ -38,12 +38,14 @@ Gradle 9.7.1 wrapper.
 
 NeoForge uses 26.3.0.3-beta instead of the template's 26.3.0.1-beta to meet Cloth Config 26.3.159's minimum requirement.
 
-The 26.3 port passed 95 common tests, both packaged-jar checks, both loaders' dedicated/singleplayer suites, new-world
+The 26.3 candidate passed 98 common tests, both packaged-jar checks, both loaders' dedicated/singleplayer and separate-process
+multiplayer suites, new-world
 weight handoff and datapack reload/conversion checks, and a NeoForge dedicated run without Cloth Config on Windows/JDK 25.
 The bundled catalog contains 579 definitions and resolves all vanilla survival items without unexpected fallbacks.
 HUD screenshots were checked on both loaders. A publishing dry run selected the 4.263.0.0-rc.1 jars and changelog for all five
-upload targets. Separate-process multiplayer, Linux runtime, and third-party integrations have not been reverified for
-this port. Historical changelogs retain their original version numbers.
+upload targets. Elytra checks cover glide range, rocket thrust, configuration edits, and client synchronization.
+Linux runtime and third-party integrations have not been verified for this port. Historical changelogs retain their
+original version numbers.
 
 The GitHub Actions workflow is configured to build/test on Linux and Windows and upload reports and mod artifacts; local
 checks do not establish a hosted CI result. Branch and PR builds do not publish releases or start Minecraft. The

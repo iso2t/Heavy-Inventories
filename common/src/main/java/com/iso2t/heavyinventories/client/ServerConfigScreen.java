@@ -69,6 +69,7 @@ public final class ServerConfigScreen {
 					case "fallDamage" -> "config.heavyinventories.fall_active";
 					case "swimming", "sinking", "upwardMovement" -> "config.heavyinventories.fluid_active";
 					case "knockback" -> "config.heavyinventories.knockback_active";
+					case "elytra" -> "config.heavyinventories.elytra_active";
 					default -> "config.heavyinventories.effects_pending";
 				};
 				section.addEntry(entries.startTextDescription(Component.translatable(notice)).build());

@@ -288,6 +288,7 @@ public final class ClientLifecycleScenario {
 				require(client.player.getDeltaMovement().y == 0, "Client allowed an overloaded jump");
 				FeedbackScenario.checkJump(client);
 				FluidMovementScenario.checkClient(client.player);
+				ElytraFlightScenario.checkClient(client.player);
 				operation = server.submit(() -> {
 					var state = ServerWeightState.of(server);
 					state.replace(new ServerSettings(1000), state.weights());

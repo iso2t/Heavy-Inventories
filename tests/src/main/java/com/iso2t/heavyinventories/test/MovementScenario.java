@@ -36,6 +36,7 @@ public final class MovementScenario {
 		FluidMovementScenario.run(player);
 		KnockbackScenario.run(player);
 		CombinedEffectsScenario.run(player);
+		ElytraFlightScenario.run(player);
 		// Dedicated test worlds persist potion effects between runs.
 		if (player.connection != null) {
 			player.removeAllEffects();

@@ -9,6 +9,8 @@
     "ServerWeightStateMixin",
     "PlayerStateMixin",
     "LivingEntityFallDamageMixin",
+    "LivingEntityElytraMixin",
+    "FireworkRocketElytraMixin",
     "LivingEntityFluidGravityMixin",
     "LivingEntityFluidAscentMixin",
     "PlayerFluidAscentMixin",

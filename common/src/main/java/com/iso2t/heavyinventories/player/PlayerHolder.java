@@ -149,6 +149,12 @@ public final class PlayerHolder {
 		return movementExempt() ? 1 : walkingMultiplier;
 	}
 
+	public ElytraFlight.State elytraEffects () {
+		if (exempt() || player.getAbilities().flying || player.isPassenger() || !player.isFallFlying()) return ElytraFlight.State.NONE;
+		var settings = player.level().isClientSide() ? effectSettings : ServerWeightState.of(player.level().getServer()).settings().effects();
+		return ElytraFlight.calculate(weight, settings.elytra(), false);
+	}
+
 	public float getFluidSwimMultiplier () {
 		return fluidEffects().swimmingMultiplier();
 	}

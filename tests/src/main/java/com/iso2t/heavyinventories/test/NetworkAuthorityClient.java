@@ -97,6 +97,7 @@ public final class NetworkAuthorityClient {
 			FluidMovementScenario.checkClient(client.player);
 			require(fluidNotice.heavyinventories$messageTime() == 20, "Fluid denial feedback was not throttled");
 			HeavyInventories.LOGGER.info("MULTIPLAYER MOVEMENT PASSED: live walking-mode edit, Strength capacity, Surefooted, normalized client physics");
+			ElytraFlightScenario.checkClient(client.player);
 			initialPlayer = client.player;
 			reconnectServer = client.getCurrentServer();
 			require(reconnectServer != null, "Missing dedicated server address");

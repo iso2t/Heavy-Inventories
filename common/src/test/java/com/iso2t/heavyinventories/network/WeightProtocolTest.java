@@ -1,6 +1,7 @@
 package com.iso2t.heavyinventories.network;
 
 import com.iso2t.heavyinventories.player.EncumbranceEffects;
+import com.iso2t.heavyinventories.player.ElytraFlight;
 import com.iso2t.heavyinventories.client.ClientWeightData;
 import com.iso2t.heavyinventories.config.EffectsSettings;
 import com.iso2t.heavyinventories.config.ServerSettings;
@@ -54,18 +55,19 @@ class WeightProtocolTest {
 	@Test
 	void nondefaultEffectsSurviveBothDirectionsAndCalculateIdentically () {
 		var d = EffectsSettings.DEFAULT;
-		var effects = new EffectsSettings(false, true, new EffectsSettings.Exhaustion(false, 2.25f, 0.02f), new EffectsSettings.FallDamage(true, 67.5f, 140, 4.25f), d.swimming(), d.sinking(), new EffectsSettings.UpwardMovement(true, 98.25f), new EffectsSettings.Knockback(true, 456.25f, 0.75f));
+		var effects = new EffectsSettings(false, true, new EffectsSettings.Exhaustion(false, 2.25f, 0.02f), new EffectsSettings.FallDamage(true, 67.5f, 140, 4.25f), d.swimming(), d.sinking(), new EffectsSettings.UpwardMovement(true, 98.25f), new EffectsSettings.Knockback(true, 456.25f, 0.75f), new EffectsSettings.Elytra(true, 750, 0.2f, 0.4f));
 		var request = new ServerConfigUpdatePayload(new ServerSettings(500, WalkingMode.AT_NINETY_PERCENT, effects), 12);
 		assertEquals(request, roundTrip(ServerConfigUpdatePayload.CODEC, request));
 		var packet = new PlayerWeightPayload(7, Identifier.parse("minecraft:overworld"), 550, 500, 0, 0, 0, 0, WalkingMode.AT_NINETY_PERCENT, false, true, false, 12, effects);
 		var decoded = roundTrip(PlayerWeightPayload.CODEC, packet);
 		assertEquals(packet, decoded);
+		assertEquals(ElytraFlight.calculate(packet.weight(), effects.elytra(), false), ElytraFlight.calculate(decoded.weight(), decoded.effects().elytra(), false));
 		assertEquals(EncumbranceEffects.calculate(550, 500, packet.walkingMode(), effects, EncumbranceEffects.Fluid.LAVA, false, false), EncumbranceEffects.calculate(decoded.weight(), decoded.baseCapacity(), decoded.walkingMode(), decoded.effects(), EncumbranceEffects.Fluid.LAVA, false, false));
 	}
 
 	@Test
 	void effectDecoderRejectsMalformedAndOversizedSettings () {
-		for (String json : new String[] { "{\"knockback\":{\"referenceWeight\":0}}", "{\"fallDamage\":{\"startPercent\":200}}", "{\"water\":\"true\"}", " ".repeat(8193) }) {
+		for (String json : new String[] { "{\"knockback\":{\"referenceWeight\":0}}", "{\"elytra\":{\"referenceWeight\":0}}", "{\"elytra\":{\"maxLiftReduction\":-1}}", "{\"elytra\":{\"maxRocketReduction\":1.01}}", "{\"elytra\":{\"enabled\":\"true\"}}", "{\"fallDamage\":{\"startPercent\":200}}", "{\"water\":\"true\"}", " ".repeat(8193) }) {
 			var buf = new FriendlyByteBuf(Unpooled.buffer());
 			try {
 				buf.writeUtf(json);

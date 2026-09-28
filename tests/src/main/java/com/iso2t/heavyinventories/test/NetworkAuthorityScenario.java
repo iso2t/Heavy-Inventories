@@ -71,6 +71,7 @@ public final class NetworkAuthorityScenario {
 				require(ConfigFileManager.readServerConfig(config).startingWeight() == 20.25f, "Edit was not persisted on dedicated server");
 				require(ConfigFileManager.readServerConfig(config).walkingMode() == WalkingMode.AT_NINETY_PERCENT, "Walking mode was not persisted");
 				var persistedEffects = ConfigFileManager.readServerConfig(config).effects();
+				require(persistedEffects.elytra().referenceWeight() == 750 && persistedEffects.elytra().maxLiftReduction() == .2f && persistedEffects.elytra().maxRocketReduction() == .4f, "Remote flight settings were not persisted");
 				require(persistedEffects.exhaustion().maxMultiplier() == 2.25f && persistedEffects.fallDamage().maxMultiplier() == 3.5f && persistedEffects.knockback().referenceWeight() == 800.25f, "Remote effects were not persisted");
 				serverStage = 3;
 			} else if (serverStage == 3 && state.settings().startingWeight() == 25.5f) {
