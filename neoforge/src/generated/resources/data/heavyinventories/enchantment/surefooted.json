@@ -3,7 +3,6 @@
   "description": {
     "translate": "enchantment.heavyinventories.surefooted"
   },
-  "effects": {},
   "max_cost": {
     "base": 27,
     "per_level_above_first": 14

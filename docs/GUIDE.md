@@ -9,12 +9,12 @@ Use the jar for your loader on both the client and server, with matching Heavy I
 
 | Component     | Verified version                  |
 |---------------|-----------------------------------|
-| Minecraft     | 26.2                              |
+| Minecraft     | 26.3                              |
 | Java          | 25                                |
-| Fabric Loader | 0.19.3                            |
-| Fabric API    | 0.152.1+26.2                      |
-| NeoForge      | 26.2.0.1-beta                     |
-| Cloth Config  | 26.2.155, for the matching loader |
+| Fabric Loader | 0.19.5                            |
+| Fabric API    | 0.160.6+26.3                      |
+| NeoForge      | 26.3.0.3-beta                     |
+| Cloth Config  | 26.3.159, for the matching loader |
 
 Fabric requires Fabric API and Cloth Config. NeoForge requires Cloth Config on clients; its dedicated server does not
 require the settings UI. These are external dependencies, not bundled copies. The version table records the tested

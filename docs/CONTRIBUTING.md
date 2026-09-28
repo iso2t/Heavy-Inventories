@@ -1,6 +1,6 @@
 # Contributing to Heavy Inventories
 
-Use JDK 25 and the included Gradle 9.5.0 wrapper:
+Use JDK 25 and the included Gradle 9.7.1 wrapper:
 
 ```sh
 # Linux/macOS
@@ -12,7 +12,7 @@ bash ./gradlew clean build
 
 The build runs common regression tests and checks metadata, mixins, services, enchantment resources, bundled weight
 definitions, and test-harness exclusion in both loader jars. Distributable jars are under `fabric/build/libs/` and
-`neoforge/build/libs/`; do not install sources, javadoc, or lifecycle-test jars.
+`neoforge/build/libs/`; do not install sources, javadoc, or the separate test-harness jar.
 
 For weight-loading changes, also run the new-world handoff regression against an existing **disposable** `New World`
 save in each loader's `runs/client/saves/` folder:
@@ -27,21 +27,23 @@ failed-reload retention. Both clients must report `NEW WORLD WEIGHTS PASSED` and
 Ordinary existing-world startup does not exercise this handoff. Test only disposable saves: the harness changes
 inventory and creates/removes fixture datapacks. When upgrading those saves from an older Minecraft release, add
 `-PallowTestWorldUpgrade` to let the harness choose Minecraft's backup-and-upgrade option and continue after conversion.
-To check a different NeoForge version, run only `:neoforge:runClient` and add a quoted override such as
-`'-Pneoforge_version=26.2.0.43-beta'`.
+To check a different NeoForge version, run only `:neoforge:runClient` and add a quoted override for the desired 26.3 release using
+`'-Pneoforge_version=<version>'`.
 
 Shared Gradle convention plugins live in the included `build-logic` build, following
-the [Minecraft 26.2 MultiLoader template](https://github.com/jaredlll08/MultiLoader-Template/tree/178d1abb85e7d4ef7903bdd8fe9f4f9e0748c80c).
+the [Minecraft 26.3 MultiLoader template](https://github.com/jaredlll08/MultiLoader-Template/tree/bc8c34e73b8f69ce1896e6b7b0d34a0ab94446a7).
 It replaces the former `buildSrc` directory; keep Heavy Inventories' resource generation and packaged-jar checks in
 those conventions. The port uses the template's Fabric Mixin 0.17.3+mixin.0.8.7 and MixinExtras 0.5.3 dependencies and
-Gradle 9.5.0 wrapper.
+Gradle 9.7.1 wrapper.
 
-The 26.2 port passed 89 common tests, both packaged-jar checks, both loaders' dedicated/singleplayer and separate
-multiplayer suites, new-world weight handoff and datapack reload/conversion checks, and a NeoForge dedicated run without
-Cloth Config on Windows/JDK 25. The bundled catalog contains 555 definitions and resolves all vanilla survival items
-without unexpected fallbacks. HUD screenshots were checked on both loaders. A publishing dry run selected the 4.262.0.0
-artifacts and changelog for all five upload targets. Linux runtime and third-party integrations were not exercised.
-Historical 26.1.2 release notes retain their original version numbers.
+NeoForge uses 26.3.0.3-beta instead of the template's 26.3.0.1-beta to meet Cloth Config 26.3.159's minimum requirement.
+
+The 26.3 port passed 95 common tests, both packaged-jar checks, both loaders' dedicated/singleplayer suites, new-world
+weight handoff and datapack reload/conversion checks, and a NeoForge dedicated run without Cloth Config on Windows/JDK 25.
+The bundled catalog contains 579 definitions and resolves all vanilla survival items without unexpected fallbacks.
+HUD screenshots were checked on both loaders. A publishing dry run selected the 4.263.0.0-rc.1 jars and changelog for all five
+upload targets. Separate-process multiplayer, Linux runtime, and third-party integrations have not been reverified for
+this port. Historical changelogs retain their original version numbers.
 
 The GitHub Actions workflow is configured to build/test on Linux and Windows and upload reports and mod artifacts; local
 checks do not establish a hosted CI result. Branch and PR builds do not publish releases or start Minecraft. The
@@ -58,16 +60,18 @@ and `262` identifies Minecraft 26.2.x. The first release is `4.262.0.0`; a bug f
 update becomes `4.262.1.0`. Reset patch to zero when incrementing feature, and reset both counters when moving to a new
 Minecraft line. The 26.1.2 branch retains its existing `4.0.1` numbering.
 
-Use four dot-separated numeric components without suffixes or leading zeros. Keep the exact supported Minecraft version
+Stable releases use four dot-separated numeric components without leading zeros. Release candidates append `-rc.<number>`,
+such as `4.263.0.0-rc.1`; these publish as Beta on CurseForge and Modrinth and as prereleases on GitHub.
+Keep the exact supported Minecraft version
 in `minecraft_version`, dependency metadata, and release notes. Four components are supported
 by [Fabric's version parser](https://docs.fabricmc.net/develop/loader/fabric-mod-json)
 and [NeoForge's Maven versioning](https://docs.neoforged.net/docs/gettingstarted/versioning/); comparisons are numeric
 by component, not plain text sorting.
 
-Both loaders publish the same numeric version; loader labels and filenames distinguish the downloads. The publishing
+Both loaders publish the same version; loader labels and filenames distinguish the downloads. The publishing
 workflow still creates `v<version>` tags, uses optional `changelogs/<version>.md` notes, and runs only when manually
 triggered. Select
-the `26.2` branch for this release line. Nothing is uploaded by a normal build.
+the `26.3` branch for this release candidate (`4.263.0.0-rc.1`). Nothing is uploaded by a normal build.
 
 ## Changelogs
 

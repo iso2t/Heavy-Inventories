@@ -118,9 +118,9 @@ public final class FallDamageScenario {
 			}
 			player.setGameMode(GameType.SURVIVAL);
 			player.getAbilities().flying = false;
-			player.setInvulnerable(true);
+			player.setPermanentlyInvulnerable(true);
 			landing(player, Blocks.STONE, 8, 0, "damage immunity");
-			player.setInvulnerable(false);
+			player.setPermanentlyInvulnerable(false);
 			player.fallDistance = 30;
 			player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 200, 0));
 			player.setDeltaMovement(0, -.1, 0);
@@ -156,7 +156,8 @@ public final class FallDamageScenario {
 
 	private static void landing (ServerPlayer player, Block block, double distance, double expected, String name) {
 		player.setHealth(100);
-		player.invulnerableTime = 0;
+		player.setInvulnerableTime(0);
+		player.damageCooldownTime = 0;
 		block.fallOn(player.level(), block.defaultBlockState(), player.blockPosition().below(), player, distance);
 		close(expected, 100 - player.getHealth(), name);
 	}

@@ -88,7 +88,7 @@ public final class RingCompatibilityScenario {
 					level = player.experienceLevel;
 					health = player.getHealth();
 					maxHealth = player.getAttribute(Attributes.MAX_HEALTH).getBaseValue();
-					time = server.clockManager().getTotalTicks(player.level().dimensionType().defaultClock().orElseThrow());
+					time = server.clockManager().getInstance(player.level().dimensionType().defaultClock().orElseThrow()).totalTicks();
 					player.removeAllEffects();
 					player.getInventory().clearContent();
 					player.getInventory().setItem(0, new ItemStack(Items.STONE));

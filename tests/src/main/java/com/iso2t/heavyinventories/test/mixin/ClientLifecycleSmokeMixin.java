@@ -1,6 +1,7 @@
 package com.iso2t.heavyinventories.test.mixin;
 
 import com.iso2t.heavyinventories.test.ClientLifecycleScenario;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -31,7 +32,7 @@ public abstract class ClientLifecycleSmokeMixin {
 					for (var child : upgrade.children()) {
 						if (child instanceof net.minecraft.client.gui.components.Button button && button.getMessage().equals(confirm)) {
 							heavyinventories$handledUpgrade = upgrade;
-							button.onPress(new net.minecraft.client.input.KeyEvent(org.lwjgl.glfw.GLFW.GLFW_KEY_ENTER, 0, 0));
+							button.onPress(new net.minecraft.client.input.KeyEvent(InputConstants.KEY_RETURN, InputConstants.KEYCODE_RETURN, 0));
 							break;
 						}
 					}

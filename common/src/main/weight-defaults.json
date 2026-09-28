@@ -16,6 +16,7 @@
         "minecraft:mangrove_log",
         "minecraft:oak_log",
         "minecraft:pale_oak_log",
+        "minecraft:poplar_log",
         "minecraft:spruce_log",
         "minecraft:stripped_acacia_log",
         "minecraft:stripped_birch_log",
@@ -26,6 +27,7 @@
         "minecraft:stripped_mangrove_log",
         "minecraft:stripped_oak_log",
         "minecraft:stripped_pale_oak_log",
+        "minecraft:stripped_poplar_log",
         "minecraft:stripped_spruce_log",
         "minecraft:stripped_warped_stem",
         "minecraft:warped_stem"
@@ -415,6 +417,7 @@
       "items": [
         "minecraft:brown_mushroom",
         "minecraft:red_mushroom",
+        "minecraft:shelf_mushroom",
         "minecraft:kelp"
       ]
     },
@@ -462,8 +465,11 @@
         "minecraft:jungle_leaves",
         "minecraft:mangrove_leaves",
         "minecraft:oak_leaves",
+        "minecraft:orange_poplar_leaves",
         "minecraft:pale_oak_leaves",
-        "minecraft:spruce_leaves"
+        "minecraft:red_poplar_leaves",
+        "minecraft:spruce_leaves",
+        "minecraft:yellow_poplar_leaves"
       ]
     },
     {
@@ -480,6 +486,7 @@
         "minecraft:mangrove_propagule",
         "minecraft:oak_sapling",
         "minecraft:pale_oak_sapling",
+        "minecraft:poplar_sapling",
         "minecraft:spruce_sapling"
       ]
     },
@@ -544,6 +551,7 @@
         "minecraft:large_fern",
         "minecraft:bush",
         "minecraft:dead_bush",
+        "minecraft:red_shrub",
         "minecraft:firefly_bush",
         "minecraft:spore_blossom",
         "minecraft:small_dripleaf",
@@ -1429,7 +1437,23 @@
       "reason": "Exploring preserves the empty map's baseline weight.",
       "weight": 8.9,
       "items": [
-        "minecraft:filled_map"
+        "minecraft:filled_map",
+        "minecraft:abandoned_camp_map",
+        "minecraft:buried_ancient_city_map",
+        "minecraft:buried_mineshaft_map",
+        "minecraft:buried_treasure_map",
+        "minecraft:buried_trial_chambers_map",
+        "minecraft:desert_pyramid_map",
+        "minecraft:desert_village_map",
+        "minecraft:jungle_pyramid_map",
+        "minecraft:ocean_monument_map",
+        "minecraft:plains_village_map",
+        "minecraft:savanna_village_map",
+        "minecraft:snowy_village_map",
+        "minecraft:swamp_hut_map",
+        "minecraft:taiga_village_map",
+        "minecraft:warm_ocean_ruins_map",
+        "minecraft:woodland_mansion_map"
       ]
     },
     {

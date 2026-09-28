@@ -93,7 +93,8 @@ public final class CombinedEffectsScenario {
 					player.checkMovementStatistics(0, 0, 1);
 					close(.01 * burden, food.heavyinventories$getExhaustion(), "combined walking cost");
 					player.setHealth(100);
-					player.invulnerableTime = 0;
+					player.setInvulnerableTime(0);
+					player.damageCooldownTime = 0;
 					Blocks.STONE.fallOn(level, Blocks.STONE.defaultBlockState(), player.blockPosition().below(), player, 8);
 					close(5 * (1 + Math.clamp((ratio - .9) / .35, 0, 1)), 100 - player.getHealth(), "combined fall damage");
 					water.heavyinventories$setWater(true);

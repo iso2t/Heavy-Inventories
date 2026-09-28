@@ -33,11 +33,14 @@ public final class BundledDefaultsScenario {
 		Map.of("cinnabar", 4f, "sulfur", 4f, "potent_sulfur", 4f, "sulfur_spike", 1f, "sulfur_cube_bucket", 10f, "music_disc_bounce", .1f, "cinnabar_slab", 2f, "sulfur_brick_stairs", 4f).forEach((item, weight) -> {
 			if (Math.abs(state.unitWeight(Identifier.withDefaultNamespace(item)) - weight) > .00001f) throw new AssertionError("Incorrect 26.2 material/recipe weight: " + item);
 		});
+		Map.of("poplar_log", 2f, "stripped_poplar_log", 2f, "poplar_planks", .5f, "red_poplar_leaves", .25f, "poplar_sapling", .1f, "red_shrub", .05f, "shelf_mushroom", .05f, "white_wool_stairs", .3f, "white_cushion", .3f, "straw_bed", .675f).forEach((item, weight) -> {
+			if (Math.abs(state.unitWeight(Identifier.withDefaultNamespace(item)) - weight) > .00001f) throw new AssertionError("Incorrect 26.3 material/recipe weight: " + item);
+		});
 		state.provenance().forEach((id, source) -> {
 			if (id.getNamespace().equals("minecraft") && source.source() == WeightProvenance.Source.FALLBACK && !id.getPath().endsWith("_spawn_egg") && !creativeFallbacks.contains(id.getPath()))
 				throw new AssertionError("Unexpected survival-item fallback: " + id);
 		});
-		for (String item : new String[] { "arrow", "oak_planks", "iron_pickaxe", "bone_block", "dried_kelp_block" }) {
+		for (String item : new String[] { "arrow", "oak_planks", "iron_pickaxe", "bone_block", "dried_kelp_block", "poplar_planks", "white_wool_stairs", "white_cushion", "straw_bed" }) {
 			if (state.provenance().get(Identifier.withDefaultNamespace(item)).source() != WeightProvenance.Source.RECIPE) throw new AssertionError("Ordinary recipe output became fixed: " + item);
 		}
 		String[] kit = { "iron_helmet", "iron_chestplate", "iron_leggings", "iron_boots", "iron_pickaxe", "iron_sword", "shield", "bow", "arrow", "cooked_beef", "torch", "crafting_table", "furnace" };

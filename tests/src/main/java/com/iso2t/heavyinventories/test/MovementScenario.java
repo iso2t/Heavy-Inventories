@@ -165,7 +165,8 @@ public final class MovementScenario {
 				waterGravity[i] = player.getDeltaMovement().y;
 				access.heavyinventories$setWater(false);
 				player.setHealth(20);
-				player.invulnerableTime = 0;
+				player.setInvulnerableTime(0);
+				player.damageCooldownTime = 0;
 				player.causeFallDamage(5, 1, player.damageSources().fall());
 				require(Math.abs(player.getHealth() - (20 - damage[i])) < 0.001, "Fall damage scaling mismatch");
 			}
@@ -180,7 +181,8 @@ public final class MovementScenario {
 			player.setPos(position);
 			player.setDeltaMovement(Vec3.ZERO);
 			player.setHealth(20);
-			player.invulnerableTime = 0;
+			player.setInvulnerableTime(0);
+			player.damageCooldownTime = 0;
 		}
 	}
 
