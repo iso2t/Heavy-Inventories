@@ -11,10 +11,12 @@ import com.iso2t.heavyinventories.server.ServerWeightState;
 import com.iso2t.heavyinventories.test.mixin.GuiFeedbackTestAccess;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
+import net.minecraft.network.protocol.game.ClientboundSetExperiencePacket;
 import net.minecraft.network.protocol.game.ClientboundTrackedWaypointPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.equine.Horse;
@@ -91,11 +93,11 @@ public final class RingCompatibilityScenario {
 					player.getInventory().clearContent();
 					player.getInventory().setItem(0, new ItemStack(Items.STONE));
 					player.setExperienceLevels(30);
-					player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetExperiencePacket(0, 0, 30));
+					player.connection.send(new ClientboundSetExperiencePacket(0, 0, 30));
 					player.connection.send(ClientboundTrackedWaypointPacket.addWaypointAzimuth(WAYPOINT, new Waypoint.Icon(), 0));
 				} else if (index == 1) {
 					player.connection.send(ClientboundTrackedWaypointPacket.removeWaypoint(WAYPOINT));
-					horse = net.minecraft.world.entity.EntityTypes.HORSE.create(player.level(), EntitySpawnReason.COMMAND);
+					horse = EntityTypes.HORSE.create(player.level(), EntitySpawnReason.COMMAND);
 					if (horse == null) throw new AssertionError("Horse fixture could not spawn");
 					horse.setPos(player.position());
 					horse.setNoAi(true);

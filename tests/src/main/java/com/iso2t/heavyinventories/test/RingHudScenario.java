@@ -9,12 +9,17 @@ import com.iso2t.heavyinventories.platform.Services;
 import com.iso2t.heavyinventories.player.PlayerEvents;
 import com.iso2t.heavyinventories.player.PlayerHolder;
 import com.iso2t.heavyinventories.server.ServerWeightState;
+import com.iso2t.heavyinventories.weight.StackWeight;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSetExperiencePacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ItemContainerContents;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -76,7 +81,7 @@ public final class RingHudScenario {
 			HeavyInventories.LOGGER.info("Ring checkpoint {}", test.name());
 			client.gui.setScreen(null);
 			client.gui.hud.getChat().clearMessages(true);
-			client.gui.hud.setOverlayMessage(net.minecraft.network.chat.Component.empty(), false);
+			client.gui.hud.setOverlayMessage(Component.empty(), false);
 			client.options.guiScale().set(2);
 			ConfigOptions.HUD_MODE = test.mode();
 			ConfigOptions.RING_VERTICAL_OFFSET = test.offset();
@@ -90,14 +95,14 @@ public final class RingHudScenario {
 					var nested = new ItemStack(Items.STONE);
 					for (int depth = 0; depth < 18; depth++) {
 						var box = new ItemStack(Items.SHULKER_BOX);
-						box.set(net.minecraft.core.component.DataComponents.CONTAINER, net.minecraft.world.item.component.ItemContainerContents.fromItems(List.of(nested)));
+						box.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(List.of(nested)));
 						nested = box;
 					}
 					player.getInventory().setItem(0, nested);
 				}
 				player.setExperienceLevels(test.level());
 				// Send the fixture explicitly; do not depend on vanilla's total-XP dirty check.
-				player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetExperiencePacket(player.experienceProgress, player.totalExperience, player.experienceLevel));
+				player.connection.send(new ClientboundSetExperiencePacket(player.experienceProgress, player.totalExperience, player.experienceLevel));
 				var state = ServerWeightState.of(client.getSingleplayerServer());
 				state.replace(ServerSettings.DEFAULT, Map.of(Identifier.withDefaultNamespace("stone"), test.percent() * 10f));
 				PlayerEvents.onPlayerTick(player);
@@ -108,7 +113,7 @@ public final class RingHudScenario {
 			if (!operation.isDone()) return false;
 			operation.join();
 			var holder = PlayerHolder.getOrCreate(client.player);
-			float expectedWeight = test.percent() == 126 ? com.iso2t.heavyinventories.weight.StackWeight.TOO_COMPLEX : test.percent() * 10f;
+			float expectedWeight = test.percent() == 126 ? StackWeight.TOO_COMPLEX : test.percent() * 10f;
 			if (holder.getWeight() != expectedWeight || holder.getMaxWeight() != 1000 || client.player.experienceLevel != test.level()) {
 				if (++waiting > 100) throw new AssertionError("Ring snapshot mismatch " + test.name() + ": weight=" + holder.getWeight() + ", capacity=" + holder.getMaxWeight() + ", xp=" + client.player.experienceLevel);
 				return false;

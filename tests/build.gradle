@@ -23,6 +23,8 @@ dependencies {
 // The harness uses the same Minecraft, Mixin, and Cloth APIs as the shared production code.
 sourceSets.main.compileClasspath += project(':common').sourceSets.main.compileClasspath
 
+apply from: 'verify-log.gradle'
+
 if (providers.gradleProperty('runtimeTests').isPresent()) {
     apply from: 'runs.gradle'
 }

@@ -2,12 +2,17 @@ package com.iso2t.heavyinventories.test;
 
 import com.iso2t.heavyinventories.HeavyInventories;
 import com.iso2t.heavyinventories.config.ConfigFileManager;
+import com.iso2t.heavyinventories.config.EffectsSettings;
 import com.iso2t.heavyinventories.config.ServerSettings;
+import com.iso2t.heavyinventories.config.WalkingMode;
 import com.iso2t.heavyinventories.platform.Services;
+import com.iso2t.heavyinventories.player.PlayerEvents;
 import com.iso2t.heavyinventories.player.PlayerHolder;
 import com.iso2t.heavyinventories.server.ServerWeightState;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.protocol.game.ClientboundSetExperiencePacket;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.NameAndId;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -23,12 +28,12 @@ import java.util.HashMap;
  */
 public final class NetworkAuthorityScenario {
 	private static int serverStage, ticks, startedAt;
-	private static long                                    initialRevision;
-	private static net.minecraft.server.level.ServerPlayer initialPlayer;
-	private static Path                                    config;
-	private static byte[]                                  previousConfig;
-	private static NameAndId                               profile;
-	private static boolean                                 wasOp, prepared;
+	private static long         initialRevision;
+	private static ServerPlayer initialPlayer;
+	private static Path         config;
+	private static byte[]       previousConfig;
+	private static NameAndId    profile;
+	private static boolean      wasOp, prepared;
 
 	public static void serverTick (MinecraftServer server) {
 		if (!server.isDedicatedServer()) return;
@@ -52,19 +57,19 @@ public final class NetworkAuthorityScenario {
 				player.getInventory().clearContent();
 				player.getInventory().setItem(0, new ItemStack(Items.STONE, 8));
 				player.setExperienceLevels(30);
-				player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetExperiencePacket(0, 0, 30));
+				player.connection.send(new ClientboundSetExperiencePacket(0, 0, 30));
 				startedAt = ticks;
 				serverStage = 1;
 			} else if (serverStage == 1 && ticks - startedAt > 100) {
 				require(state.revision() == initialRevision, "Non-operator network request changed settings");
-				require(state.settings().effects().equals(com.iso2t.heavyinventories.config.EffectsSettings.DEFAULT), "Denied request changed effects");
+				require(state.settings().effects().equals(EffectsSettings.DEFAULT), "Denied request changed effects");
 				require(Arrays.equals(previousConfig, Files.exists(config) ? Files.readAllBytes(config) : null), "Non-operator request changed the config file");
 				players.op(profile);
 				serverStage = 2;
 			} else if (serverStage == 2 && state.settings().startingWeight() == 20.25f) {
 				require(state.revision() == initialRevision + 1, "Invalid/stale requests were applied");
 				require(ConfigFileManager.readServerConfig(config).startingWeight() == 20.25f, "Edit was not persisted on dedicated server");
-				require(ConfigFileManager.readServerConfig(config).walkingMode() == com.iso2t.heavyinventories.config.WalkingMode.AT_NINETY_PERCENT, "Walking mode was not persisted");
+				require(ConfigFileManager.readServerConfig(config).walkingMode() == WalkingMode.AT_NINETY_PERCENT, "Walking mode was not persisted");
 				var persistedEffects = ConfigFileManager.readServerConfig(config).effects();
 				require(persistedEffects.exhaustion().maxMultiplier() == 2.25f && persistedEffects.fallDamage().maxMultiplier() == 3.5f && persistedEffects.knockback().referenceWeight() == 800.25f, "Remote effects were not persisted");
 				serverStage = 3;
@@ -81,7 +86,7 @@ public final class NetworkAuthorityScenario {
 				var replacement = players.getPlayers().getFirst();
 				require(replacement != initialPlayer && PlayerHolder.getOrCreate(replacement) != PlayerHolder.getOrCreate(initialPlayer), "Reconnect reused a player holder");
 				replacement.removeAllEffects();
-				com.iso2t.heavyinventories.player.PlayerEvents.onPlayerTick(replacement);
+				PlayerEvents.onPlayerTick(replacement);
 				require(PlayerHolder.getOrCreate(replacement).getWeight() == 45 && PlayerHolder.getOrCreate(replacement).getMaxWeight() == 512, "Reconnect did not rebuild from persisted equipment and new definitions");
 				KnockbackScenario.checkBonus(replacement, 0.018f);
 				HeavyInventories.LOGGER.info("KNOCKBACK RECONNECT PASSED: rebuilt from persisted inventory and changed definitions");

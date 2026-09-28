@@ -4,6 +4,7 @@ import com.iso2t.heavyinventories.HeavyInventories;
 import com.iso2t.heavyinventories.platform.Services;
 import com.iso2t.heavyinventories.server.ServerWeightState;
 import com.iso2t.heavyinventories.util.JsonFiles;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.NameAndId;
@@ -122,7 +123,7 @@ public final class AdminScenario {
 	private static int execute (ServerPlayer player, String command) {
 		try {
 			return player.level().getServer().getCommands().getDispatcher().execute("heavyinventories " + command, player.createCommandSourceStack());
-		} catch (com.mojang.brigadier.exceptions.CommandSyntaxException e) {
+		} catch (CommandSyntaxException e) {
 			return 0;
 		}
 	}

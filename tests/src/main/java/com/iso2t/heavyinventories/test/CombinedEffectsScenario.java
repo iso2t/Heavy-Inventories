@@ -18,6 +18,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
@@ -62,7 +63,7 @@ public final class CombinedEffectsScenario {
 
 			@Override
 			public void send (Packet<?> packet) {
-				if (packet instanceof ClientboundCustomPayloadPacket custom && custom.payload() instanceof PlayerWeightPayload) snapshots[0]++;
+				if (packet instanceof ClientboundCustomPayloadPacket(CustomPacketPayload payload) && payload instanceof PlayerWeightPayload) snapshots[0]++;
 			}
 		};
 		var holder = PlayerHolder.getOrCreate(player);

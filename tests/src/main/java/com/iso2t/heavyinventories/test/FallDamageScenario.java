@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
@@ -19,6 +20,7 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -51,7 +53,7 @@ public final class FallDamageScenario {
 		var holder = PlayerHolder.getOrCreate(player);
 		var weights = new HashMap<>(savedWeights);
 		weights.put(BuiltInRegistries.ITEM.getKey(Items.STONE), 25f);
-		for (var item : new net.minecraft.world.item.Item[] { Items.IRON_BOOTS, Items.IRON_CHESTPLATE, Items.IRON_LEGGINGS })
+		for (var item : new Item[] { Items.IRON_BOOTS, Items.IRON_CHESTPLATE, Items.IRON_LEGGINGS })
 			weights.put(BuiltInRegistries.ITEM.getKey(item), 0f);
 		try {
 			player.setGameMode(GameType.SURVIVAL);
@@ -73,7 +75,7 @@ public final class FallDamageScenario {
 			load(player, 50);
 			landing(player, Blocks.HAY_BLOCK, 13, 4, "hay reduction");
 			landing(player, Blocks.HONEY_BLOCK, 13, 4, "honey reduction");
-			landing(player, BuiltInRegistries.BLOCK.getValue(net.minecraft.resources.Identifier.withDefaultNamespace("red_bed")), 10, 4, "bed reduction");
+			landing(player, BuiltInRegistries.BLOCK.getValue(Identifier.withDefaultNamespace("red_bed")), 10, 4, "bed reduction");
 			landing(player, Blocks.HAY_BLOCK, 7, 0, "harmless cushioned fall stays harmless");
 			landing(player, Blocks.SLIME_BLOCK, 30, 0, "slime immunity");
 			player.setDeltaMovement(0, -1, 0);

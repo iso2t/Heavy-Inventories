@@ -1,15 +1,23 @@
 package com.iso2t.heavyinventories.test;
 
 import com.iso2t.heavyinventories.HeavyInventories;
+import com.iso2t.heavyinventories.network.ItemWeightsPayload;
+import com.iso2t.heavyinventories.player.PlayerEvents;
+import com.iso2t.heavyinventories.player.PlayerHolder;
 import com.iso2t.heavyinventories.server.ServerWeightState;
+import com.iso2t.heavyinventories.server.weight.LegacyWeightConverter;
 import com.iso2t.heavyinventories.server.weight.WeightDefinition;
 import com.iso2t.heavyinventories.server.weight.WeightPackAccess;
 import com.iso2t.heavyinventories.server.weight.WeightPackData;
+import com.iso2t.heavyinventories.server.weight.WeightProvenance;
 import net.minecraft.SharedConstants;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.LevelResource;
 
 import java.io.IOException;
@@ -32,8 +40,8 @@ public final class DatapackLoadingScenario {
 	private static WeightPackAccess       firstLoadedData;
 	private static long                   gameplayRevision;
 	private static Map<Identifier, Float> gameplayWeights, baselineWeights;
-	private static          List<com.iso2t.heavyinventories.network.ItemWeightsPayload>                gameplayPackets;
-	private static          Map<Identifier, com.iso2t.heavyinventories.server.weight.WeightProvenance> gameplayProvenance;
+	private static          List<ItemWeightsPayload>                                                   gameplayPackets;
+	private static          Map<Identifier, WeightProvenance> gameplayProvenance;
 	private static          ResourceManager                                                            beforeFailure;
 	private static          Runnable                                                                   afterClient;
 	private static          int                                                                        checkpointId;
@@ -101,10 +109,10 @@ public final class DatapackLoadingScenario {
 					if (!server.isDedicatedServer()) {
 						var player = server.getPlayerList().getPlayers().getFirst();
 						player.getInventory().clearContent();
-						player.containerMenu.setCarried(net.minecraft.world.item.ItemStack.EMPTY);
+						player.containerMenu.setCarried(ItemStack.EMPTY);
 						player.removeAllEffects();
-						player.getInventory().setItem(0, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.ARROW, 64));
-						com.iso2t.heavyinventories.player.PlayerEvents.onPlayerTick(player);
+						player.getInventory().setItem(0, new ItemStack(Items.ARROW, 64));
+						PlayerEvents.onPlayerTick(player);
 					}
 					originalSelection = List.copyOf(server.getPackRepository().getSelectedIds());
 					dataDirectory = server.getWorldPath(LevelResource.DATAPACK_DIR).toAbsolutePath().normalize();
@@ -126,7 +134,7 @@ public final class DatapackLoadingScenario {
 					var legacy = Files.createDirectories(base.resolve("legacy-input"));
 					Files.writeString(legacy.resolve("minecraft.json"), "{\"paper\":{\"weight\":0.375}}");
 					var format = SharedConstants.getCurrentVersion().packVersion(PackType.SERVER_DATA);
-					var converted = com.iso2t.heavyinventories.server.weight.LegacyWeightConverter.convert(legacy, base.resolve("conversion-output"), "converted", format.major(), format.minor());
+					var converted = LegacyWeightConverter.convert(legacy, base.resolve("conversion-output"), "converted", format.major(), format.minor());
 					convertedPack = dataDirectory.resolve("heavyinventories-test-converted-" + suffix + ".zip");
 					Files.copy(converted.file(), convertedPack);
 					testSelection = new ArrayList<>(originalSelection);
@@ -153,7 +161,7 @@ public final class DatapackLoadingScenario {
 					near(ServerWeightState.of(server), "minecraft:stone", 0);
 					near(ServerWeightState.of(server), "minecraft:paper", 0.375f);
 					var paper = ServerWeightState.of(server).provenance().get(id("minecraft:paper"));
-					require(paper.source() == com.iso2t.heavyinventories.server.weight.WeightProvenance.Source.EXPLICIT && paper.definition().sourcePack().contains(convertedPack.getFileName().toString()), "Converted pack provenance lost");
+					require(paper.source() == WeightProvenance.Source.EXPLICIT && paper.definition().sourcePack().contains(convertedPack.getFileName().toString()), "Converted pack provenance lost");
 					near(ServerWeightState.of(server), "minecraft:stick", 0.25f);
 					near(ServerWeightState.of(server), "minecraft:charcoal", 2f);
 					require(!ServerWeightState.of(server).explicitWeights().containsKey(id("minecraft:stick")), "Infer retained a fixed anchor");
@@ -260,7 +268,7 @@ public final class DatapackLoadingScenario {
 	private static void adoptedGameplay (MinecraftServer server) {
 		var state = ServerWeightState.of(server);
 		require(state.revision() == gameplayRevision + 1, "Successful application did not advance revision");
-		require(state.weights().size() == net.minecraft.core.registries.BuiltInRegistries.ITEM.size(), "Incomplete gameplay table");
+		require(state.weights().size() == BuiltInRegistries.ITEM.size(), "Incomplete gameplay table");
 		gameplayRevision = state.revision();
 		gameplayWeights = state.weights();
 		gameplayPackets = state.packets();
@@ -275,7 +283,7 @@ public final class DatapackLoadingScenario {
 		var state = ServerWeightState.of(server);
 		var player = server.getPlayerList().getPlayers().getFirst();
 		float total = state.unitWeight(id("minecraft:arrow")) * 64;
-		require(Math.abs(com.iso2t.heavyinventories.player.PlayerHolder.getOrCreate(player).getWeight() - total) < 0.0001f, "Reload did not immediately refresh the unchanged inventory");
+		require(Math.abs(PlayerHolder.getOrCreate(player).getWeight() - total) < 0.0001f, "Reload did not immediately refresh the unchanged inventory");
 		afterClient = action;
 		checkpoint = new Checkpoint(++checkpointId, state.revision(), state.unitWeight(id("minecraft:arrow")), state.unitWeight(id("minecraft:stone")), total);
 	}

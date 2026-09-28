@@ -1,12 +1,16 @@
 package com.iso2t.heavyinventories.test;
 
+import com.iso2t.heavyinventories.HeavyInventories;
 import com.iso2t.heavyinventories.client.ClientConfigScreen;
 import com.iso2t.heavyinventories.client.ConfigScreens;
 import com.iso2t.heavyinventories.config.ClientSettings;
 import com.iso2t.heavyinventories.config.ConfigFileManager;
+import com.iso2t.heavyinventories.config.ConfigOptions;
 import com.iso2t.heavyinventories.platform.Services;
 import com.iso2t.heavyinventories.test.mixin.GuiFeedbackTestAccess;
 import com.iso2t.heavyinventories.util.MeasuringSystem;
+import me.shedaniel.clothconfig2.gui.entries.ColorEntry;
+import me.shedaniel.clothconfig2.gui.entries.IntegerListEntry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
@@ -56,11 +60,11 @@ public final class FeedbackScenario {
 			var entries = builder.getOrCreateCategory(Component.translatable("category.heavyinventories.general")).getEntries();
 			int[] colors = { 0x123456, 0xABCDEF, 0x010203 };
 			for (int i = 0; i < 3; i++) {
-				var entry = (me.shedaniel.clothconfig2.gui.entries.ColorEntry) entries.get(i + 2);
+				var entry = (ColorEntry) entries.get(i + 2);
 				entry.setValue(colors[i]);
 				entry.save();
 			}
-			var offset = (me.shedaniel.clothconfig2.gui.entries.IntegerListEntry) entries.get(6);
+			var offset = (IntegerListEntry) entries.get(6);
 			offset.setValue("12");
 			offset.save();
 			builder.getSavingRunnable().run();
@@ -69,10 +73,10 @@ public final class FeedbackScenario {
 			require(ClientSettings.current().encumbered() == colors[1], "Color did not persist");
 			require(ClientSettings.current().ringVerticalOffset() == 12, "Ring offset did not persist");
 			var fresh = ClientConfigScreen.create().getOrCreateCategory(Component.translatable("category.heavyinventories.general")).getEntries();
-			require(((me.shedaniel.clothconfig2.gui.entries.ColorEntry) fresh.get(3)).getValue() == colors[1], "Reopened screen retained stale state");
-			require(((me.shedaniel.clothconfig2.gui.entries.IntegerListEntry) fresh.get(6)).getValue() == 12, "Reopened offset is stale");
+			require(((ColorEntry) fresh.get(3)).getValue() == colors[1], "Reopened screen retained stale state");
+			require(((IntegerListEntry) fresh.get(6)).getValue() == 12, "Reopened offset is stale");
 			ConfigFileManager.saveClientConfig(new ClientSettings(MeasuringSystem.KGS, true, 0xFFFFFF, 0xFFFF55, 0xFF5555));
-			if (client.gui.hud.isHidden() != false) client.gui.hud.toggle();
+			if (client.gui.hud.isHidden()) client.gui.hud.toggle();
 			client.gui.setScreen(null);
 			hudFrames = 0;
 		} catch (IOException e) {
@@ -86,16 +90,16 @@ public final class FeedbackScenario {
 		switch (visibilityPhase) {
 			case 0 -> {
 				previousFrames = hudFrames;
-				if (client.gui.hud.isHidden() != true) client.gui.hud.toggle();
+				if (!client.gui.hud.isHidden()) client.gui.hud.toggle();
 			}
 			case 1 -> {
 				require(hudFrames == previousFrames, "F1 did not hide the weight HUD");
-				if (client.gui.hud.isHidden() != false) client.gui.hud.toggle();
-				com.iso2t.heavyinventories.config.ConfigOptions.ENABLE_GUI_OVERLAY = false;
+				if (client.gui.hud.isHidden()) client.gui.hud.toggle();
+				ConfigOptions.ENABLE_GUI_OVERLAY = false;
 			}
 			case 2 -> {
 				require(hudFrames == previousFrames, "Overlay toggle did not hide the weight HUD");
-				com.iso2t.heavyinventories.config.ConfigOptions.ENABLE_GUI_OVERLAY = true;
+				ConfigOptions.ENABLE_GUI_OVERLAY = true;
 				client.gui.setScreen(ClientConfigScreen.create().build());
 			}
 			case 3 -> {
@@ -111,7 +115,7 @@ public final class FeedbackScenario {
 			case 5 -> {
 				require(hudFrames > previousFrames, "HUD missing at GUI scale 2");
 				client.options.guiScale().set(originalScale);
-				com.iso2t.heavyinventories.HeavyInventories.LOGGER.info("GUI COMPATIBILITY PASSED: F1, overlay toggle, screen suppression, GUI scales 1 and 2");
+				HeavyInventories.LOGGER.info("GUI COMPATIBILITY PASSED: F1, overlay toggle, screen suppression, GUI scales 1 and 2");
 			}
 		}
 		phaseTicks = 0;

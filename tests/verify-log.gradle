@@ -1,0 +1,50 @@
+def markersByMode = [
+    Server: ['LIFECYCLE SMOKE PASSED', 'SERVER MOVEMENT PASSED', 'EXHAUSTION PASSED',
+             'FALL DAMAGE PASSED', 'FLUID MOVEMENT PASSED', 'KNOCKBACK PASSED', 'COMBINED EFFECTS PASSED'],
+    Client: ['RING HUD PASSED', 'RING COMPATIBILITY PASSED', 'CLIENT DATAPACK GAMEPLAY PASSED',
+             'CLIENT LIFECYCLE SMOKE PASSED', 'KNOCKBACK LIFECYCLE PASSED', 'CLIENT WEIGHT CALCULATION PASSED',
+             'CLIENT MOVEMENT PASSED', 'ADMIN TOOLS PASSED', 'PLAYER FEEDBACK PASSED', 'GUI COMPATIBILITY PASSED',
+             'BASELINE COMPATIBILITY PASSED', 'EXHAUSTION PASSED', 'FALL DAMAGE PASSED', 'FLUID MOVEMENT PASSED',
+             'KNOCKBACK PASSED', 'COMBINED EFFECTS PASSED'],
+    MultiplayerServer: ['MULTIPLAYER SERVER AUTHORITY PASSED', 'MULTIPLAYER RECONNECT SERVER PASSED',
+                        'KNOCKBACK RECONNECT PASSED', 'BASELINE COMPATIBILITY PASSED', 'EXHAUSTION PASSED',
+                        'FALL DAMAGE PASSED', 'FLUID MOVEMENT PASSED', 'KNOCKBACK PASSED', 'COMBINED EFFECTS PASSED'],
+    MultiplayerClient: ['MULTIPLAYER RING PASSED', 'MULTIPLAYER CLIENT AUTHORITY PASSED',
+                        'MULTIPLAYER MOVEMENT PASSED', 'MULTIPLAYER RECONNECT CLIENT PASSED'],
+    Datapack: ['BUNDLED DEFAULTS PASSED', 'DATAPACK LOADING PASSED', 'DATAPACK GAMEPLAY PASSED',
+               'DATAPACK RELOAD PASSED', 'DATAPACK CONVERSION PASSED'],
+    DatapackClient: ['BUNDLED DEFAULTS PASSED', 'DATAPACK RELOAD PASSED', 'CLIENT DATAPACK RELOAD PASSED']
+]
+def logPath = providers.gradleProperty('runtimeLog')
+def mode = providers.gradleProperty('runtimeMode')
+def rootDirectory = rootProject.layout.projectDirectory
+
+tasks.register('verifyRuntimeLog') {
+    group = 'verification'
+    description = 'Checks a saved Minecraft test log using -PruntimeLog=<path> -PruntimeMode=<mode>.'
+
+    doLast {
+        if (!logPath.isPresent() || !mode.isPresent()) {
+            throw new GradleException('Specify -PruntimeLog=<path> and -PruntimeMode=<mode>. Modes: ' + markersByMode.keySet().join(', '))
+        }
+        def markers = markersByMode[mode.get()]
+        if (markers == null) {
+            throw new GradleException("Unknown runtime mode '${mode.get()}'. Modes: " + markersByMode.keySet().join(', '))
+        }
+        def log = rootDirectory.file(logPath.get()).asFile
+        if (!log.isFile()) throw new GradleException("Runtime log does not exist: ${log}")
+
+        byte[] bytes = log.bytes
+        // Windows PowerShell redirects to UTF-16; modern shells normally use UTF-8.
+        boolean utf16 = bytes.length >= 2 && ((bytes[0] == (byte) 0xff && bytes[1] == (byte) 0xfe)
+                || (bytes[0] == (byte) 0xfe && bytes[1] == (byte) 0xff))
+        String content = new String(bytes, utf16 ? 'UTF-16' : 'UTF-8')
+        if (content =~ /(?i)AssertionError|Critical injection failure|MixinTransformerError|Game crashed!|Exception in server tick loop|BUILD FAILED/) {
+            throw new GradleException("Runtime failure in ${log}")
+        }
+        def missing = markers.findAll { !content.contains(it) }
+        if (!missing.empty) throw new GradleException("Missing test results in ${log}: " + missing.join(', '))
+        if (!content.contains('BUILD SUCCESSFUL')) throw new GradleException("Gradle did not complete successfully in ${log}")
+        logger.lifecycle("${mode.get()} acceptance passed: ${log}")
+    }
+}

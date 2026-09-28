@@ -32,7 +32,6 @@ runs
 __pycache__/
 *.pyc
 /gradle/packaged-smoke.gradle
-/scripts/assert-runtime.ps1
 
 /docs
 !/docs/CONTRIBUTING.md

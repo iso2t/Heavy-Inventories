@@ -8,13 +8,16 @@ import com.iso2t.heavyinventories.test.mixin.FluidTravelTestAccess;
 import com.iso2t.heavyinventories.test.mixin.FoodDataTestAccess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.LinkedHashMap;
@@ -36,7 +39,7 @@ public final class CompatibilityScenario {
 		PlayerEvents.onPlayerTick(player);
 		require(!player.hasEffect(MobEffects.STRENGTH) && holder.getMaxWeight() == 1000, "Strength expiry retained capacity");
 
-		var boat = net.minecraft.world.entity.EntityTypes.OAK_BOAT.create(player.level(), EntitySpawnReason.COMMAND);
+		var boat = EntityTypes.OAK_BOAT.create(player.level(), EntitySpawnReason.COMMAND);
 		require(boat != null, "Boat creation failed");
 		boat.setPos(player.position());
 		try {
@@ -83,7 +86,7 @@ public final class CompatibilityScenario {
 		var originalPosition = player.position();
 		// Test at build height inside the already loaded player chunk. Restore every touched block.
 		var center = new BlockPos((player.getBlockX() >> 4) * 16 + 8, level.getMaxY() - 12, (player.getBlockZ() >> 4) * 16 + 8);
-		var original = new LinkedHashMap<BlockPos, net.minecraft.world.level.block.state.BlockState>();
+		var original = new LinkedHashMap<BlockPos, BlockState>();
 		var access = (FluidTestAccess) player;
 		var travel = (FluidTravelTestAccess) player;
 		try {
@@ -94,7 +97,7 @@ public final class CompatibilityScenario {
 			}
 			player.setPos(center.getX() + 0.5, center.getY(), center.getZ() + 0.5);
 			access.heavyinventories$updateFluid();
-			require(player.isInLava() && player.getFluidHeight(net.minecraft.tags.FluidTags.LAVA) > 0.4, "Test did not enter deep lava: height=" + player.getFluidHeight(net.minecraft.tags.FluidTags.LAVA) + ", ticks=" + player.tickCount + ", block=" + level.getFluidState(center));
+			require(player.isInLava() && player.getFluidHeight(FluidTags.LAVA) > 0.4, "Test did not enter deep lava: height=" + player.getFluidHeight(FluidTags.LAVA) + ", ticks=" + player.tickCount + ", block=" + level.getFluidState(center));
 			double[] acceleration = new double[3];
 			int[] counts = { 5, 9, 15 };
 			double[] swim = { 1, 1, 0.5 };

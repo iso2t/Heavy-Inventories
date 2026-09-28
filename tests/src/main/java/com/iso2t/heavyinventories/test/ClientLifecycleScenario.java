@@ -1,8 +1,11 @@
 package com.iso2t.heavyinventories.test;
 
 import com.iso2t.heavyinventories.HeavyInventories;
+import com.iso2t.heavyinventories.client.ClientConfigScreen;
 import com.iso2t.heavyinventories.client.ClientWeightData;
+import com.iso2t.heavyinventories.client.WeightDisplay;
 import com.iso2t.heavyinventories.config.ConfigFileManager;
+import com.iso2t.heavyinventories.config.ConfigOptions;
 import com.iso2t.heavyinventories.config.ServerSettings;
 import com.iso2t.heavyinventories.network.ServerConfigUpdatePayload;
 import com.iso2t.heavyinventories.platform.Services;
@@ -10,7 +13,10 @@ import com.iso2t.heavyinventories.player.PlayerEvents;
 import com.iso2t.heavyinventories.player.PlayerHolder;
 import com.iso2t.heavyinventories.server.ServerConfiguration;
 import com.iso2t.heavyinventories.server.ServerWeightState;
+import com.iso2t.heavyinventories.tooltips.Tooltip;
+import com.iso2t.heavyinventories.weight.StackWeight;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.Screenshot;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
@@ -20,6 +26,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -65,8 +72,8 @@ public final class ClientLifecycleScenario {
 				if (!PlayerHolder.getOrCreate(client.player).hasServerState() || arrowWeight == null) return;
 				require(Math.abs(arrowWeight - 0.09f) < 0.000001f, "Fresh client did not receive inferred arrow weight");
 				for (int count : new int[] { 1, 64 }) {
-					var lines = com.iso2t.heavyinventories.tooltips.Tooltip.addTooltips(new ArrayList<>(), new ItemStack(Items.ARROW, count));
-					String expected = com.iso2t.heavyinventories.client.WeightDisplay.weight(0.09f * count, com.iso2t.heavyinventories.config.ConfigOptions.WEIGHT_MEASURE);
+					var lines = Tooltip.addTooltips(new ArrayList<>(), new ItemStack(Items.ARROW, count));
+					String expected = WeightDisplay.weight(0.09f * count, ConfigOptions.WEIGHT_MEASURE);
 					require(lines.stream().anyMatch(line -> line.getString().contains(expected)), "Arrow tooltip differs from inferred weight");
 				}
 				pauseOnLostFocus = client.options.pauseOnLostFocus;
@@ -255,10 +262,10 @@ public final class ClientLifecycleScenario {
 				if (!weightsMatch(client, 44f)) return;
 				var box = client.player.getInventory().getItem(0);
 				if (!box.is(Items.SHULKER_BOX)) return;
-				var tooltipWeight = com.iso2t.heavyinventories.weight.StackWeight.of(box, ClientWeightData::unitWeight);
+				var tooltipWeight = StackWeight.of(box, ClientWeightData::unitWeight);
 				require(tooltipWeight.complete() && tooltipWeight.weight() == 32f, "Client container contents disagree with server");
-				var tooltip = com.iso2t.heavyinventories.tooltips.Tooltip.addTooltips(new ArrayList<>(), box);
-				require(tooltip.stream().anyMatch(line -> line.getString().contains(com.iso2t.heavyinventories.client.WeightDisplay.weight(32, com.iso2t.heavyinventories.config.ConfigOptions.WEIGHT_MEASURE))), "Tooltip omits nested stack weight");
+				var tooltip = Tooltip.addTooltips(new ArrayList<>(), box);
+				require(tooltip.stream().anyMatch(line -> line.getString().contains(WeightDisplay.weight(32, ConfigOptions.WEIGHT_MEASURE))), "Tooltip omits nested stack weight");
 				HeavyInventories.LOGGER.info("CLIENT LIFECYCLE SMOKE PASSED: server authority, inventory sync, respawn, dimension travel, operator network edit, permission/invalid/stale rejection, persistence, transactional reload, live bonus rebase");
 				HeavyInventories.LOGGER.info("CLIENT WEIGHT CALCULATION PASSED: equipment, cursor/crafting transfers, nested contents, component/definition updates, synchronized container tooltip, recipe output counts");
 				operation = server.submit(() -> {
@@ -276,7 +283,7 @@ public final class ClientLifecycleScenario {
 				require(holder.getStrengthOffset() == 200, "Strength capacity did not synchronize");
 				require(holder.isOverEncumbered(), "Overload did not synchronize");
 				MovementScenario.checkImpulse(client.player, 0.2);
-				client.player.setDeltaMovement(net.minecraft.world.phys.Vec3.ZERO);
+				client.player.setDeltaMovement(Vec3.ZERO);
 				client.player.jumpFromGround();
 				require(client.player.getDeltaMovement().y == 0, "Client allowed an overloaded jump");
 				FeedbackScenario.checkJump(client);
@@ -316,18 +323,18 @@ public final class ClientLifecycleScenario {
 				if (++feedbackTicks < 12) return;
 				require(FeedbackScenario.hudFrames > 0, "HUD was not registered or rendered");
 				screenshotDone = false;
-				net.minecraft.client.Screenshot.grab(Services.PLATFORM.getGameDirectory().toFile(), "step7-hud.png", client.gameRenderer.mainRenderTarget(), 1, message -> screenshotDone = true);
+				Screenshot.grab(Services.PLATFORM.getGameDirectory().toFile(), "step7-hud.png", client.gameRenderer.mainRenderTarget(), 1, message -> screenshotDone = true);
 				stage++;
 			}
 			case 15 -> {
 				if (!screenshotDone) return;
-				client.gui.setScreen(com.iso2t.heavyinventories.client.ClientConfigScreen.create().build());
+				client.gui.setScreen(ClientConfigScreen.create().build());
 				feedbackTicks = 0;
 				screenshotDone = false;
 				stage++;
 			}
 			case 16 -> {
-				if (++feedbackTicks == 12) net.minecraft.client.Screenshot.grab(Services.PLATFORM.getGameDirectory().toFile(), "step7-settings.png", client.gameRenderer.mainRenderTarget(), 1, message -> screenshotDone = true);
+				if (++feedbackTicks == 12) Screenshot.grab(Services.PLATFORM.getGameDirectory().toFile(), "step7-settings.png", client.gameRenderer.mainRenderTarget(), 1, message -> screenshotDone = true);
 				if (!screenshotDone) return;
 				client.gui.setScreen(null);
 				stage++;

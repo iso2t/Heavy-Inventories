@@ -31,6 +31,7 @@ import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.ServerExplosion;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.NonNull;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -155,7 +156,7 @@ public final class KnockbackScenario {
 			level.addNewPlayer(player);
 			var calculator = new ExplosionDamageCalculator() {
 				@Override
-				public boolean shouldDamageEntity (Explosion explosion, Entity entity) {
+				public boolean shouldDamageEntity (@NonNull Explosion explosion, @NonNull Entity entity) {
 					return false;
 				}
 			};

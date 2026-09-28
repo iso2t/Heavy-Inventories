@@ -40,3 +40,21 @@ Additional modes:
 For multiplayer tests, start the server with `-PauthorityMultiplayer`, then start the client
 with both multiplayer options. Configure the matching server port and local test account
 access beforehand. Both processes stop when their assertions finish.
+
+## Check a saved log
+
+Save the runtime output, then check it with Gradle:
+
+```powershell
+.\gradlew.bat :fabric:runServer -PruntimeTests -PpackagedSmoke *> build/fabric-server.log
+.\gradlew.bat :tests:verifyRuntimeLog '-PruntimeLog=build/fabric-server.log' -PruntimeMode=Server
+```
+
+On Linux/macOS, use `./gradlew` and redirect with `> build/fabric-server.log 2>&1`.
+Log paths are relative to the repository root; absolute
+paths also work. UTF-8 and UTF-16 logs are supported.
+
+Modes are `Server`, `Client`, `MultiplayerServer`, `MultiplayerClient`, `Datapack`, and
+`DatapackClient`. The task fails on runtime errors, missing completion markers, or an
+unfinished Gradle run. Use a separate log for each loader and run. This task reads an
+existing log; it does not launch Minecraft or require `-PruntimeTests`.

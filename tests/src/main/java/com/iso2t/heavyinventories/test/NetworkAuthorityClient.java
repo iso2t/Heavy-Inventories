@@ -3,22 +3,33 @@ package com.iso2t.heavyinventories.test;
 import com.iso2t.heavyinventories.HeavyInventories;
 import com.iso2t.heavyinventories.client.ClientWeightData;
 import com.iso2t.heavyinventories.client.ConfigScreens;
+import com.iso2t.heavyinventories.config.ClientSettings;
+import com.iso2t.heavyinventories.config.EffectsSettings;
+import com.iso2t.heavyinventories.config.WalkingMode;
+import com.iso2t.heavyinventories.gui.WeightRingRenderer;
 import com.iso2t.heavyinventories.network.ServerConfigUpdatePayload;
 import com.iso2t.heavyinventories.platform.Services;
 import com.iso2t.heavyinventories.player.PlayerHolder;
 import com.iso2t.heavyinventories.test.mixin.GuiFeedbackTestAccess;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.Screenshot;
+import net.minecraft.client.gui.screens.ConnectScreen;
+import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.multiplayer.resolver.ServerAddress;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 import net.minecraft.world.item.Items;
 
 public final class NetworkAuthorityClient {
 	private static int clientStage, ticks, reconnectTicks;
 	private static int ringWait, ringStart, xpStart;
-	private static volatile boolean                                          captured;
-	private static          com.iso2t.heavyinventories.config.ClientSettings originalSettings;
-	private static          net.minecraft.client.player.LocalPlayer          initialPlayer;
-	private static          net.minecraft.client.multiplayer.ServerData      reconnectServer;
+	private static volatile boolean        captured;
+	private static          ClientSettings originalSettings;
+	private static          LocalPlayer    initialPlayer;
+	private static          ServerData     reconnectServer;
 
 	public static void clientTick (Minecraft client) {
 		if (clientStage == 6) return;
@@ -27,7 +38,7 @@ public final class NetworkAuthorityClient {
 			require(client.player == null, "Disconnect retained local player");
 			if (++reconnectTicks < 15) return;
 			require(ClientWeightData.weight(BuiltInRegistries.ITEM.getKey(Items.STONE)) == null, "Disconnect retained server definitions");
-			net.minecraft.client.gui.screens.ConnectScreen.startConnecting(new net.minecraft.client.gui.screens.TitleScreen(), client, net.minecraft.client.multiplayer.resolver.ServerAddress.parseString(reconnectServer.ip), reconnectServer, false, null);
+			ConnectScreen.startConnecting(new TitleScreen(), client, ServerAddress.parseString(reconnectServer.ip), reconnectServer, false, null);
 			clientStage = 5;
 			return;
 		}
@@ -41,8 +52,8 @@ public final class NetworkAuthorityClient {
 		var holder = PlayerHolder.getOrCreate(client.player);
 		if (!holder.hasServerState()) return;
 		if (clientStage == 0 && holder.getWeight() == 16f && holder.getBaseMaxWeight() == 10.5f) {
-			originalSettings = com.iso2t.heavyinventories.config.ClientSettings.current();
-			com.iso2t.heavyinventories.config.ClientSettings.DEFAULT.apply();
+			originalSettings = ClientSettings.current();
+			ClientSettings.DEFAULT.apply();
 			RingHudScenario.active = true;
 			require(!holder.canEditServerConfig(), "Test client unexpectedly has permission");
 			EffectsConfigScenario.checkReadOnly();
@@ -70,7 +81,7 @@ public final class NetworkAuthorityClient {
 			require(holder.getWeight() == 16f, "Configuration edit changed the carried weight");
 			require(!holder.isOverEncumbered(), "Capacity edit did not refresh remote encumbrance");
 			HeavyInventories.LOGGER.info("MULTIPLAYER CLIENT AUTHORITY PASSED: remote totals/definitions/encumbrance, read-only and editable screen construction, operator network edits");
-			require(holder.walkingMode() == com.iso2t.heavyinventories.config.WalkingMode.AT_NINETY_PERCENT, "Walking mode did not synchronize");
+			require(holder.walkingMode() == WalkingMode.AT_NINETY_PERCENT, "Walking mode did not synchronize");
 			MovementScenario.checkImpulse(client.player, 1);
 			send(client, 25.5f, holder.serverRevision());
 			clientStage = 3;
@@ -90,13 +101,13 @@ public final class NetworkAuthorityClient {
 			reconnectServer = client.getCurrentServer();
 			require(reconnectServer != null, "Missing dedicated server address");
 			clientStage = 4;
-			client.disconnectFromWorld(net.minecraft.network.chat.Component.literal("Lifecycle reconnect test"));
+			client.disconnectFromWorld(Component.literal("Lifecycle reconnect test"));
 		} else if (clientStage == 5 && holder.getBaseMaxWeight() == 512 && holder.getWeight() == 45 && holder.getMaxWeight() == 512) {
 			if (!verifyRing(client, "multiplayer-reconnected")) return;
 			require(client.player != initialPlayer && holder != PlayerHolder.getOrCreate(initialPlayer), "Reconnect reused local holder");
 			require(ClientWeightData.weight(BuiltInRegistries.ITEM.getKey(Items.STONE)) == 3f, "Reconnect kept old definitions");
 			require(!holder.isEncumbered() && !holder.isOverEncumbered() && holder.getStrengthOffset() == 0, "Reconnect kept stale bonuses/penalties");
-			require(holder.serverSettings().effects().equals(com.iso2t.heavyinventories.config.EffectsSettings.DEFAULT), "Reconnect retained stale effects");
+			require(holder.serverSettings().effects().equals(EffectsSettings.DEFAULT), "Reconnect retained stale effects");
 			HeavyInventories.LOGGER.info("MULTIPLAYER RECONNECT CLIENT PASSED: cleared disconnect data, fresh entity, new server definitions/capacity, rebuilt bonuses");
 			HeavyInventories.LOGGER.info("MULTIPLAYER RING PASSED: rendered before and after reconnect, fresh synchronized status, vanilla XP offset, no duplicate draws");
 			RingHudScenario.active = false;
@@ -115,9 +126,9 @@ public final class NetworkAuthorityClient {
 			captured = false;
 		}
 		if (++ringWait < 12) return false;
-		require(com.iso2t.heavyinventories.gui.WeightRingRenderer.verticalOffset(client) == 7, "Remote ring hidden or offset lost");
+		require(WeightRingRenderer.verticalOffset(client) == 7, "Remote ring hidden or offset lost");
 		require(RingHudScenario.ringFrames > ringStart && RingHudScenario.xpFrames > xpStart, "Remote ring/XP not rendered");
-		if (ringWait == 12) net.minecraft.client.Screenshot.grab(Services.PLATFORM.getGameDirectory().toFile(), "ring-" + name + ".png", client.gameRenderer.mainRenderTarget(), 1, message -> captured = true);
+		if (ringWait == 12) Screenshot.grab(Services.PLATFORM.getGameDirectory().toFile(), "ring-" + name + ".png", client.gameRenderer.mainRenderTarget(), 1, message -> captured = true);
 		if (!captured) return false;
 		ringWait = 0;
 		return true;

@@ -3,7 +3,9 @@ package com.iso2t.heavyinventories.test;
 import com.iso2t.heavyinventories.client.ServerConfigScreen;
 import com.iso2t.heavyinventories.config.EffectsSettings;
 import com.iso2t.heavyinventories.network.ServerConfigUpdatePayload;
+import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
 import me.shedaniel.clothconfig2.gui.entries.FloatListEntry;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -20,7 +22,7 @@ public final class EffectsConfigScenario {
 	public static ServerConfigUpdatePayload editThroughScreen () {
 		var sent = new AtomicReference<ServerConfigUpdatePayload>();
 		var builder = ServerConfigScreen.create(sent::set);
-		net.minecraft.client.Minecraft.getInstance().gui.setScreen(builder.build());
+		Minecraft.getInstance().gui.setScreen(builder.build());
 		var general = builder.getOrCreateCategory(Component.translatable("category.heavyinventories.general")).getEntries();
 		((FloatListEntry) general.getFirst()).setValue("20.25");
 		var falls = builder.getOrCreateCategory(Component.translatable("category.heavyinventories.effects.fallDamage")).getEntries();
@@ -36,7 +38,7 @@ public final class EffectsConfigScenario {
 		((FloatListEntry) builder.getOrCreateCategory(Component.translatable("category.heavyinventories.effects.knockback")).getEntries().get(2)).setValue("800.25");
 		builder.getSavingRunnable().run();
 		require(sent.get() != null && sent.get().effects().equals(expected()), "Settings screen sent wrong effect values");
-		net.minecraft.client.Minecraft.getInstance().gui.setScreen(null);
+		Minecraft.getInstance().gui.setScreen(null);
 		return sent.get();
 	}
 
@@ -53,11 +55,11 @@ public final class EffectsConfigScenario {
 		var builder = ServerConfigScreen.create(_ -> {
 			throw new AssertionError("Read-only screen sent an edit");
 		});
-		net.minecraft.client.Minecraft.getInstance().gui.setScreen(builder.build());
+		Minecraft.getInstance().gui.setScreen(builder.build());
 		var falls = builder.getOrCreateCategory(Component.translatable("category.heavyinventories.effects.fallDamage")).getEntries();
-		require(!((me.shedaniel.clothconfig2.api.AbstractConfigListEntry<?>) falls.get(1)).isEditable() && !((FloatListEntry) falls.get(2)).isEditable(), "Non-operator effect controls were editable");
+		require(!((AbstractConfigListEntry<?>) falls.get(1)).isEditable() && !((FloatListEntry) falls.get(2)).isEditable(), "Non-operator effect controls were editable");
 		builder.getSavingRunnable().run();
-		net.minecraft.client.Minecraft.getInstance().gui.setScreen(null);
+		Minecraft.getInstance().gui.setScreen(null);
 	}
 
 	private static void require (boolean condition, String message) {

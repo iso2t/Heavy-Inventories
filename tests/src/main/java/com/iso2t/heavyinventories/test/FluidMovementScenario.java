@@ -18,11 +18,14 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
@@ -164,9 +167,9 @@ public final class FluidMovementScenario {
 				if (!(Math.abs(gravity(player)) < Math.abs(baseGravity * 2))) throw new AssertionError("Slow Falling replaced");
 				player.removeAllEffects();
 				if (!lava) {
-					player.getInventory().setItem(36, MovementScenario.enchanted(player, Items.IRON_BOOTS, net.minecraft.world.item.enchantment.Enchantments.DEPTH_STRIDER, 3));
+					player.getInventory().setItem(36, MovementScenario.enchanted(player, Items.IRON_BOOTS, Enchantments.DEPTH_STRIDER, 3));
 					((FluidTravelTestAccess) player).heavyinventories$refreshEquipment();
-					if (!(player.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.WATER_MOVEMENT_EFFICIENCY) > 0)) throw new AssertionError("Depth Strider fixture did not apply");
+					if (!(player.getAttributeValue(Attributes.WATER_MOVEMENT_EFFICIENCY) > 0)) throw new AssertionError("Depth Strider fixture did not apply");
 					player.addEffect(new MobEffectInstance(MobEffects.DOLPHINS_GRACE, 100, 0));
 					var enhanced = state.settings().toJson();
 					enhanced.getAsJsonObject("effects").getAsJsonObject("swimming").addProperty("enabled", false);
@@ -183,9 +186,9 @@ public final class FluidMovementScenario {
 					((FluidTravelTestAccess) player).heavyinventories$refreshEquipment();
 					player.removeAllEffects();
 					// Compare the fluid's own current impulse with restrictions enabled and disabled.
-					for (var pos : blocks.keySet()) level.setBlock(pos, Blocks.WATER.defaultBlockState().setValue(net.minecraft.world.level.block.LiquidBlock.LEVEL, 4), 2);
-					level.setBlock(center, Blocks.WATER.defaultBlockState().setValue(net.minecraft.world.level.block.LiquidBlock.LEVEL, 1), 2);
-					level.setBlock(center.east(), Blocks.WATER.defaultBlockState().setValue(net.minecraft.world.level.block.LiquidBlock.LEVEL, 7), 2);
+					for (var pos : blocks.keySet()) level.setBlock(pos, Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL, 4), 2);
+					level.setBlock(center, Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL, 1), 2);
+					level.setBlock(center.east(), Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL, 7), 2);
 					enhanced.getAsJsonObject("effects").getAsJsonObject("upwardMovement").addProperty("enabled", true);
 					state.replace(ServerSettings.parse(enhanced), values);
 					reset(player, center);

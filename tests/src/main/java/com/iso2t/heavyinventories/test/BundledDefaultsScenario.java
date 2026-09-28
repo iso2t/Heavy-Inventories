@@ -2,6 +2,7 @@ package com.iso2t.heavyinventories.test;
 
 import com.iso2t.heavyinventories.HeavyInventories;
 import com.iso2t.heavyinventories.server.ServerWeightState;
+import com.iso2t.heavyinventories.server.weight.WeightProvenance;
 import com.iso2t.heavyinventories.server.weight.WeightReport;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
@@ -9,6 +10,8 @@ import net.minecraft.server.MinecraftServer;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Checks the bundled pack against the actual loaded vanilla recipes and tags.
@@ -26,16 +29,16 @@ public final class BundledDefaultsScenario {
 			float actual = state.unitWeight(Identifier.withDefaultNamespace(items[i]));
 			if (Math.abs(actual - expected[i]) > .00001f) throw new AssertionError("Bundled " + items[i] + ": expected " + expected[i] + ", got " + actual);
 		}
-		var creativeFallbacks = java.util.Set.of("barrier", "bedrock", "chain_command_block", "command_block", "command_block_minecart", "debug_stick", "end_portal_frame", "jigsaw", "knowledge_book", "light", "repeating_command_block", "spawner", "structure_block", "structure_void", "test_block", "test_instance_block", "trial_spawner", "vault");
-		java.util.Map.of("cinnabar", 4f, "sulfur", 4f, "potent_sulfur", 4f, "sulfur_spike", 1f, "sulfur_cube_bucket", 10f, "music_disc_bounce", .1f, "cinnabar_slab", 2f, "sulfur_brick_stairs", 4f).forEach((item, weight) -> {
+		var creativeFallbacks = Set.of("barrier", "bedrock", "chain_command_block", "command_block", "command_block_minecart", "debug_stick", "end_portal_frame", "jigsaw", "knowledge_book", "light", "repeating_command_block", "spawner", "structure_block", "structure_void", "test_block", "test_instance_block", "trial_spawner", "vault");
+		Map.of("cinnabar", 4f, "sulfur", 4f, "potent_sulfur", 4f, "sulfur_spike", 1f, "sulfur_cube_bucket", 10f, "music_disc_bounce", .1f, "cinnabar_slab", 2f, "sulfur_brick_stairs", 4f).forEach((item, weight) -> {
 			if (Math.abs(state.unitWeight(Identifier.withDefaultNamespace(item)) - weight) > .00001f) throw new AssertionError("Incorrect 26.2 material/recipe weight: " + item);
 		});
 		state.provenance().forEach((id, source) -> {
-			if (id.getNamespace().equals("minecraft") && source.source() == com.iso2t.heavyinventories.server.weight.WeightProvenance.Source.FALLBACK && !id.getPath().endsWith("_spawn_egg") && !creativeFallbacks.contains(id.getPath()))
+			if (id.getNamespace().equals("minecraft") && source.source() == WeightProvenance.Source.FALLBACK && !id.getPath().endsWith("_spawn_egg") && !creativeFallbacks.contains(id.getPath()))
 				throw new AssertionError("Unexpected survival-item fallback: " + id);
 		});
 		for (String item : new String[] { "arrow", "oak_planks", "iron_pickaxe", "bone_block", "dried_kelp_block" }) {
-			if (state.provenance().get(Identifier.withDefaultNamespace(item)).source() != com.iso2t.heavyinventories.server.weight.WeightProvenance.Source.RECIPE) throw new AssertionError("Ordinary recipe output became fixed: " + item);
+			if (state.provenance().get(Identifier.withDefaultNamespace(item)).source() != WeightProvenance.Source.RECIPE) throw new AssertionError("Ordinary recipe output became fixed: " + item);
 		}
 		String[] kit = { "iron_helmet", "iron_chestplate", "iron_leggings", "iron_boots", "iron_pickaxe", "iron_sword", "shield", "bow", "arrow", "cooked_beef", "torch", "crafting_table", "furnace" };
 		int[] counts = { 1, 1, 1, 1, 1, 1, 1, 1, 64, 32, 64, 1, 1 };
