@@ -1,18 +1,22 @@
 package com.iso2t.heavyinventories.fabric.core;
 
-import net.fabricmc.api.EnvType;
+import com.iso2t.heavyinventories.fabric.enchantments.ModEnchantmentEffects;
+import com.iso2t.heavyinventories.fabric.hooks.ModHooks;
+import com.iso2t.heavyinventories.fabric.platform.FabricConfigScreenHelper;
+import com.iso2t.heavyinventories.server.ServerWeightState;
+import com.iso2t.heavyinventories.server.weight.WeightPackReloadListener;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.resource.v1.DataResourceLoader;
 
-public class HeavyInventoriesFabric implements ModInitializer {
+public final class HeavyInventoriesFabric implements ModInitializer {
 
 	@Override
 	public void onInitialize () {
-		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-			new HeavyInventoriesFabricClient();
-		} else {
-			new HeavyInventoriesFabricServer();
-		}
+		DataResourceLoader.get().registerReloadListener(WeightPackReloadListener.ID, new WeightPackReloadListener());
+		ServerLifecycleEvents.SERVER_STARTED.register(ServerWeightState::start);
+		FabricConfigScreenHelper.registerPayloads();
+		ModHooks.registerHooks();
+		ModEnchantmentEffects.register();
 	}
-
 }

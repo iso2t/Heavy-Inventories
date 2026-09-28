@@ -19,6 +19,9 @@
     "main": [
       "com.iso2t.heavyinventories.fabric.core.HeavyInventoriesFabric"
     ],
+    "client": [
+      "com.iso2t.heavyinventories.fabric.core.HeavyInventoriesFabricClient"
+    ],
     "fabric-datagen": [
       "com.iso2t.heavyinventories.fabric.datagen.DataGenerators"
     ]

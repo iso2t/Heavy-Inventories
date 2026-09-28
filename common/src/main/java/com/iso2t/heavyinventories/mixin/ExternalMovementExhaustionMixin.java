@@ -1,6 +1,6 @@
 package com.iso2t.heavyinventories.mixin;
 
-import com.iso2t.heavyinventories.api.player.PlayerHolder;
+import com.iso2t.heavyinventories.player.PlayerHolder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;

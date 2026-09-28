@@ -1,6 +1,6 @@
 package com.iso2t.heavyinventories.client;
 
-import com.iso2t.heavyinventories.api.util.MeasuringSystem;
+import com.iso2t.heavyinventories.util.MeasuringSystem;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 

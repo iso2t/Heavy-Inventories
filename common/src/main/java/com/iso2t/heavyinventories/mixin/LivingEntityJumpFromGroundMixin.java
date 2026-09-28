@@ -1,7 +1,7 @@
 package com.iso2t.heavyinventories.mixin;
 
-import com.iso2t.heavyinventories.api.events.PlayerFeedback;
-import com.iso2t.heavyinventories.api.player.PlayerHolder;
+import com.iso2t.heavyinventories.player.PlayerFeedback;
+import com.iso2t.heavyinventories.player.PlayerHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;

@@ -1,10 +1,10 @@
 package com.iso2t.heavyinventories.server;
 
 import com.iso2t.heavyinventories.HeavyInventories;
-import com.iso2t.heavyinventories.api.events.PlayerEvents;
-import com.iso2t.heavyinventories.api.weight.RecipeSnapshot;
-import com.iso2t.heavyinventories.api.weight.RecipeWeights;
-import com.iso2t.heavyinventories.api.weight.StackWeight;
+import com.iso2t.heavyinventories.player.PlayerEvents;
+import com.iso2t.heavyinventories.weight.RecipeSnapshot;
+import com.iso2t.heavyinventories.weight.RecipeWeights;
+import com.iso2t.heavyinventories.weight.StackWeight;
 import com.iso2t.heavyinventories.config.ConfigFileManager;
 import com.iso2t.heavyinventories.config.ServerSettings;
 import com.iso2t.heavyinventories.network.ItemWeightsPayload;

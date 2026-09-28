@@ -1,8 +1,8 @@
 package com.iso2t.heavyinventories.gui;
 
-import com.iso2t.heavyinventories.api.player.PlayerHolder;
-import com.iso2t.heavyinventories.api.util.MeasuringSystem;
-import com.iso2t.heavyinventories.api.weight.StackWeight;
+import com.iso2t.heavyinventories.player.PlayerHolder;
+import com.iso2t.heavyinventories.util.MeasuringSystem;
+import com.iso2t.heavyinventories.weight.StackWeight;
 import com.iso2t.heavyinventories.client.WeightDisplay;
 import com.iso2t.heavyinventories.config.ConfigOptions;
 import lombok.AccessLevel;

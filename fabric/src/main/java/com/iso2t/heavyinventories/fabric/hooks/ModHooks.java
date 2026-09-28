@@ -1,6 +1,6 @@
 package com.iso2t.heavyinventories.fabric.hooks;
 
-import com.iso2t.heavyinventories.api.events.PlayerEvents;
+import com.iso2t.heavyinventories.player.PlayerEvents;
 import com.iso2t.heavyinventories.command.ModCommands;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;

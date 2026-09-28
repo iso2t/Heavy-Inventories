@@ -1,7 +1,7 @@
 package com.iso2t.heavyinventories.mixin;
 
-import com.iso2t.heavyinventories.api.player.PlayerExhaustion;
-import com.iso2t.heavyinventories.api.player.PlayerHolder;
+import com.iso2t.heavyinventories.player.PlayerExhaustion;
+import com.iso2t.heavyinventories.player.PlayerHolder;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.server.level.ServerPlayer;

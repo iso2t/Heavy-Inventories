@@ -1,7 +1,6 @@
 package com.iso2t.heavyinventories.command;
 
-import com.iso2t.heavyinventories.HeavyInventories;
-import com.iso2t.heavyinventories.api.player.PlayerWeightCache;
+import com.iso2t.heavyinventories.player.PlayerWeightCache;
 import com.iso2t.heavyinventories.helper.RegistryHelper;
 import com.iso2t.heavyinventories.platform.Services;
 import com.iso2t.heavyinventories.server.ServerWeightState;
@@ -13,6 +12,8 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minecraft.SharedConstants;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -27,14 +28,29 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-public class ModCommands {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class ModCommands {
 
 	public static void registerCommands (CommandDispatcher<CommandSourceStack> dispatcher) {
 		var operatorPermission = Commands.<CommandSourceStack>hasPermission(new PermissionCheck.Require(Permissions.COMMANDS_GAMEMASTER));
-		var reload = Commands.literal("reload").requires(operatorPermission).executes(ModCommands::executeReloadCommand).then(Commands.literal("weight").executes(ModCommands::executeReloadCommand)).then(Commands.literal("players").executes(ModCommands::executeReloadPlayersCommand));
-		var convert = Commands.literal("convert").requires(operatorPermission).then(Commands.literal("legacy").then(Commands.argument("pack_name", StringArgumentType.word()).executes(ModCommands::executeConvertCommand)));
-		var dump = Commands.literal("dump").requires(operatorPermission).then(Commands.argument("modid", StringArgumentType.string()).suggests(ModCommands::suggestModIds).executes(ModCommands::executeDumpCommand));
-		var config = Commands.literal("config").then(Commands.argument("config", StringArgumentType.string()).suggests(ModCommands::suggestConfigTypes).executes(context -> executeOpenConfig(context, StringArgumentType.getString(context, "config"))));
+		var reload = Commands.literal("reload")
+				.requires(operatorPermission)
+				.executes(ModCommands::executeReloadCommand)
+				.then(Commands.literal("weight").executes(ModCommands::executeReloadCommand))
+				.then(Commands.literal("players").executes(ModCommands::executeReloadPlayersCommand));
+		var convert = Commands.literal("convert")
+				.requires(operatorPermission)
+				.then(Commands.literal("legacy")
+						.then(Commands.argument("pack_name", StringArgumentType.word()).executes(ModCommands::executeConvertCommand)));
+		var dump = Commands.literal("dump")
+				.requires(operatorPermission)
+				.then(Commands.argument("modid", StringArgumentType.string())
+						.suggests(ModCommands::suggestModIds)
+						.executes(ModCommands::executeDumpCommand));
+		var config = Commands.literal("config")
+				.then(Commands.argument("config", StringArgumentType.string())
+						.suggests(ModCommands::suggestConfigTypes)
+						.executes(context -> executeOpenConfig(context, StringArgumentType.getString(context, "config"))));
 		dispatcher.register(Commands.literal("heavyinventories").then(reload).then(convert).then(dump).then(config));
 	}
 
@@ -44,7 +60,7 @@ public class ModCommands {
 		return Command.SINGLE_SUCCESS;
 	}
 
-	protected static int executeOpenConfig (CommandContext<CommandSourceStack> context, String type) {
+	private static int executeOpenConfig (CommandContext<CommandSourceStack> context, String type) {
 		var source = context.getSource();
 		if (!Set.of("client", "server", "common").contains(type)) {
 			source.sendFailure(Component.translatable("command.heavyinventories.config.invalid", type));
@@ -63,7 +79,7 @@ public class ModCommands {
 		return Command.SINGLE_SUCCESS;
 	}
 
-	protected static int executeReloadCommand (CommandContext<CommandSourceStack> context) {
+	private static int executeReloadCommand (CommandContext<CommandSourceStack> context) {
 		try {
 			ServerWeightState.of(context.getSource().getServer()).reload(context.getSource().getServer());
 			context.getSource().sendSuccess(() -> Component.translatable("config.heavyinventories.reloaded"), true);
@@ -74,7 +90,7 @@ public class ModCommands {
 		}
 	}
 
-	protected static int executeConvertCommand (CommandContext<CommandSourceStack> context) {
+	private static int executeConvertCommand (CommandContext<CommandSourceStack> context) {
 		var game = Services.PLATFORM.getGameDirectory();
 		var version = SharedConstants.getCurrentVersion().packVersion(PackType.SERVER_DATA);
 		try {
@@ -87,16 +103,15 @@ public class ModCommands {
 		}
 	}
 
-	protected static int executeDumpCommand (CommandContext<CommandSourceStack> context) {
+	private static int executeDumpCommand (CommandContext<CommandSourceStack> context) {
 		var modid = StringArgumentType.getString(context, "modid");
-
-		if (!modid.matches("[a-z0-9_.-]+") || (RegistryHelper.getItemsFor(modid).isEmpty() && RegistryHelper.getBlocksFor(modid).isEmpty())) {
-			context.getSource().sendFailure(Component.literal(modid + " is invalid or not loaded!"));
-			return 0;
-		}
 
 		var items = RegistryHelper.getItemsFor(modid);
 		var blocks = RegistryHelper.getBlocksFor(modid);
+		if (!modid.matches("[a-z0-9_.-]+") || (items.isEmpty() && blocks.isEmpty())) {
+			context.getSource().sendFailure(Component.literal(modid + " is invalid or not loaded!"));
+			return 0;
+		}
 
 		context.getSource().sendSystemMessage(Component.literal("Dumping " + modid + "..."));
 		context.getSource().sendSystemMessage(Component.literal("Found " + items.size() + " items and " + blocks.size() + " blocks."));
@@ -115,7 +130,7 @@ public class ModCommands {
 
 	private static CompletableFuture<Suggestions> suggestModIds (CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
 		String platform = Services.PLATFORM.getPlatformName().toLowerCase(Locale.ROOT);
-		for (var modId : HeavyInventories.getInstance().getModIds()) {
+		for (var modId : Services.PLATFORM.getModIds()) {
 			if (modId.equals(platform)) continue;
 			if (RegistryHelper.getItemsFor(modId).isEmpty() && RegistryHelper.getBlocksFor(modId).isEmpty()) continue;
 			builder.suggest(modId);

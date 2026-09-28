@@ -5,40 +5,19 @@ import com.iso2t.heavyinventories.client.ClientWeightData;
 import com.iso2t.heavyinventories.client.ConfigScreens;
 import com.iso2t.heavyinventories.neoforge.client.NeoForgeClientHooks;
 import com.iso2t.heavyinventories.network.ItemWeightsPayload;
+import com.iso2t.heavyinventories.network.OpenConfigPayload;
 import com.iso2t.heavyinventories.network.PlayerWeightPayload;
 import com.iso2t.heavyinventories.network.ServerConfigUpdatePayload;
 import com.iso2t.heavyinventories.platform.services.IConfigScreenHelper;
 import com.iso2t.heavyinventories.server.ServerConfiguration;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
-import org.jspecify.annotations.NonNull;
 
-public class NeoForgeConfigScreenHelper implements IConfigScreenHelper {
+public final class NeoForgeConfigScreenHelper implements IConfigScreenHelper {
 
-	public static final Identifier OPEN_CONFIG_PACKET_ID = HeavyInventories.get("open_config");
-
-	public static final StreamCodec<FriendlyByteBuf, OpenConfigPacket> STREAM_CODEC = StreamCodec.of((buf, packet) -> buf.writeUtf(packet.configType()), buf -> new OpenConfigPacket(buf.readUtf()));
-
-	public record OpenConfigPacket(String configType) implements CustomPacketPayload {
-		@Override
-		public @NonNull Type<? extends CustomPacketPayload> type () {
-			return TYPE;
-		}
-
-		public static final Type<OpenConfigPacket> TYPE = new Type<>(OPEN_CONFIG_PACKET_ID);
-	}
-
-	/**
-	 * Registers the payload type during mod initialization.
-	 * This event handler is registered statically.
-	 */
 	@SuppressWarnings("unused")
 	@EventBusSubscriber(modid = HeavyInventories.MOD_ID)
 	public static class NetworkHandler {
@@ -51,13 +30,13 @@ public class NeoForgeConfigScreenHelper implements IConfigScreenHelper {
 				if (context.player() instanceof ServerPlayer player) ServerConfiguration.update(player, packet);
 			}));
 
-			registrar.playToClient(OpenConfigPacket.TYPE, STREAM_CODEC, (packet, context) -> context.enqueueWork(() -> ConfigScreens.fromString(packet.configType()).ifPresent(ConfigScreens::open)));
+			registrar.playToClient(OpenConfigPayload.TYPE, OpenConfigPayload.CODEC, (packet, context) -> context.enqueueWork(() -> ConfigScreens.fromString(packet.configType()).ifPresent(ConfigScreens::open)));
 		}
 	}
 
 	@Override
 	public void sendOpenConfigPacket (ServerPlayer player, String configType) {
-		var packet = new OpenConfigPacket(configType);
+		var packet = new OpenConfigPayload(configType);
 		player.connection.send(packet);
 	}
 }

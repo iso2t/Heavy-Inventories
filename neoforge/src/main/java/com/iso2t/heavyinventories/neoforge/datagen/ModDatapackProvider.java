@@ -1,7 +1,7 @@
 package com.iso2t.heavyinventories.neoforge.datagen;
 
 import com.iso2t.heavyinventories.HeavyInventories;
-import com.iso2t.heavyinventories.api.enchantment.ModEnchantments;
+import com.iso2t.heavyinventories.enchantment.ModEnchantments;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;

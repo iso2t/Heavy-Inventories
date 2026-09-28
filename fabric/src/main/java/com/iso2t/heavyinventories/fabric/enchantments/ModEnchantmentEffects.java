@@ -1,9 +1,9 @@
 package com.iso2t.heavyinventories.fabric.enchantments;
 
 import com.iso2t.heavyinventories.HeavyInventories;
-import com.iso2t.heavyinventories.api.enchantment.BracingEnchantmentEffect;
-import com.iso2t.heavyinventories.api.enchantment.ReinforcedEnchantmentEffect;
-import com.iso2t.heavyinventories.api.enchantment.SurefootedEnchantmentEffect;
+import com.iso2t.heavyinventories.enchantment.BracingEnchantmentEffect;
+import com.iso2t.heavyinventories.enchantment.ReinforcedEnchantmentEffect;
+import com.iso2t.heavyinventories.enchantment.SurefootedEnchantmentEffect;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;

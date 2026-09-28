@@ -1,6 +1,6 @@
 package com.iso2t.heavyinventories.client;
 
-import com.iso2t.heavyinventories.api.events.PlayerFeedback;
+import com.iso2t.heavyinventories.player.PlayerFeedback;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.client.Minecraft;

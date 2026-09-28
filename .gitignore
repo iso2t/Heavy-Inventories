@@ -31,12 +31,8 @@ runs
 .eclipse
 __pycache__/
 *.pyc
-/REPAIR_PLAN.md
 /gradle/packaged-smoke.gradle
-/DATAPACK_PLAN.md
-/HUD_RING_PLAN.md
 /scripts/assert-runtime.ps1
-/ENCUMBRANCE_PLAN.md
 
 /docs
 !/docs/CONTRIBUTING.md

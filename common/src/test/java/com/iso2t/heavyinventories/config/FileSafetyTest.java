@@ -1,6 +1,6 @@
 package com.iso2t.heavyinventories.config;
 
-import com.iso2t.heavyinventories.api.files.JsonFiles;
+import com.iso2t.heavyinventories.util.JsonFiles;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 

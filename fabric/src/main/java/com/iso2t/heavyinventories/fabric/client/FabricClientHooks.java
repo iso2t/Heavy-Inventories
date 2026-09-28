@@ -1,15 +1,15 @@
 package com.iso2t.heavyinventories.fabric.client;
 
 import com.iso2t.heavyinventories.HeavyInventories;
-import com.iso2t.heavyinventories.api.player.PlayerHolder;
+import com.iso2t.heavyinventories.player.PlayerHolder;
 import com.iso2t.heavyinventories.client.ClientFeedback;
 import com.iso2t.heavyinventories.client.ClientWeightData;
 import com.iso2t.heavyinventories.client.ConfigScreens;
 import com.iso2t.heavyinventories.config.ConfigOptions;
-import com.iso2t.heavyinventories.fabric.platform.FabricConfigScreenHelper;
 import com.iso2t.heavyinventories.gui.GraphicsRenderer;
 import com.iso2t.heavyinventories.gui.WeightRingRenderer;
 import com.iso2t.heavyinventories.network.ItemWeightsPayload;
+import com.iso2t.heavyinventories.network.OpenConfigPayload;
 import com.iso2t.heavyinventories.network.PlayerWeightPayload;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -38,7 +38,7 @@ public final class FabricClientHooks {
 			PlayerHolder.getOrCreate(player).accept(packet);
 		});
 		ClientPlayNetworking.registerGlobalReceiver(ItemWeightsPayload.TYPE, (packet, _) -> ClientWeightData.accept(packet));
-		ClientPlayNetworking.registerGlobalReceiver(FabricConfigScreenHelper.OPEN_CONFIG_PACKET_TYPE, (packet, context) -> context.client().execute(() -> ConfigScreens.fromString(packet.configType()).ifPresent(ConfigScreens::open)));
+		ClientPlayNetworking.registerGlobalReceiver(OpenConfigPayload.TYPE, (packet, context) -> context.client().execute(() -> ConfigScreens.fromString(packet.configType()).ifPresent(ConfigScreens::open)));
 	}
 
 }

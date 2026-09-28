@@ -1,7 +1,7 @@
 package com.iso2t.heavyinventories.config;
 
 import com.google.gson.JsonParser;
-import com.iso2t.heavyinventories.api.util.MeasuringSystem;
+import com.iso2t.heavyinventories.util.MeasuringSystem;
 import com.iso2t.heavyinventories.client.WeightDisplay;
 import org.junit.jupiter.api.Test;
 

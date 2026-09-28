@@ -1,35 +1,19 @@
 package com.iso2t.heavyinventories;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.List;
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class HeavyInventories {
 
-public interface HeavyInventories {
+	public static final String MOD_ID = "heavyinventories";
+	public static final String MOD_NAME = "Heavy Inventories";
+	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
 
-	String MOD_ID   = "heavyinventories";
-	String MOD_NAME = "Heavy Inventories";
-	Logger LOGGER   = LoggerFactory.getLogger(MOD_NAME);
-
-	static HeavyInventories getInstance () {
-		return ModBase.INSTANCE;
-	}
-
-	Collection<ServerPlayer> getPlayers ();
-
-	Level getClientLevel ();
-
-	MinecraftServer getCurrentServer ();
-
-	List<String> getModIds ();
-
-	static Identifier get (String path) {
+	public static Identifier get (String path) {
 		return Identifier.fromNamespaceAndPath(MOD_ID, path);
 	}
-
 }

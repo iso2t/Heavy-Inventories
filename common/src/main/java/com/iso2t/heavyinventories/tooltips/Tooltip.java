@@ -1,6 +1,6 @@
 package com.iso2t.heavyinventories.tooltips;
 
-import com.iso2t.heavyinventories.api.weight.StackWeight;
+import com.iso2t.heavyinventories.weight.StackWeight;
 import com.iso2t.heavyinventories.client.ClientWeightData;
 import com.iso2t.heavyinventories.client.WeightDisplay;
 import com.iso2t.heavyinventories.config.ConfigOptions;

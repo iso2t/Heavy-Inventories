@@ -1,6 +1,6 @@
 package com.iso2t.heavyinventories.network;
 
-import com.iso2t.heavyinventories.api.player.EncumbranceEffects;
+import com.iso2t.heavyinventories.player.EncumbranceEffects;
 import com.iso2t.heavyinventories.client.ClientWeightData;
 import com.iso2t.heavyinventories.config.EffectsSettings;
 import com.iso2t.heavyinventories.config.ServerSettings;
@@ -20,6 +20,26 @@ import static org.junit.jupiter.api.Assertions.*;
 class WeightProtocolTest {
 	private static final Identifier STONE = Identifier.parse("minecraft:stone");
 	private static final Identifier DIRT  = Identifier.parse("minecraft:dirt");
+
+	@Test
+	void openConfigRetainsExistingPacketIdAndWireFormat () {
+		assertEquals(Identifier.parse("heavyinventories:open_config"), OpenConfigPayload.TYPE.id());
+		for (String type : List.of("client", "server", "common", "unknown")) {
+			var buf = new FriendlyByteBuf(Unpooled.buffer());
+			try {
+				buf.writeUtf(type);
+				var packet = OpenConfigPayload.CODEC.decode(buf);
+				assertEquals(type, packet.configType());
+				assertEquals(0, buf.readableBytes());
+				buf.clear();
+				OpenConfigPayload.CODEC.encode(buf, packet);
+				assertEquals(type, buf.readUtf());
+				assertEquals(0, buf.readableBytes());
+			} finally {
+				buf.release();
+			}
+		}
+	}
 
 	@Test
 	void codecsPreserveFractionalValuesAndState () {
@@ -86,6 +106,16 @@ class WeightProtocolTest {
 		}
 		assertThrows(IllegalArgumentException.class, () -> chunk(1, 0, 1, STONE, Float.NaN));
 		assertThrows(IllegalArgumentException.class, () -> chunk(1, 1, 1, STONE, 1));
+	}
+
+	@Test
+	void definitionChunksRejectInvalidMetadata () {
+		assertAll(
+				() -> assertThrows(IllegalArgumentException.class, () -> chunk(0, 0, 1, STONE, 1)),
+				() -> assertThrows(IllegalArgumentException.class, () -> chunk(1, 0, 0, STONE, 1)),
+				() -> assertThrows(IllegalArgumentException.class, () -> chunk(1, 0, ItemWeightsPayload.MAX_CHUNKS + 1, STONE, 1)),
+				() -> assertThrows(IllegalArgumentException.class, () -> chunk(1, -1, 1, STONE, 1)),
+				() -> assertThrows(IllegalArgumentException.class, () -> chunk(1, 1, 1, STONE, 1)));
 	}
 
 	@Test

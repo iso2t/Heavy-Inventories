@@ -4,12 +4,13 @@ import com.iso2t.heavyinventories.platform.services.IPlatformHelper;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.fml.ModList;
-import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.neoforgespi.language.IModInfo;
 
 import java.nio.file.Path;
+import java.util.List;
 
-public class NeoForgePlatformHelper implements IPlatformHelper {
+public final class NeoForgePlatformHelper implements IPlatformHelper {
 	@Override
 	public void sendToPlayer (ServerPlayer player, CustomPacketPayload payload) {
 		player.connection.send(payload);
@@ -21,13 +22,8 @@ public class NeoForgePlatformHelper implements IPlatformHelper {
 	}
 
 	@Override
-	public boolean isModLoaded (String modId) {
-		return ModList.get().isLoaded(modId);
-	}
-
-	@Override
-	public boolean isDevelopmentEnvironment () {
-		return !FMLEnvironment.isProduction();
+	public List<String> getModIds () {
+		return ModList.get().getMods().stream().map(IModInfo::getModId).toList();
 	}
 
 	@Override

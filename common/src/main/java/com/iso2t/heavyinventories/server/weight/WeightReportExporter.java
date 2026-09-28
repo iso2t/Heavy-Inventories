@@ -1,6 +1,6 @@
 package com.iso2t.heavyinventories.server.weight;
 
-import com.iso2t.heavyinventories.api.files.JsonFiles;
+import com.iso2t.heavyinventories.util.JsonFiles;
 import com.iso2t.heavyinventories.platform.Services;
 import com.iso2t.heavyinventories.server.ServerWeightState;
 import lombok.AccessLevel;
@@ -22,7 +22,8 @@ public final class WeightReportExporter {
 		if (!namespace.matches("[a-z0-9_.-]+")) throw new IllegalArgumentException("Invalid namespace");
 		var state = ServerWeightState.of(level.getServer());
 		var json = WeightReport.create(namespace, state.revision(), state.weights(), state.provenance());
-		// A unique reviewable export, outside world datapacks.
+
+		// a reviewable export from datapacks
 		var directory = Services.PLATFORM.getGameDirectory().resolve("weight-exports");
 		Files.createDirectories(directory);
 		var path = directory.resolve(namespace + "-" + UUID.randomUUID() + ".json");

@@ -1,7 +1,7 @@
 package com.iso2t.heavyinventories.config;
 
 import com.google.gson.JsonObject;
-import com.iso2t.heavyinventories.api.util.MeasuringSystem;
+import com.iso2t.heavyinventories.util.MeasuringSystem;
 
 import java.util.Locale;
 
@@ -57,11 +57,7 @@ public record ClientSettings(MeasuringSystem measure, boolean overlay, int norma
 			if (!value.isJsonPrimitive() || !value.getAsJsonPrimitive().isString()) throw new IllegalArgumentException("hudMode must be a string");
 			mode = HudMode.valueOf(value.getAsString().toUpperCase(Locale.ROOT));
 		}
-		return new ClientSettings(measure, overlay, color(root, "normalTextColor", DEFAULT.normal), color(root, "encumberedTextColor", DEFAULT.encumbered), color(root, "overencumberedTextColor", DEFAULT.overloaded), mode, integer(root, "ringVerticalOffset", DEFAULT.ringVerticalOffset));
-	}
-
-	private static int color (JsonObject root, String key, int fallback) {
-		return integer(root, key, fallback);
+		return new ClientSettings(measure, overlay, integer(root, "normalTextColor", DEFAULT.normal), integer(root, "encumberedTextColor", DEFAULT.encumbered), integer(root, "overencumberedTextColor", DEFAULT.overloaded), mode, integer(root, "ringVerticalOffset", DEFAULT.ringVerticalOffset));
 	}
 
 	private static int integer (JsonObject root, String key, int fallback) {

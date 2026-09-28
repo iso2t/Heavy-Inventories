@@ -1,5 +1,6 @@
 package com.iso2t.heavyinventories.network;
 
+import com.google.common.base.Preconditions;
 import com.iso2t.heavyinventories.HeavyInventories;
 import com.iso2t.heavyinventories.config.ServerSettings;
 import net.minecraft.network.FriendlyByteBuf;
@@ -38,7 +39,8 @@ public record ItemWeightsPayload(long revision, int index, int chunks, List<Entr
 	});
 
 	public ItemWeightsPayload {
-		if (revision < 1 || chunks < 1 || chunks > MAX_CHUNKS || index < 0 || index >= chunks || entries.size() > CHUNK_SIZE) throw new IllegalArgumentException("Invalid definition chunk");
+		Preconditions.checkArgument(revision >= 1 && chunks >= 1 && chunks <= MAX_CHUNKS
+				&& index >= 0 && index < chunks && entries.size() <= CHUNK_SIZE, "Invalid definition chunk");
 		entries = List.copyOf(entries);
 	}
 

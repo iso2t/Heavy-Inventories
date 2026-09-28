@@ -1,0 +1,28 @@
+plugins {
+    id 'java'
+}
+
+base {
+    archivesName = 'heavyinventories-tests'
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(java_version)
+}
+
+evaluationDependsOn(':common')
+
+dependencies {
+    compileOnly(project(':common')) {
+        attributes {
+            attribute(Attribute.of('io.github.mcgradleconventions.loader', String), 'common')
+        }
+    }
+}
+
+// The harness uses the same Minecraft, Mixin, and Cloth APIs as the shared production code.
+sourceSets.main.compileClasspath += project(':common').sourceSets.main.compileClasspath
+
+if (providers.gradleProperty('runtimeTests').isPresent()) {
+    apply from: 'runs.gradle'
+}

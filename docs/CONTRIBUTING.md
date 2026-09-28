@@ -18,7 +18,7 @@ For weight-loading changes, also run the new-world handoff regression against an
 save in each loader's `runs/client/saves/` folder:
 
 ```powershell
-.\gradlew.bat :neoforge:runClient :fabric:runClient -I gradle/lifecycle-smoke.gradle -PdatapackSmoke -PnewWorldHandoff -PpackagedSmoke '-PlifecycleClientWorld=New World' --console=plain
+.\gradlew.bat :neoforge:runClient :fabric:runClient -PruntimeTests -PdatapackSmoke -PnewWorldHandoff -PpackagedSmoke '-PlifecycleClientWorld=New World' --console=plain
 ```
 
 The test routes the save through Minecraft's actual new-world resource handoff, replacing its resource manager while
@@ -46,7 +46,7 @@ Historical 26.1.2 release notes retain their original version numbers.
 The GitHub Actions workflow is configured to build/test on Linux and Windows and upload reports and mod artifacts; local
 checks do not establish a hosted CI result. Branch and PR builds do not publish releases or start Minecraft. The
 separate publishing workflow is manual-only, reads the selected branch commit, and creates its version tag
-automatically. The [testing guide](TESTING.md) describes opt-in local runtime checks and their evidence.
+automatically. The [runtime test module](../tests/README.md) documents opt-in local test runs; its sources are included in a normal Gradle import.
 
 Source and issue tracking: [iso2t/Heavy-Inventories](https://github.com/iso2t/Heavy-Inventories). Contributions and
 translations are welcome. Licensed under [MIT](../LICENSE.md).

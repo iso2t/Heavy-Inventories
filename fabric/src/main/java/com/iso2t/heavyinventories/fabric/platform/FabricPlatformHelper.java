@@ -7,8 +7,9 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.nio.file.Path;
+import java.util.List;
 
-public class FabricPlatformHelper implements IPlatformHelper {
+public final class FabricPlatformHelper implements IPlatformHelper {
 	@Override
 	public void sendToPlayer (ServerPlayer player, CustomPacketPayload payload) {
 		ServerPlayNetworking.send(player, payload);
@@ -20,13 +21,8 @@ public class FabricPlatformHelper implements IPlatformHelper {
 	}
 
 	@Override
-	public boolean isModLoaded (String modId) {
-		return FabricLoader.getInstance().isModLoaded(modId);
-	}
-
-	@Override
-	public boolean isDevelopmentEnvironment () {
-		return FabricLoader.getInstance().isDevelopmentEnvironment();
+	public List<String> getModIds () {
+		return FabricLoader.getInstance().getAllMods().stream().map(mod -> mod.getMetadata().getId()).toList();
 	}
 
 	@Override

@@ -1,7 +1,7 @@
 package com.iso2t.heavyinventories.client;
 
 import com.google.gson.JsonObject;
-import com.iso2t.heavyinventories.api.player.PlayerHolder;
+import com.iso2t.heavyinventories.player.PlayerHolder;
 import com.iso2t.heavyinventories.config.EffectsSettings;
 import com.iso2t.heavyinventories.config.ServerSettings;
 import com.iso2t.heavyinventories.config.WalkingMode;

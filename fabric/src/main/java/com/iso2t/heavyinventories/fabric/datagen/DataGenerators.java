@@ -1,6 +1,6 @@
 package com.iso2t.heavyinventories.fabric.datagen;
 
-import com.iso2t.heavyinventories.api.enchantment.ModEnchantments;
+import com.iso2t.heavyinventories.enchantment.ModEnchantments;
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.minecraft.core.RegistrySetBuilder;

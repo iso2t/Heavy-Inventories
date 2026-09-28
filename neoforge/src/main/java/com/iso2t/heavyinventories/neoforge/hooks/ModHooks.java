@@ -1,6 +1,6 @@
 package com.iso2t.heavyinventories.neoforge.hooks;
 
-import com.iso2t.heavyinventories.api.events.PlayerEvents;
+import com.iso2t.heavyinventories.player.PlayerEvents;
 import com.iso2t.heavyinventories.command.ModCommands;
 import com.iso2t.heavyinventories.server.ServerWeightState;
 import com.iso2t.heavyinventories.server.weight.WeightPackReloadListener;

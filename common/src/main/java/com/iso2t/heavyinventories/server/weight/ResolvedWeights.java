@@ -1,6 +1,6 @@
 package com.iso2t.heavyinventories.server.weight;
 
-import com.iso2t.heavyinventories.api.weight.RecipeWeights;
+import com.iso2t.heavyinventories.weight.RecipeWeights;
 import net.minecraft.resources.Identifier;
 
 import java.util.Collection;

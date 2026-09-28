@@ -1,7 +1,7 @@
 package com.iso2t.heavyinventories.neoforge.client;
 
 import com.iso2t.heavyinventories.HeavyInventories;
-import com.iso2t.heavyinventories.api.player.PlayerHolder;
+import com.iso2t.heavyinventories.player.PlayerHolder;
 import com.iso2t.heavyinventories.client.ClientFeedback;
 import com.iso2t.heavyinventories.client.ClientWeightData;
 import com.iso2t.heavyinventories.config.ConfigOptions;
