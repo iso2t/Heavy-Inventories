@@ -47,16 +47,7 @@ class EffectsSettingsTest {
 	@Test
 	void invalidNestedSettingsRejectReadAndWriteWithoutAlteringFile () throws Exception {
 		var path = directory.resolve("server.toml");
-		for (String toml : new String[] {
-				"effects = 1", "[effects]\nwater = 1", "[effects]\nlava = \"false\"",
-				"[effects]\nswimming = false", "[effects.exhaustion]\nenabled = \"true\"",
-				"[effects.exhaustion]\nwalkingcostperblock = -1", "[effects.exhaustion]\nmaxmultiplier = \"1.5\"",
-				"[effects.exhaustion]\nmaxmultiplier = 0.9", "[effects.falldamage]\nstartpercent = 125",
-				"[effects.swimming]\nminmultiplier = 1.1", "[effects.sinking]\nfullpercent = 89",
-				"[effects.upwardmovement]\nthresholdpercent = 1e100", "[effects.knockback]\nreferenceweight = 0",
-				"[effects.elytra]\nreferenceweight = 0", "[effects.elytra]\nmaxliftreduction = -1",
-				"[effects.elytra]\nmaxrocketreduction = 1.01", "[effects.elytra]\nenabled = \"true\"",
-				"[effects.knockback]\nmaxresistance = 1.01" }) {
+		for (String toml : new String[] { "effects = 1", "[effects]\nwater = 1", "[effects]\nlava = \"false\"", "[effects]\nswimming = false", "[effects.exhaustion]\nenabled = \"true\"", "[effects.exhaustion]\nwalkingcostperblock = -1", "[effects.exhaustion]\nmaxmultiplier = \"1.5\"", "[effects.exhaustion]\nmaxmultiplier = 0.9", "[effects.falldamage]\nstartpercent = 125", "[effects.swimming]\nminmultiplier = 1.1", "[effects.sinking]\nfullpercent = 89", "[effects.upwardmovement]\nthresholdpercent = 1e100", "[effects.knockback]\nreferenceweight = 0", "[effects.elytra]\nreferenceweight = 0", "[effects.elytra]\nmaxliftreduction = -1", "[effects.elytra]\nmaxrocketreduction = 1.01", "[effects.elytra]\nenabled = \"true\"", "[effects.knockback]\nmaxresistance = 1.01" }) {
 			Files.writeString(path, toml);
 			assertThrows(IllegalArgumentException.class, () -> ConfigFileManager.readServerConfig(path), toml);
 			assertThrows(IllegalArgumentException.class, () -> ConfigFileManager.writeServerConfig(path, ServerSettings.DEFAULT), toml);

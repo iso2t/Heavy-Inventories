@@ -1,8 +1,8 @@
 package com.iso2t.heavyinventories.config;
 
 import com.iso2t.easyconfig.api.Side;
-import com.iso2t.easyconfig.api.annotations.Config;
 import com.iso2t.easyconfig.api.annotations.Comment;
+import com.iso2t.easyconfig.api.annotations.Config;
 import com.iso2t.easyconfig.api.annotations.Translation;
 import com.iso2t.easyconfig.api.value.wrappers.BooleanValue;
 import com.iso2t.easyconfig.api.value.wrappers.ColorValue;

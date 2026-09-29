@@ -2,8 +2,8 @@ package com.iso2t.heavyinventories.test;
 
 import com.iso2t.easyconfig.client.gui.ConfigScreen;
 import com.iso2t.heavyinventories.client.ServerConfigScreen;
-import com.iso2t.heavyinventories.config.ServerConfig;
 import com.iso2t.heavyinventories.config.EffectsSettings;
+import com.iso2t.heavyinventories.config.ServerConfig;
 import com.iso2t.heavyinventories.config.ServerSettings;
 import com.iso2t.heavyinventories.config.WalkingMode;
 import com.iso2t.heavyinventories.network.ServerConfigUpdatePayload;

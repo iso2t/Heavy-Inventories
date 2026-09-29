@@ -20,7 +20,8 @@ Fabric requires Fabric API and EasyConfig. NeoForge requires EasyConfig. Install
 and dedicated servers. These are external dependencies, not bundled copies. The version table records the tested
 baseline, not a claim that every newer loader/mod version works.
 
-Updating from rc.1 imports existing JSON settings into TOML and preserves the originals as backups. Cloth Config is no longer required by HI.
+Updating from rc.1 imports existing JSON settings into TOML and preserves the originals as backups. Cloth Config is no
+longer required by HI.
 Client settings also open from Fabric's Mod Menu or NeoForge's mod-list config button. Server settings remain
 available through `/heavyinventories config server`; only operators can save them. EasyConfig's Save applies a valid
 draft, Done closes without saving, Reset changes the draft to defaults, and Reload reads the client TOML file or the
@@ -117,7 +118,8 @@ the default maximum penalties become 3% less lift and 5% less rocket thrust. It 
 elytra is equipped. Enchant books at an enchanting table and apply them with an anvil; combine matching levels
 to reach higher levels. Soaring remains compatible with Unbreaking and Mending.
 
-Configure the Elytra flight category in the server settings screen, or the `[effects.elytra]` TOML table below. Setting either
+Configure the Elytra flight category in the server settings screen, or the `[effects.elytra]` TOML table below. Setting
+either
 maximum reduction to zero disables that part of the penalty. Setting `enabled` to false restores vanilla flight.
 Existing configurations without this group use the enabled defaults.
 
@@ -151,7 +153,8 @@ server; accepted changes are written before they apply. Non-operators can view t
 command permission for server edits.
 
 Client display preferences and numeric text colors are available through `/heavyinventories config client` and stored in
-`config/heavyinventories-client.toml`, generated at client startup. Both loaders require EasyConfig on clients and servers.
+`config/heavyinventories-client.toml`, generated at client startup. Both loaders require EasyConfig on clients and
+servers.
 
 When a TOML file is absent, HI imports the corresponding old JSON file once. The JSON file is retained as a backup;
 after TOML exists, only TOML is used. Item-weight datapacks still use Minecraft's JSON format.

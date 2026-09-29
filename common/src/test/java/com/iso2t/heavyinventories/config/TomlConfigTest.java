@@ -11,13 +11,16 @@ import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TomlConfigTest {
-	@TempDir Path directory;
+	@TempDir
+	Path directory;
 
-	@Test void startupCreatesCommentedTomlWithAllDefaults () throws Exception {
+	@Test
+	void startupCreatesCommentedTomlWithAllDefaults () throws Exception {
 		var previous = ConfigPlatform.configDir();
 		var client = ClientSettings.current();
 		try {
-			ConfigPlatform.configure(directory, modId -> {});
+			ConfigPlatform.configure(directory, modId -> {
+			});
 			ConfigFileManager.loadClientConfig();
 			assertEquals(ClientSettings.DEFAULT, ClientSettings.current());
 			assertEquals(ServerSettings.DEFAULT, ConfigFileManager.loadServerConfig());
@@ -27,12 +30,14 @@ class TomlConfigTest {
 			assertTrue(serverFile.contains("[effects.elytra]") && serverFile.contains("startingweight = 1000.0"));
 			assertFalse(serverFile.contains("revision"));
 		} finally {
-			ConfigPlatform.configure(previous, modId -> {});
+			ConfigPlatform.configure(previous, modId -> {
+			});
 			client.apply();
 		}
 	}
 
-	@Test void clientColorsEnumsAndDecimalsRoundTripThroughEasyConfig () throws Exception {
+	@Test
+	void clientColorsEnumsAndDecimalsRoundTripThroughEasyConfig () throws Exception {
 		var path = directory.resolve("client.toml");
 		var settings = new ClientSettings(MeasuringSystem.KGS, false, 0x123456, 0xFEDCBA, 0x010203, HudMode.BOTH, 12);
 		ConfigFileManager.writeClientConfig(path, settings);
@@ -43,7 +48,8 @@ class TomlConfigTest {
 		assertEquals("ringverticaloffset = 12.5", Files.readString(path));
 	}
 
-	@Test void jsonIsImportedOnceAndPreservedAsBackup () throws Exception {
+	@Test
+	void jsonIsImportedOnceAndPreservedAsBackup () throws Exception {
 		var legacyServer = directory.resolve("server.json");
 		var legacyClient = directory.resolve("client.json");
 		var server = new ServerSettings(432.5f, WalkingMode.AT_NINETY_PERCENT);
@@ -64,7 +70,8 @@ class TomlConfigTest {
 		assertEquals(client, ConfigFileManager.readClientConfig(clientPath));
 	}
 
-	@Test void invalidLegacyFileCannotGenerateReplacementToml () throws Exception {
+	@Test
+	void invalidLegacyFileCannotGenerateReplacementToml () throws Exception {
 		var legacy = directory.resolve("server.json");
 		Files.writeString(legacy, "{\"startingWeight\":0}");
 		var toml = directory.resolve("server.toml");
