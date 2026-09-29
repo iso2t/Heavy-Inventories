@@ -10,14 +10,54 @@ on:
         default: true
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: publish-release
   cancel-in-progress: false
 
 jobs:
+  preview:
+    if: ${{ inputs.dry_run }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6
+        with:
+          cache-provider: basic
+          cache-read-only: true
+      - name: Build publishing preview
+        run: bash ./gradlew build publishMods --stacktrace --no-daemon --max-workers=2 --console=plain
+        env:
+          PUBLISH_DRY_RUN: 'true'
+          CURSEFORGE_PROJECT_ID: ${{ vars.CURSEFORGE_PROJECT_ID }}
+          MODRINTH_PROJECT_ID: ${{ vars.MODRINTH_PROJECT_ID }}
+      - name: Save jars and publishing previews
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: publishing-artifacts
+          if-no-files-found: error
+          path: |
+            fabric/build/libs/*.jar
+            neoforge/build/libs/*.jar
+            !**/*-sources.jar
+            !**/*-javadoc.jar
+            !**/*-dev.jar
+            !**/*-lifecycle-test.jar
+            build/publishMods/
+
   publish:
+    if: ${{ !inputs.dry_run }}
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -36,7 +76,7 @@ jobs:
       - name: Build and publish
         run: bash ./gradlew build publishMods --stacktrace --no-daemon --max-workers=2 --console=plain
         env:
-          PUBLISH_DRY_RUN: ${{ inputs.dry_run }}
+          PUBLISH_DRY_RUN: 'false'
           CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY || secrets.CURSEFORGE_TOKEN }}
           CURSEFORGE_PROJECT_ID: ${{ vars.CURSEFORGE_PROJECT_ID }}
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}

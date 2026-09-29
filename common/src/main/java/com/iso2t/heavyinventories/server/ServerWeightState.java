@@ -141,8 +141,10 @@ public final class ServerWeightState {
 	}
 
 	private void replace (ServerSettings settings, Map<Identifier, Float> values, Map<Identifier, Float> explicitWeights, Map<Identifier, WeightProvenance> sources) {
+		if (values.size() > ItemWeightsPayload.MAX_ENTRIES) throw new IllegalArgumentException("Too many item weights to synchronize");
 		values.values().forEach(ServerSettings::validateItemWeight);
 		var entries = values.entrySet().stream().map(e -> new ItemWeightsPayload.Entry(e.getKey(), e.getValue())).toList();
+		if (entries.stream().mapToInt(ItemWeightsPayload.Entry::sizeBytes).sum() > ItemWeightsPayload.MAX_TABLE_BYTES) throw new IllegalArgumentException("Item weights exceed synchronization size limit");
 		int chunks = Math.max(1, (entries.size() + ItemWeightsPayload.CHUNK_SIZE - 1) / ItemWeightsPayload.CHUNK_SIZE);
 		var next = new ArrayList<ItemWeightsPayload>(chunks);
 		for (int i = 0; i < chunks; i++) {

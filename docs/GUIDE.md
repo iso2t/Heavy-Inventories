@@ -263,4 +263,7 @@ freeze recipe chains.
   still decode old data but no longer execute tick effects; datapacks reusing them for other enchantments or conditional
   effects need redesign.
 - Clients require matching updated packet formats; this version does not support older Heavy Inventories network peers.
+- Weight synchronization accepts up to 100,000 registered items, identifiers of at most 256 characters, and an 8 MiB
+  encoded-entry budget per table. Oversized server tables fail validation; invalid incoming tables preserve the client's
+  last valid weights. These limits do not describe total JVM memory use.
 - NeoForge is pinned to a beta baseline. See the recorded checks and limits in [testing documentation](TESTING.md).

@@ -37,3 +37,4 @@ __pycache__/
 !/docs/CONTRIBUTING.md
 !/docs/GUIDE.md
 !/docs/RELEASE_NOTES.md
+/SECURITY_AUDIT.md

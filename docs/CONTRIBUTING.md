@@ -39,7 +39,7 @@ Gradle 9.7.1 wrapper.
 
 NeoForge uses 26.3.0.3-beta instead of the template's 26.3.0.1-beta to meet Cloth Config 26.3.159's minimum requirement.
 
-The 26.3 candidate passed 100 common tests, both packaged-jar checks, both loaders' dedicated/singleplayer and
+The 26.3 candidate passed 105 common tests, both packaged-jar checks, both loaders' dedicated/singleplayer and
 separate-process
 multiplayer suites, new-world
 weight handoff and datapack reload/conversion checks, and a NeoForge dedicated run without Cloth Config on Windows/JDK
@@ -99,3 +99,5 @@ changelogs should describe the original build; add later changes to the next ver
 The [publishing plan](PUBLISHING_PLAN.md) defines the manual release trigger and the implementation checklist.
 The [setup guide](PUBLISHING.md) covers tokens, repository secrets and variables, changelogs, and the manual Publish
 action. The manual workflow defaults to dry-run; uncheck its preview checkbox to publish.
+Preview jobs have read-only repository access and receive no publisher tokens. Only live publishing jobs receive
+the distributor credentials and repository write permission.

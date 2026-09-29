@@ -91,7 +91,7 @@ class WeightProtocolTest {
 
 	@Test
 	void definitionsPublishOnlyCompleteRevisionsAndClearBetweenConnections () {
-		var receiver = new ClientWeightData.DefinitionReceiver();
+		var receiver = new ClientWeightData.DefinitionReceiver(id -> id.equals(STONE) || id.equals(DIRT));
 		receiver.accept(chunk(1, 0, 1, STONE, 2));
 		receiver.accept(chunk(2, 0, 2, STONE, 3));
 		assertEquals(2f, receiver.weight(STONE));
