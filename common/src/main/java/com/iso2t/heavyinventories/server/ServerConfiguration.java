@@ -5,7 +5,6 @@ import com.iso2t.heavyinventories.config.ConfigFileManager;
 import com.iso2t.heavyinventories.config.ServerSettings;
 import com.iso2t.heavyinventories.config.WalkingMode;
 import com.iso2t.heavyinventories.network.ServerConfigUpdatePayload;
-import com.iso2t.heavyinventories.platform.Services;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.commands.Commands;
@@ -38,7 +37,7 @@ public final class ServerConfiguration {
 		}
 		try {
 			var settings = new ServerSettings(request.startingWeight(), WalkingMode.parse(request.walkingMode()), request.effects());
-			ConfigFileManager.writeServerConfig(Services.PLATFORM.getGameDirectory().resolve("config/heavyinventories-server.json"), settings);
+			ConfigFileManager.writeServerConfig(ConfigFileManager.serverPath(), settings);
 			state.replace(settings, state.weights());
 			player.sendSystemMessage(Component.translatable("config.heavyinventories.saved"));
 		} catch (IOException | IllegalArgumentException e) {

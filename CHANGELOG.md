@@ -6,6 +6,7 @@ workflow for CurseForge, Modrinth, and GitHub Releases. Missing or blank files u
 description instead and do not block publishing.
 
 - [Unreleased](changelogs/UNRELEASED.md)
+- [4.263.0.0-rc.2](changelogs/4.263.0.0-rc.2.md) — EasyConfig migration for Minecraft 26.3
 - [4.263.0.0-rc.1](changelogs/4.263.0.0-rc.1.md) — prepared release candidate for Minecraft 26.3; not yet published
 - [4.262.0.0](changelogs/4.262.0.0.md) — prepared release for Minecraft 26.2; not yet published
 - [4.0.1](changelogs/4.0.1.md) — prepared stable patch for Minecraft 26.1.2; not yet published

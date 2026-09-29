@@ -16,11 +16,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class WeightSyncLimitsTest {
 
-	private static final Identifier STONE = Identifier.parse("minecraft:stone");
-	private static final Identifier DIRT = Identifier.parse("minecraft:dirt");
-	private static final ItemWeightsPayload.Entry OLD = new ItemWeightsPayload.Entry(STONE, 2);
+	private static final Identifier               STONE   = Identifier.parse("minecraft:stone");
+	private static final Identifier               DIRT    = Identifier.parse("minecraft:dirt");
+	private static final ItemWeightsPayload.Entry OLD     = new ItemWeightsPayload.Entry(STONE, 2);
 	private static final ItemWeightsPayload.Entry UPDATED = new ItemWeightsPayload.Entry(STONE, 3);
-	private static final ItemWeightsPayload.Entry OTHER = new ItemWeightsPayload.Entry(DIRT, 4);
+	private static final ItemWeightsPayload.Entry OTHER   = new ItemWeightsPayload.Entry(DIRT, 4);
 
 	@Test
 	void decoderRejectsLargeIdentifiersAndInvalidHeadersBeforeReadingEntries () {

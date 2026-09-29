@@ -39,7 +39,6 @@ Additional modes:
 | `-PdatapackSmoke`         | Exercise datapack loading, reloads, and conversion.                                               |
 | `-PnewWorldHandoff`       | With client datapack tests, exercise new-world resource handoff.                                  |
 | `-PallowTestWorldUpgrade` | Allow Minecraft to back up and upgrade an older disposable save.                                  |
-| `-PwithoutCloth`          | With packaged NeoForge server tests, omit Cloth Config.                                           |
 | `-PauthorityMultiplayer`  | Test separate server/client processes and reconnection.                                           |
 | `-PsmokeMultiplayer`      | With packaged multiplayer client tests, connect to localhost:25575 (Fabric) or :25576 (NeoForge). |
 

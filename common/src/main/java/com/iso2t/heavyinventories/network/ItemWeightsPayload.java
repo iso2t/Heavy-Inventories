@@ -17,13 +17,13 @@ import java.util.List;
  */
 public record ItemWeightsPayload(long revision, int index, int chunks, List<Entry> entries) implements CustomPacketPayload {
 
-	public static final int                                              CHUNK_SIZE = 256;
-	public static final int                                              MAX_ENTRIES = 100_000;
-	public static final int                                              MAX_TABLE_BYTES = 8 * 1024 * 1024;
+	public static final int                                              CHUNK_SIZE            = 256;
+	public static final int                                              MAX_ENTRIES           = 100_000;
+	public static final int                                              MAX_TABLE_BYTES       = 8 * 1024 * 1024;
 	public static final int                                              MAX_IDENTIFIER_LENGTH = 256;
-	public static final int                                              MAX_CHUNKS = (MAX_ENTRIES + CHUNK_SIZE - 1) / CHUNK_SIZE;
-	public static final Type<ItemWeightsPayload>                         TYPE       = new Type<>(HeavyInventories.get("item_weights"));
-	public static final StreamCodec<FriendlyByteBuf, ItemWeightsPayload> CODEC      = StreamCodec.of((buf, p) -> {
+	public static final int                                              MAX_CHUNKS            = (MAX_ENTRIES + CHUNK_SIZE - 1) / CHUNK_SIZE;
+	public static final Type<ItemWeightsPayload>                         TYPE                  = new Type<>(HeavyInventories.get("item_weights"));
+	public static final StreamCodec<FriendlyByteBuf, ItemWeightsPayload> CODEC                 = StreamCodec.of((buf, p) -> {
 		buf.writeVarLong(p.revision);
 		buf.writeVarInt(p.index);
 		buf.writeVarInt(p.chunks);

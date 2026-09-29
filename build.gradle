@@ -1,3 +1,5 @@
+import me.modmuss50.mpp.PublishModTask
+
 plugins {
     // see https://fabricmc.net/develop/ for new versions
     id 'net.fabricmc.fabric-loom' version '1.18.1' apply false
@@ -40,7 +42,7 @@ publishMods {
             file project(":${loader}")
             modLoaders.add(loader)
             displayName = "Heavy Inventories ${releaseVersion} (${label})"
-            requires('cloth-config')
+            requires('easy-config')
             if (loader == 'fabric') requires('fabric-api')
         }
         modrinth("modrinth${label}") {
@@ -49,7 +51,7 @@ publishMods {
             modLoaders.add(loader)
             version = releaseVersion
             displayName = "Heavy Inventories ${releaseVersion} (${label})"
-            requires { id = '9s6osm5g' } // Cloth Config; only clients need it on NeoForge.
+            requires { id = 'DhMDv7ri' }
             if (loader == 'fabric') requires { id = 'P7dR8mSH' }
         }
     }
@@ -65,6 +67,6 @@ publishMods {
 }
 
 // Every upload waits for tests and both packaged-jar checks, even when called directly.
-tasks.withType(me.modmuss50.mpp.PublishModTask).configureEach {
+tasks.withType(PublishModTask).configureEach {
     dependsOn ':common:check', ':fabric:build', ':neoforge:build'
 }

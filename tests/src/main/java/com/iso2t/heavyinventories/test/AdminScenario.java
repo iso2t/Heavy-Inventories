@@ -30,7 +30,7 @@ public final class AdminScenario {
 		var state = ServerWeightState.of(server);
 		var game = Services.PLATFORM.getGameDirectory();
 		var file = game.resolve("weights/minecraft.json");
-		var config = game.resolve("config/heavyinventories-server.json");
+		var config = game.resolve("config/heavyinventories-server.toml");
 		var profile = new NameAndId(player.getGameProfile());
 		boolean wasOp = server.getPlayerList().isOp(profile);
 		byte[] original = read(file), originalConfig = read(config);
@@ -52,7 +52,7 @@ public final class AdminScenario {
 			var suggestions = dispatcher.getCompletionSuggestions(dispatcher.parse("heavyinventories dump ", player.createCommandSourceStack())).join();
 			require(suggestions.getList().stream().anyMatch(suggestion -> suggestion.getText().equals("minecraft")), "Dump suggestions omit the Minecraft namespace");
 			Files.createDirectories(file.getParent());
-			Files.writeString(config, "{\"startingWeight\":1000,\"walkingMode\":\"at_ninety_percent\"}");
+			Files.writeString(config, "startingweight = 1000\nwalkingmode = \"AT_NINETY_PERCENT\"");
 			String valid = "{\"stone\":{\"weight\":2,\"density\":7},\"dirt\":{\"weight\":3}}";
 			Files.writeString(file, valid);
 			player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.STONE));
@@ -66,7 +66,7 @@ public final class AdminScenario {
 			Files.writeString(config, "{");
 			require(execute(player, "reload") == 0, "Reload accepted malformed configuration");
 			require(state.revision() == revision, "Failed configuration changed session");
-			Files.writeString(config, "{\"startingWeight\":1000,\"walkingMode\":\"at_ninety_percent\"}");
+			Files.writeString(config, "startingweight = 1000\nwalkingmode = \"AT_NINETY_PERCENT\"");
 			Files.writeString(file, valid);
 			for (String command : new String[] { "config invalid", "dump ../escape" })
 				require(execute(player, command) == 0, "Invalid command succeeded: " + command);

@@ -20,7 +20,7 @@ dependencies {
     }
 }
 
-// The harness uses the same Minecraft, Mixin, and Cloth APIs as the shared production code.
+// The harness uses the same Minecraft, Mixin, and EasyConfig APIs as the shared production code.
 sourceSets.main.compileClasspath += project(':common').sourceSets.main.compileClasspath
 
 apply from: 'verify-log.gradle'

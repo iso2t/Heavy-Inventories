@@ -9,8 +9,6 @@ import com.iso2t.heavyinventories.config.ConfigOptions;
 import com.iso2t.heavyinventories.platform.Services;
 import com.iso2t.heavyinventories.test.mixin.GuiFeedbackTestAccess;
 import com.iso2t.heavyinventories.util.MeasuringSystem;
-import me.shedaniel.clothconfig2.gui.entries.ColorEntry;
-import me.shedaniel.clothconfig2.gui.entries.IntegerListEntry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
@@ -50,31 +48,32 @@ public final class FeedbackScenario {
 		original = ClientSettings.current();
 		originalHideGui = client.gui.hud.isHidden();
 		originalScale = client.options.guiScale().get();
-		file = Services.PLATFORM.getGameDirectory().resolve("config/heavyinventories-client.json");
+		file = Services.PLATFORM.getGameDirectory().resolve("config/heavyinventories-client.toml");
+		require(Files.exists(file), "Client startup did not generate its TOML config");
 		try {
 			originalFile = Files.exists(file) ? Files.readAllBytes(file) : null;
 			// Only this disposable test config is replaced; restore original bytes at the end.
 			Files.createDirectories(file.getParent());
-			Files.writeString(file, "{}");
-			var builder = ClientConfigScreen.create();
-			var entries = builder.getOrCreateCategory(Component.translatable("category.heavyinventories.general")).getEntries();
+			Files.writeString(file, "");
+			var screen = ClientConfigScreen.create();
+			client.gui.setScreen(screen);
 			int[] colors = { 0x123456, 0xABCDEF, 0x010203 };
-			for (int i = 0; i < 3; i++) {
-				var entry = (ColorEntry) entries.get(i + 2);
-				entry.setValue(colors[i]);
-				entry.save();
-			}
-			var offset = (IntegerListEntry) entries.get(6);
+			String[] paths = { "normal", "encumbered", "overloaded" };
+			for (int i = 0; i < 3; i++) ConfigScreenScenario.entry(screen, paths[i]).setValue(colors[i]);
+			var offset = ConfigScreenScenario.field(screen, "option.heavyinventories.ring_vertical_offset");
+			offset.setValue("65");
+			require(screen.validationError().isPresent(), "Offset above limit was accepted");
+			screen.saveSelected();
+			require(ClientSettings.current().equals(original), "Invalid client draft was saved");
 			offset.setValue("12");
-			offset.save();
-			builder.getSavingRunnable().run();
+			screen.saveSelected();
 			require(ClientSettings.current().normal() == colors[0] && ClientSettings.current().encumbered() == colors[1] && ClientSettings.current().overloaded() == colors[2], "Color controls changed the wrong preference");
 			ConfigFileManager.loadClientConfig();
 			require(ClientSettings.current().encumbered() == colors[1], "Color did not persist");
 			require(ClientSettings.current().ringVerticalOffset() == 12, "Ring offset did not persist");
-			var fresh = ClientConfigScreen.create().getOrCreateCategory(Component.translatable("category.heavyinventories.general")).getEntries();
-			require(((ColorEntry) fresh.get(3)).getValue() == colors[1], "Reopened screen retained stale state");
-			require(((IntegerListEntry) fresh.get(6)).getValue() == 12, "Reopened offset is stale");
+			var fresh = ClientConfigScreen.create();
+			require(((int) ConfigScreenScenario.entry(fresh, "encumbered").value() & 0xFFFFFF) == colors[1], "Reopened screen retained stale state");
+			require((int) ConfigScreenScenario.entry(fresh, "ringVerticalOffset").value() == 12, "Reopened offset is stale");
 			ConfigFileManager.saveClientConfig(new ClientSettings(MeasuringSystem.KGS, true, 0xFFFFFF, 0xFFFF55, 0xFF5555));
 			if (client.gui.hud.isHidden()) client.gui.hud.toggle();
 			client.gui.setScreen(null);
@@ -100,7 +99,7 @@ public final class FeedbackScenario {
 			case 2 -> {
 				require(hudFrames == previousFrames, "Overlay toggle did not hide the weight HUD");
 				ConfigOptions.ENABLE_GUI_OVERLAY = true;
-				client.gui.setScreen(ClientConfigScreen.create().build());
+				client.gui.setScreen(ClientConfigScreen.create());
 			}
 			case 3 -> {
 				require(hudFrames == previousFrames, "HUD rendered over a config screen");

@@ -7,18 +7,24 @@ see the [README](../README.md).
 
 Use the jar for your loader on both the client and server, with matching Heavy Inventories builds.
 
-| Component     | Verified version                  |
-|---------------|-----------------------------------|
-| Minecraft     | 26.3                              |
-| Java          | 25                                |
-| Fabric Loader | 0.19.5                            |
-| Fabric API    | 0.160.6+26.3                      |
-| NeoForge      | 26.3.0.3-beta                     |
-| Cloth Config  | 26.3.159, for the matching loader |
+| Component     | Verified version                   |
+|---------------|------------------------------------|
+| Minecraft     | 26.3                               |
+| Java          | 25                                 |
+| Fabric Loader | 0.19.5                             |
+| Fabric API    | 0.160.6+26.3                       |
+| NeoForge      | 26.3.0.3-beta                      |
+| EasyConfig    | 1.263.0.8, for the matching loader |
 
-Fabric requires Fabric API and Cloth Config. NeoForge requires Cloth Config on clients; its dedicated server does not
-require the settings UI. These are external dependencies, not bundled copies. The version table records the tested
+Fabric requires Fabric API and EasyConfig. NeoForge requires EasyConfig. Install the matching dependencies on clients
+and dedicated servers. These are external dependencies, not bundled copies. The version table records the tested
 baseline, not a claim that every newer loader/mod version works.
+
+Updating from rc.1 imports existing JSON settings into TOML and preserves the originals as backups. Cloth Config is no longer required by HI.
+Client settings also open from Fabric's Mod Menu or NeoForge's mod-list config button. Server settings remain
+available through `/heavyinventories config server`; only operators can save them. EasyConfig's Save applies a valid
+draft, Done closes without saving, Reset changes the draft to defaults, and Reload reads the client TOML file or the
+latest synchronized server settings.
 
 ## Weight and capacity
 
@@ -111,7 +117,7 @@ the default maximum penalties become 3% less lift and 5% less rocket thrust. It 
 elytra is equipped. Enchant books at an enchanting table and apply them with an anvil; combine matching levels
 to reach higher levels. Soaring remains compatible with Unbreaking and Mending.
 
-Configure the Elytra flight category in the server settings screen, or the `effects.elytra` object below. Setting either
+Configure the Elytra flight category in the server settings screen, or the `[effects.elytra]` TOML table below. Setting either
 maximum reduction to zero disables that part of the penalty. Setting `enabled` to false restores vanilla flight.
 Existing configurations without this group use the enabled defaults.
 
@@ -120,24 +126,23 @@ Existing configurations without this group use the enabled defaults.
 Paths are relative to the server's game directory, or the Minecraft instance directory in singleplayer. Singleplayer
 files are shared by worlds launched from that instance.
 
-Create or edit `config/heavyinventories-server.json`:
+EasyConfig generates `config/heavyinventories-server.toml` when the server starts (including when opening a
+singleplayer world). It contains every setting, defaults, and explanatory comments. For example:
 
-```json
-{
-  "startingWeight": 1000.0,
-  "walkingMode": "progressive",
-  "effects": {
-    "elytra": {
-      "enabled": true,
-      "referenceWeight": 1000.0,
-      "maxLiftReduction": 0.15,
-      "maxRocketReduction": 0.25
-    }
-  }
-}
+```toml
+startingweight = 1000.0
+walkingmode = "PROGRESSIVE"
+
+[effects.elytra]
+enabled = true
+referenceweight = 1000.0
+maxliftreduction = 0.15
+maxrocketreduction = 0.25
 ```
 
-Use `"at_ninety_percent"` for the alternative walking mode. Older files without `walkingMode` default to progressive.
+Use `"AT_NINETY_PERCENT"` for the alternative walking mode. Missing values use defaults.
+After editing this file, run `/heavyinventories reload` as an operator to apply it.
+Invalid settings leave the current session and file unchanged.
 Capacity must be finite, greater than zero, and no greater than 1,000,000,000.
 
 Operators can also open `/heavyinventories config server` and edit these settings. Saving sends a validated request to
@@ -146,15 +151,18 @@ server; accepted changes are written before they apply. Non-operators can view t
 command permission for server edits.
 
 Client display preferences and numeric text colors are available through `/heavyinventories config client` and stored in
-`config/heavyinventories-client.json`.
+`config/heavyinventories-client.toml`, generated at client startup. Both loaders require EasyConfig on clients and servers.
+
+When a TOML file is absent, HI imports the corresponding old JSON file once. The JSON file is retained as a backup;
+after TOML exists, only TOML is used. Item-weight datapacks still use Minecraft's JSON format.
 
 **Ring vertical offset** is a client-only whole number from 0 to 64, default **7**. Higher values move the ring and
 vanilla XP number upward together in GUI pixels; the XP bar stays in place. Zero retains vanilla text placement and may
 overlap the bar; 12 gives long XP numbers more space. Hiding the ring restores vanilla XP text positioning. The settings
 screen provides a reset to 7.
 
-The saved fields are `hudMode` (`"ring"`, `"numbers"`, or `"both"`), `ringVerticalOffset`, and the existing
-`enableGuiOverlay` master toggle. Older settings default to ring mode with offset 7 and preserve an explicit overlay-off
+The TOML fields are `hudmode` (`"RING"`, `"NUMBERS"`, or `"BOTH"`), `ringverticaloffset`, and the
+`overlay` master toggle. Older settings default to ring mode with offset 7 and preserve an explicit overlay-off
 preference. These settings never change server gameplay or other players' HUDs.
 
 ### Item weights in datapacks

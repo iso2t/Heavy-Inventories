@@ -26,10 +26,10 @@ class FileSafetyTest {
 
 	@Test
 	void invalidServerFileCannotBeOverwrittenByAnOperatorEdit () throws Exception {
-		var file = directory.resolve("server.json");
-		Files.writeString(file, "{\"startingWeight\":0}");
+		var file = directory.resolve("server.toml");
+		Files.writeString(file, "startingweight = 0");
 		assertThrows(IllegalArgumentException.class, () -> ConfigFileManager.writeServerConfig(file, new ServerSettings(1000)));
-		assertEquals("{\"startingWeight\":0}", Files.readString(file));
+		assertEquals("startingweight = 0", Files.readString(file));
 	}
 
 	@Test

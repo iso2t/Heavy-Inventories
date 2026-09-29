@@ -101,7 +101,7 @@ public final class ServerWeightState {
 	}
 
 	private static ServerSettings readSettings () throws IOException {
-		return ConfigFileManager.readServerConfig(Services.PLATFORM.getGameDirectory().resolve("config/heavyinventories-server.json"));
+		return ConfigFileManager.loadServerConfig();
 	}
 
 	private static ResolvedWeights resolveLoaded (MinecraftServer server) {

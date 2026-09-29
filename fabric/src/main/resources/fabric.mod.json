@@ -16,6 +16,9 @@
   "icon": "${mod_id}.png",
   "environment": "*",
   "entrypoints": {
+    "modmenu": [
+      "com.iso2t.heavyinventories.fabric.client.ModMenuIntegration"
+    ],
     "main": [
       "com.iso2t.heavyinventories.fabric.core.HeavyInventoriesFabric"
     ],
@@ -35,6 +38,6 @@
     "fabric-api": "*",
     "minecraft": "${minecraft_version}",
     "java": ">=${java_version}",
-    "cloth-config": ">=${cloth_config_version}"
+    "easyconfig": ">=${easyconfig_version}"
   }
 }

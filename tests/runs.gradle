@@ -24,11 +24,7 @@ gradle.projectsEvaluated {
                         // ModDev appends this provider again in its task action.
                         def runtimeFiles = classpathProvider.files
                         classpathProvider.setFrom(runtimeFiles.findAll { !outputs.contains(it) })
-                        if (runName == 'runServer' && modProject.hasProperty('withoutCloth')) {
-                            def keepDependency = { !it.name.startsWith('cloth-config-') && !it.name.startsWith('basic-math-') }
-                            classpath = classpath.filter(keepDependency)
-                            classpathProvider.setFrom(runtimeFiles.findAll { !outputs.contains(it) && keepDependency(it) })
-                        }
+
                     }
                     doFirst {
                         if (modProject.name == 'fabric') systemProperty 'fabric.addMods', modJar.absolutePath

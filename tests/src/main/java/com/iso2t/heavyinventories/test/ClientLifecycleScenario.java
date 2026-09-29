@@ -178,7 +178,7 @@ public final class ClientLifecycleScenario {
 				operation = server.submit(() -> {
 					KnockbackScenario.checkBonus(serverPlayer, 0);
 					HeavyInventories.LOGGER.info("KNOCKBACK LIFECYCLE PASSED: retained-inventory respawn, dimension travel, empty respawn");
-					configPath = Services.PLATFORM.getGameDirectory().resolve("config/heavyinventories-server.json");
+					configPath = Services.PLATFORM.getGameDirectory().resolve("config/heavyinventories-server.toml");
 					try {
 						originalConfig = Files.exists(configPath) ? Files.readAllBytes(configPath) : null;
 					} catch (IOException e) {
@@ -223,7 +223,7 @@ public final class ClientLifecycleScenario {
 						// A malformed reload must preserve the running snapshot and revision.
 						var state = ServerWeightState.of(server);
 						long revision = state.revision();
-						Files.writeString(configPath, "{\"startingWeight\":777,\"effects\":{\"fallDamage\":{\"startPercent\":130}}}");
+						Files.writeString(configPath, "startingweight = 777\n[effects.falldamage]\nstartpercent = 130");
 						try {
 							state.reload(server);
 							throw new AssertionError("Invalid reload was accepted");
@@ -231,7 +231,7 @@ public final class ClientLifecycleScenario {
 						}
 						require(state.revision() == revision && state.settings().startingWeight() == 20.25f, "Failed reload changed active settings");
 						require(state.settings().effects().equals(EffectsConfigScenario.expected()), "Invalid nested reload changed effects");
-						HeavyInventories.LOGGER.info("ENCUMBRANCE CONFIG PASSED: Cloth edits, cross-field validation, packet synchronization, reopen, persistence, atomic nested reload rejection");
+						HeavyInventories.LOGGER.info("ENCUMBRANCE CONFIG PASSED: EasyConfig edits, cross-field validation, packet synchronization, reopen, persistence, atomic nested reload rejection");
 					} catch (IOException e) {
 						throw new RuntimeException(e);
 					} finally {
@@ -329,7 +329,7 @@ public final class ClientLifecycleScenario {
 			}
 			case 15 -> {
 				if (!screenshotDone) return;
-				client.gui.setScreen(ClientConfigScreen.create().build());
+				client.gui.setScreen(ClientConfigScreen.create());
 				feedbackTicks = 0;
 				screenshotDone = false;
 				stage++;

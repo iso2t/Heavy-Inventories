@@ -46,7 +46,8 @@ public final class NetworkAuthorityScenario {
 				initialPlayer = player;
 				profile = new NameAndId(player.getGameProfile());
 				wasOp = players.isOp(profile);
-				config = Services.PLATFORM.getGameDirectory().resolve("config/heavyinventories-server.json");
+				config = Services.PLATFORM.getGameDirectory().resolve("config/heavyinventories-server.toml");
+				require(Files.exists(config), "Dedicated server did not generate its TOML config");
 				previousConfig = Files.exists(config) ? Files.readAllBytes(config) : null;
 				prepared = true;
 				players.deop(profile);

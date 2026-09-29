@@ -37,18 +37,28 @@ It replaces the former `buildSrc` directory; keep Heavy Inventories' resource ge
 those conventions. The port uses the template's Fabric Mixin 0.17.3+mixin.0.8.7 and MixinExtras 0.5.3 dependencies and
 Gradle 9.7.1 wrapper.
 
-NeoForge uses 26.3.0.3-beta instead of the template's 26.3.0.1-beta to meet Cloth Config 26.3.159's minimum requirement.
+NeoForge retains the tested 26.3.0.3-beta baseline. Configuration screens use EasyConfig 1.263.0.8.
+EasyConfig's matching loader artifacts must be published to the iso2t Maven repository before a clean CI build of rc.2.
 
-The 26.3 candidate passed 105 common tests, both packaged-jar checks, both loaders' dedicated/singleplayer and
+The 26.3 candidate passed 109 common tests, both packaged-jar checks, both loaders' dedicated/singleplayer and
 separate-process
 multiplayer suites, new-world
-weight handoff and datapack reload/conversion checks, and a NeoForge dedicated run without Cloth Config on Windows/JDK
-25.
+weight handoff and datapack reload/conversion checks on Windows/JDK 25.
+
 The bundled catalog contains 579 definitions and resolves all vanilla survival items without unexpected fallbacks.
-HUD screenshots were checked on both loaders. A publishing dry run selected the 4.263.0.0-rc.1 jars and changelog for
+HUD screenshots were checked on both loaders. A publishing dry run selected the 4.263.0.0-rc.2 jars and changelog for
 all five
 upload targets. Elytra checks cover glide range, rocket thrust, configuration edits, Soaring levels/equipment, and
 client synchronization.
+The rc.2 migration additionally passed 12 EasyConfig API and TOML persistence tests, both loaders' real settings-edit
+scenarios, and multiplayer read-only/operator/reconnect checks. EasyConfig 1.263.0.8 was built and tested locally.
+The client and server screen drafts use annotated classes with typed EasyConfig values.
+EasyConfig owns TOML parsing, comments, serialization, and atomic file replacement through its documented
+`ConfigManager` API with `FileTypes.TOML`. HI validates immutable snapshots before applying them and retains its
+server-authoritative edit protocol. Legacy JSON settings are imported only when their TOML replacement is absent.
+EasyConfig is now required on dedicated servers as well as clients. The rc.2 preview selected
+EasyConfig on both distributors, with no Cloth dependency.
+The EasyConfig changes also fix its 26.3 F3 mixin and bundle its Jackson runtime libraries.
 Linux runtime and third-party integrations have not been verified for this port. Historical changelogs retain their
 original version numbers.
 
@@ -70,7 +80,7 @@ Minecraft line. The 26.1.2 branch retains its existing `4.0.1` numbering.
 
 Stable releases use four dot-separated numeric components without leading zeros. Release candidates append
 `-rc.<number>`,
-such as `4.263.0.0-rc.1`; these publish as Beta on CurseForge and Modrinth and as prereleases on GitHub.
+such as `4.263.0.0-rc.2`; these publish as Beta on CurseForge and Modrinth and as prereleases on GitHub.
 Keep the exact supported Minecraft version
 in `minecraft_version`, dependency metadata, and release notes. Four components are supported
 by [Fabric's version parser](https://docs.fabricmc.net/develop/loader/fabric-mod-json)
@@ -80,7 +90,7 @@ by component, not plain text sorting.
 Both loaders publish the same version; loader labels and filenames distinguish the downloads. The publishing
 workflow still creates `v<version>` tags, uses optional `changelogs/<version>.md` notes, and runs only when manually
 triggered. Select
-the `26.3` branch for this release candidate (`4.263.0.0-rc.1`). Nothing is uploaded by a normal build.
+the `26.3` branch for this release candidate (`4.263.0.0-rc.2`). Nothing is uploaded by a normal build.
 
 ## Changelogs
 

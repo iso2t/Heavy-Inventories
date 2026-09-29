@@ -12,12 +12,12 @@ import java.util.Optional;
 public final class ConfigScreens {
 
 	public static void open (SettingsType type) {
-		var builder = switch (type) {
+		var screen = switch (type) {
 			case CLIENT -> ClientConfigScreen.create();
 			case SERVER -> ServerConfigScreen.create(ConfigScreens::sendServerSettings);
 			case COMMON -> CommonConfigScreen.create();
 		};
-		Minecraft.getInstance().gui.setScreen(builder.build());
+		Minecraft.getInstance().gui.setScreen(screen);
 	}
 
 	private static void sendServerSettings (ServerConfigUpdatePayload request) {

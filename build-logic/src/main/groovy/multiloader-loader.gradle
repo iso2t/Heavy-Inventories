@@ -72,6 +72,9 @@ def verifyModJar = tasks.register('verifyModJar') {
                     throw new GradleException('Fabric mod identity does not match project properties')
                 }
                 metadata.entrypoints.values().flatten().each { requireClass(it as String) }
+                if (metadata.depends.easyconfig != ">=${easyconfig_version}" || metadata.depends.containsKey('cloth-config')) {
+                    throw new GradleException('Fabric configuration-library dependency is incorrect')
+                }
                 metadata.mixins.each { requireEntry(it as String) }
                 requireEntry(metadata.icon as String)
             } else {
@@ -82,6 +85,9 @@ def verifyModJar = tasks.register('verifyModJar') {
                 }
                 (metadata =~ /(?m)^config\s*=\s*"([^"]+)"/).each { requireEntry(it[1]) }
                 requireClass('com.iso2t.heavyinventories.neoforge.core.HeavyInventoriesNeoForgeBootstrap')
+                if (!metadata.contains('modId = "easyconfig"') || !metadata.contains('versionRange = "[' + easyconfig_version + ',)"') || metadata.contains('cloth_config')) {
+                    throw new GradleException('NeoForge configuration-library dependency is incorrect')
+                }
             }
 
             zip.entries().each { entry ->
