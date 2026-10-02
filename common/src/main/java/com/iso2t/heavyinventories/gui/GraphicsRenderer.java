@@ -26,8 +26,8 @@ public final class GraphicsRenderer {
 		int width = client.getWindow().getGuiScaledWidth();
 		int height = client.getWindow().getGuiScaledHeight();
 		int lineH = client.font.lineHeight;
-		Component main = holder.getWeight() == StackWeight.TOO_COMPLEX ? Component.translatable("hud.heavyinventories.calculation_limit") : Component.translatable("hud.heavyinventories.weight", WeightDisplay.number(measurement.fromStored(holder.getWeight())), WeightDisplay.weight(holder.getMaxWeight(), measurement), WeightDisplay.number(holder.getEncumberedPercentage()));
-		Component status = holder.isOverEncumbered() ? Component.translatable("chat.heavyinventories.over_encumbered") : holder.isEncumbered() ? Component.translatable("chat.heavyinventories.encumbered") : null;
+		Component main = holder.getWeight() == StackWeight.TOO_COMPLEX ? Component.translatableWithFallback("hud.heavyinventories.calculation_limit", "Weight calculation limit reached") : Component.translatableWithFallback("hud.heavyinventories.weight", "%s / %s (%s%%)", WeightDisplay.number(measurement.fromStored(holder.getWeight())), WeightDisplay.weight(holder.getMaxWeight(), measurement), WeightDisplay.number(holder.getEncumberedPercentage()));
+		Component status = holder.isOverEncumbered() ? Component.translatableWithFallback("chat.heavyinventories.over_encumbered", "Over Encumbered") : holder.isEncumbered() ? Component.translatableWithFallback("chat.heavyinventories.encumbered", "Encumbered") : null;
 		int color = color(holder.isEncumbered(), holder.isOverEncumbered());
 		int y = height - (status == null ? 1 : 2) * lineH - 4;
 		if (status != null) {

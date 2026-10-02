@@ -27,22 +27,22 @@ public final class ServerConfiguration {
 	 */
 	public static void update (ServerPlayer player, ServerConfigUpdatePayload request) {
 		if (!canEdit(player)) {
-			player.sendSystemMessage(Component.translatable("config.heavyinventories.denied"));
+			player.sendSystemMessage(Component.translatableWithFallback("config.heavyinventories.denied", "Only server operators can change server settings."));
 			return;
 		}
 		var state = ServerWeightState.of(player.level().getServer());
 		if (request.expectedRevision() != state.revision()) {
-			player.sendSystemMessage(Component.translatable("config.heavyinventories.stale"));
+			player.sendSystemMessage(Component.translatableWithFallback("config.heavyinventories.stale", "Server settings changed while this screen was open. Reopen it and try again."));
 			return;
 		}
 		try {
 			var settings = new ServerSettings(request.startingWeight(), WalkingMode.parse(request.walkingMode()), request.effects());
 			ConfigFileManager.writeServerConfig(ConfigFileManager.serverPath(), settings);
 			state.replace(settings, state.weights());
-			player.sendSystemMessage(Component.translatable("config.heavyinventories.saved"));
+			player.sendSystemMessage(Component.translatableWithFallback("config.heavyinventories.saved", "Server settings saved. The change applies to all players."));
 		} catch (IOException | IllegalArgumentException e) {
 			HeavyInventories.LOGGER.warn("Rejected server configuration edit: {}", e.getMessage());
-			player.sendSystemMessage(Component.translatable("config.heavyinventories.failed", e.getMessage()));
+			player.sendSystemMessage(Component.translatableWithFallback("config.heavyinventories.failed", "Server settings were not applied: %s", e.getMessage()));
 		}
 	}
 }

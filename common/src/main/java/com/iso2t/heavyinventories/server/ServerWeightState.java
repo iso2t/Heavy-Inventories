@@ -90,7 +90,7 @@ public final class ServerWeightState {
 			resolved = resolveLoaded(server);
 		} catch (IllegalArgumentException | IllegalStateException e) {
 			HeavyInventories.LOGGER.error("Weight reload rejected; keeping revision {}: {}", revision, e.getMessage());
-			var message = Component.translatable("config.heavyinventories.weights_reload_failed", e.getMessage());
+			var message = Component.translatableWithFallback("config.heavyinventories.weights_reload_failed", "Heavy Inventories could not apply reloaded weights; previous weights remain active. %s", e.getMessage());
 			server.getPlayerList().getPlayers().stream().filter(ServerConfiguration::canEdit).forEach(player -> player.sendSystemMessage(message));
 			return;
 		}

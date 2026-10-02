@@ -17,6 +17,8 @@
 
 ## Fixed
 
+- HI's tooltips, HUD, feedback, command messages, and config-screen titles and descriptions fall back to English when a translation is missing.
+
 ## Removed
 
 - Removed unused legacy weight-file APIs, the old item-weight cache, and obsolete configuration-screen wrappers. Legacy

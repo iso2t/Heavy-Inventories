@@ -31,32 +31,40 @@ public final class Tooltip {
 		}
 		boolean stacked = stack.getCount() > 1;
 		boolean belowMaxStack = stack.getCount() < stack.getMaxStackSize();
-		tooltip.add(weightLine(stacked ? "tooltip.heavyinventories.item_stack_weight" : "tooltip.heavyinventories.item_weight", total.weight()));
+		tooltip.add(stacked ? stackWeightLine(total.weight()) : itemWeightLine(total.weight()));
 
 		if (stacked || belowMaxStack) {
 			if (showDetails) {
 				if (stacked) {
 					var single = StackWeight.of(stack.copyWithCount(1), ClientWeightData::unitWeight);
-					tooltip.add(single.complete() ? weightLine("tooltip.heavyinventories.item_weight", single.weight()) : calculationLimit());
+					tooltip.add(single.complete() ? itemWeightLine(single.weight()) : calculationLimit());
 				}
 				if (belowMaxStack) {
 					var maximum = StackWeight.of(stack.copyWithCount(stack.getMaxStackSize()), ClientWeightData::unitWeight);
-					tooltip.add(maximum.complete() ? weightLine("tooltip.heavyinventories.item_max_stack_weight", maximum.weight()) : calculationLimit());
+					tooltip.add(maximum.complete() ? Component.translatableWithFallback("tooltip.heavyinventories.item_max_stack_weight", "Max Stack Weight: %s", weightValue(maximum.weight())).withStyle(ChatFormatting.GRAY) : calculationLimit());
 				}
 			} else {
-				tooltip.add(Component.translatable("tooltip.heavyinventories.hold_shift", Component.translatable("tooltip.heavyinventories.shift_key").withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.GRAY));
+				tooltip.add(Component.translatableWithFallback("tooltip.heavyinventories.hold_shift", "Hold %s for more info", Component.translatableWithFallback("tooltip.heavyinventories.shift_key", "[SHIFT]").withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.GRAY));
 			}
 		}
 
 		return tooltip;
 	}
 
-	private static Component weightLine (String translation, float weight) {
-		return Component.translatable(translation, Component.literal(WeightDisplay.weight(weight, ConfigOptions.WEIGHT_MEASURE)).withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.GRAY);
+	private static Component itemWeightLine (float weight) {
+		return Component.translatableWithFallback("tooltip.heavyinventories.item_weight", "Weight: %s", weightValue(weight)).withStyle(ChatFormatting.GRAY);
+	}
+
+	private static Component stackWeightLine (float weight) {
+		return Component.translatableWithFallback("tooltip.heavyinventories.item_stack_weight", "Stack Weight: %s", weightValue(weight)).withStyle(ChatFormatting.GRAY);
+	}
+
+	private static Component weightValue (float weight) {
+		return Component.literal(WeightDisplay.weight(weight, ConfigOptions.WEIGHT_MEASURE)).withStyle(ChatFormatting.GOLD);
 	}
 
 	private static Component calculationLimit () {
-		return Component.translatable("tooltip.heavyinventories.calculation_limit").withStyle(ChatFormatting.RED);
+		return Component.translatableWithFallback("tooltip.heavyinventories.calculation_limit", "Contents exceed the weight calculation limit; treated as over capacity.").withStyle(ChatFormatting.RED);
 	}
 
 }

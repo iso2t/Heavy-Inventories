@@ -24,7 +24,7 @@ public final class ClientConfigScreen {
 	}
 
 	public static ConfigScreen create (Screen parent) {
-		var title = Component.translatable("title.heavyinventories.config.client");
+		var title = Component.translatableWithFallback("title.heavyinventories.config.client", "Heavy Inventories Config");
 		var tab = new ConfigScreenTab<>(title, ConfigIntrospector.inspect(new ClientConfig(ClientSettings.current())), ClientConfigScreen::save, () -> {
 			ConfigFileManager.loadClientConfig();
 			return ConfigIntrospector.inspect(new ClientConfig(ClientSettings.current()));
@@ -39,7 +39,7 @@ public final class ClientConfigScreen {
 			ConfigFileManager.saveClientConfig(settings);
 		} catch (IOException | IllegalArgumentException e) {
 			HeavyInventories.LOGGER.error("Client preferences were not saved", e);
-			Minecraft.getInstance().gui.hud.setOverlayMessage(Component.translatable("config.heavyinventories.client_failed", e.getMessage()), false);
+			Minecraft.getInstance().gui.hud.setOverlayMessage(Component.translatableWithFallback("config.heavyinventories.client_failed", "Client preferences were not saved: %s", e.getMessage()), false);
 		}
 	}
 }

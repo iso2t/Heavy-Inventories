@@ -42,36 +42,36 @@ public final class ModCommands {
 
 	private static int executeReloadPlayersCommand (CommandContext<CommandSourceStack> context) {
 		PlayerWeightCache.clearAll(context.getSource().getServer());
-		context.getSource().sendSuccess(() -> Component.translatable("command.heavyinventories.players_reloaded"), false);
+		context.getSource().sendSuccess(() -> Component.translatableWithFallback("command.heavyinventories.players_reloaded", "Player weights will refresh on the next tick."), false);
 		return Command.SINGLE_SUCCESS;
 	}
 
 	private static int executeOpenConfig (CommandContext<CommandSourceStack> context, String type) {
 		var source = context.getSource();
 		if (!Set.of("client", "server", "common").contains(type)) {
-			source.sendFailure(Component.translatable("command.heavyinventories.config.invalid", type));
+			source.sendFailure(Component.translatableWithFallback("command.heavyinventories.config.invalid", "Unknown config: %s. Use client, server, or common.", type));
 			return 0;
 		}
 		var player = source.getPlayer();
 
 		if (player == null) {
-			source.sendFailure(Component.translatable("command.heavyinventories.config.no_player"));
+			source.sendFailure(Component.translatableWithFallback("command.heavyinventories.config.no_player", "Open a config screen from a player."));
 			return 0;
 		}
 
 		Services.CONFIG_SCREEN.sendOpenConfigPacket(player, type);
 
-		source.sendSuccess(() -> Component.translatable("command.heavyinventories.config.success", type), false);
+		source.sendSuccess(() -> Component.translatableWithFallback("command.heavyinventories.config.success", "Requested the %s config screen.", type), false);
 		return Command.SINGLE_SUCCESS;
 	}
 
 	private static int executeReloadCommand (CommandContext<CommandSourceStack> context) {
 		try {
 			ServerWeightState.of(context.getSource().getServer()).reload(context.getSource().getServer());
-			context.getSource().sendSuccess(() -> Component.translatable("config.heavyinventories.reloaded"), true);
+			context.getSource().sendSuccess(() -> Component.translatableWithFallback("config.heavyinventories.reloaded", "Reloaded server settings and rebuilt weights from loaded datapacks and recipes. Use /reload to load edited datapack files."), true);
 			return Command.SINGLE_SUCCESS;
 		} catch (IOException | IllegalArgumentException | IllegalStateException e) {
-			context.getSource().sendFailure(Component.translatable("config.heavyinventories.failed", e.getMessage()));
+			context.getSource().sendFailure(Component.translatableWithFallback("config.heavyinventories.failed", "Server settings were not applied: %s", e.getMessage()));
 			return 0;
 		}
 	}
@@ -81,10 +81,10 @@ public final class ModCommands {
 		var version = SharedConstants.getCurrentVersion().packVersion(PackType.SERVER_DATA);
 		try {
 			var result = LegacyWeightConverter.convert(game.resolve("weights"), game.resolve("weight-packs"), StringArgumentType.getString(context, "pack_name"), version.major(), version.minor());
-			context.getSource().sendSuccess(() -> Component.translatable("command.heavyinventories.converted", result.converted(), result.skipped(), game.toAbsolutePath().normalize().relativize(result.file()).toString()), false);
+			context.getSource().sendSuccess(() -> Component.translatableWithFallback("command.heavyinventories.converted", "Converted %s weights (%s entries without weights skipped) to %s. Review the ZIP, install it in the intended world's datapacks folder, and enable it. Source files and gameplay were unchanged.", result.converted(), result.skipped(), game.toAbsolutePath().normalize().relativize(result.file()).toString()), false);
 			return Command.SINGLE_SUCCESS;
 		} catch (IOException | IllegalArgumentException e) {
-			context.getSource().sendFailure(Component.translatable("command.heavyinventories.conversion_failed", e.getMessage()));
+			context.getSource().sendFailure(Component.translatableWithFallback("command.heavyinventories.conversion_failed", "Weight conversion failed: %s", e.getMessage()));
 			return 0;
 		}
 	}
@@ -110,7 +110,7 @@ public final class ModCommands {
 			context.getSource().sendFailure(Component.literal(e.getMessage()));
 			return 0;
 		}
-		context.getSource().sendSuccess(() -> Component.translatable("command.heavyinventories.exported", Services.PLATFORM.getGameDirectory().relativize(export).toString()), false);
+		context.getSource().sendSuccess(() -> Component.translatableWithFallback("command.heavyinventories.exported", "Exported weight report to %s, including sources. This is not an installable datapack and does not change gameplay.", Services.PLATFORM.getGameDirectory().relativize(export).toString()), false);
 		return Command.SINGLE_SUCCESS;
 	}
 
