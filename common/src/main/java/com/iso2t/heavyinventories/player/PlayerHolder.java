@@ -80,7 +80,7 @@ public final class PlayerHolder {
 		effectSettings = state.settings().effects();
 		float nextWeight = PlayerWeightCache.getOrCompute(player);
 		if (nextWeight == StackWeight.TOO_COMPLEX && nextWeight != weight && player instanceof ServerPlayer target && target.connection != null) {
-			player.sendSystemMessage(Component.translatableWithFallback("tooltip.heavyinventories.calculation_limit", "Contents exceed the weight calculation limit; treated as over capacity."));
+			player.sendSystemMessage(Component.translatable("tooltip.heavyinventories.calculation_limit"));
 		}
 		weight = nextWeight;
 		var strength = player.getEffect(MobEffects.STRENGTH);

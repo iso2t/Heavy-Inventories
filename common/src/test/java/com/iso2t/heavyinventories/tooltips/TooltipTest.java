@@ -8,7 +8,6 @@ import net.minecraft.SharedConstants;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.Bootstrap;
@@ -24,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TooltipTest {
@@ -56,18 +54,6 @@ class TooltipTest {
 			assertWeight(lines.getFirst(), count == 1 ? "item_weight" : "item_stack_weight", count * 2);
 			assertEquals("tooltip.heavyinventories.hold_shift", contents(lines.getLast()).getKey());
 		}
-	}
-
-	@Test
-	void missingTranslationsRenderEnglishWithFormattedWeightsAndShiftHint () {
-		assertFalse(Language.getInstance().has("tooltip.heavyinventories.item_stack_weight"));
-		var collapsed = Tooltip.addTooltips(new ArrayList<>(), new ItemStack(Items.ARROW, 8), false);
-		assertEquals("Stack Weight: " + WeightDisplay.weight(16, ConfigOptions.WEIGHT_MEASURE), collapsed.getFirst().getString());
-		assertEquals("Hold [SHIFT] for more info", collapsed.getLast().getString());
-
-		var expanded = Tooltip.addTooltips(new ArrayList<>(), new ItemStack(Items.ARROW, 8), true);
-		assertEquals("Weight: " + WeightDisplay.weight(2, ConfigOptions.WEIGHT_MEASURE), expanded.get(1).getString());
-		assertEquals("Max Stack Weight: " + WeightDisplay.weight(128, ConfigOptions.WEIGHT_MEASURE), expanded.get(2).getString());
 	}
 
 	@Test

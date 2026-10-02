@@ -10,7 +10,7 @@ import com.iso2t.heavyinventories.platform.Services;
 import com.iso2t.heavyinventories.test.mixin.GuiFeedbackTestAccess;
 import com.iso2t.heavyinventories.util.MeasuringSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.network.chat.Component;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -37,7 +37,7 @@ public final class FeedbackScenario {
 		for (var type : ConfigScreens.SettingsType.values()) {
 			ConfigScreens.open(type);
 			var first = client.gui.screen();
-			require(first != null && first.getTitle().getContents() instanceof TranslatableContents title && title.getKey().equals("title.heavyinventories.config." + type.name().toLowerCase(Locale.ROOT)) && title.getFallback() != null, "Incorrect config screen: " + type);
+			require(first != null && first.getTitle().equals(Component.translatable("title.heavyinventories.config." + type.name().toLowerCase(Locale.ROOT))), "Incorrect config screen: " + type);
 			ConfigScreens.open(type);
 			require(client.gui.screen() != first, "Config screen was reused: " + type);
 		}

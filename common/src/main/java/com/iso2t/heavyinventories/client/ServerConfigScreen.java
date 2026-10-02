@@ -19,19 +19,17 @@ import java.util.function.Consumer;
 public final class ServerConfigScreen {
 
 	public static ConfigScreen create (Consumer<ServerConfigUpdatePayload> send) {
-		var title = Component.translatableWithFallback("title.heavyinventories.config.server", "Heavy Inventories Server Config");
+		var title = Component.translatable("title.heavyinventories.config.server");
 		var player = Minecraft.getInstance().player;
 		if (player == null || !PlayerHolder.getOrCreate(player).hasServerState()) {
-			return CommonConfigScreen.information(title, Component.translatableWithFallback("config.heavyinventories.unavailable", "Join a Heavy Inventories server to view its settings."));
+			return CommonConfigScreen.information(title, "config.heavyinventories.unavailable");
 		}
 		var holder = PlayerHolder.getOrCreate(player);
 		var tab = new ConfigScreenTab<>(title, ConfigIntrospector.inspect(new ServerConfig(holder.serverSettings(), holder.serverRevision())), config -> {
 			if (!holder.canEditServerConfig()) return;
 			var updated = config.settings();
 			if (!updated.equals(holder.serverSettings())) send.accept(new ServerConfigUpdatePayload(updated, config.revision));
-		}, () -> ConfigIntrospector.inspect(new ServerConfig(holder.serverSettings(), holder.serverRevision()))).editable(holder::canEditServerConfig).description(config -> holder.canEditServerConfig()
-				? Component.translatableWithFallback("config.heavyinventories.edit_help", "Saving sends your changes to the server. Operator permission is checked there; accepted changes apply to all players.")
-				: Component.translatableWithFallback("config.heavyinventories.read_only", "These are the server's settings. Only server operators can change them.")).validation(ServerConfigScreen::validate);
+		}, () -> ConfigIntrospector.inspect(new ServerConfig(holder.serverSettings(), holder.serverRevision()))).editable(holder::canEditServerConfig).description(config -> Component.translatable(holder.canEditServerConfig() ? "config.heavyinventories.edit_help" : "config.heavyinventories.read_only")).validation(ServerConfigScreen::validate);
 		return new ConfigScreen(null, title, List.of(tab));
 	}
 
