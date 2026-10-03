@@ -51,6 +51,7 @@ public abstract class PlayerLifecycleSmokeMixin {
 		heavyinventories$tested = true;
 		var server = (MinecraftServer) (Object) this;
 		if (!server.isDedicatedServer()) return;
+		ApiContractScenario.verify();
 		var profile = new GameProfile(UUID.fromString("b80f4e78-1bd2-4b0e-a7de-8e662f03b999"), "LifecycleTest");
 		var original = new ServerPlayer(server, server.overworld(), profile, ClientInformation.createDefault());
 		var holder = PlayerHolder.getOrCreate(original);

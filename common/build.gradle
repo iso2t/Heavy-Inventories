@@ -13,6 +13,7 @@ neoForge {
 }
 
 dependencies {
+    api project(':api')
     compileOnly("com.iso2t.easyconfig:easyconfig-neoforge-${minecraft_version}:${easyconfig_version}") {
         transitive = false
         attributes { attribute(Attribute.of('io.github.mcgradleconventions.loader', String), 'neoforge') }

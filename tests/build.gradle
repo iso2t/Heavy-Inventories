@@ -13,6 +13,7 @@ java {
 evaluationDependsOn(':common')
 
 dependencies {
+    compileOnly project(':api')
     compileOnly(project(':common')) {
         attributes {
             attribute(Attribute.of('io.github.mcgradleconventions.loader', String), 'common')

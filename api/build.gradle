@@ -1,9 +1,20 @@
 plugins {
-    id 'java'
+    id 'java-library'
+    id 'net.neoforged.moddev'
 }
 
-group = 'com.iso2t.heavyinventories'
-version = '4.263.0.0-rc.2'
+group = rootProject.group
+version = rootProject.version
+
+base { archivesName = "${mod_id}-api-${minecraft_version}" }
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(java_version)
+    withSourcesJar()
+    withJavadocJar()
+}
+
+neoForge { neoFormVersion = neo_form_version }
 
 repositories {
     mavenCentral()
@@ -17,4 +28,26 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+sourceSets.test {
+    compileClasspath += sourceSets.main.compileClasspath
+    runtimeClasspath += sourceSets.main.compileClasspath
+}
+
+// Compile a consumer against the jar, not HI's implementation or API source output.
+sourceSets.create('consumer') {
+    compileClasspath = files(tasks.named('jar').flatMap { it.archiveFile }) + sourceSets.main.compileClasspath
+}
+tasks.named('compileConsumerJava') { dependsOn tasks.named('jar') }
+tasks.named('check') { dependsOn tasks.named('compileConsumerJava') }
+
+configurations.create('apiJava') {
+    canBeResolved = false
+    canBeConsumed = true
+}
+artifacts { apiJava sourceSets.main.java.sourceDirectories.singleFile }
+
+tasks.withType(Jar).configureEach {
+    from(rootProject.file('LICENSE.md')) { rename { "${it}_${mod_name}" } }
 }
