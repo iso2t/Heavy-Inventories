@@ -9,6 +9,7 @@ import com.iso2t.heavyinventories.platform.Services;
 import com.iso2t.heavyinventories.player.PlayerEvents;
 import com.iso2t.heavyinventories.player.PlayerHolder;
 import com.iso2t.heavyinventories.server.ServerWeightState;
+import com.iso2t.heavyinventories.test.plugin.FixtureProviders;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.ClientboundSetExperiencePacket;
 import net.minecraft.server.MinecraftServer;
@@ -93,12 +94,29 @@ public final class NetworkAuthorityScenario {
 				KnockbackScenario.checkBonus(replacement, 0.018f);
 				HeavyInventories.LOGGER.info("KNOCKBACK RECONNECT PASSED: rebuilt from persisted inventory and changed definitions");
 				serverStage = 6;
-			} else if (serverStage == 6 && players.getPlayers().isEmpty()) {
+			} else if (serverStage == 6 && state.settings().startingWeight() == 513) {
+				var player = players.getPlayers().getFirst();
+				FixtureProviders.target = player.getId();
+				FixtureProviders.extra = new ItemStack(Items.STONE, 3);
+				FixtureProviders.bonus = 125;
+				PlayerEvents.onPlayerTick(player);
+				require(PlayerHolder.getOrCreate(player).getWeight() == 54 && PlayerHolder.getOrCreate(player).getMaxWeight() == 638, "Remote provider contributions missing");
+				serverStage = 7;
+			} else if (serverStage == 7 && players.getPlayers().isEmpty()) {
+				serverStage = 8;
+			} else if (serverStage == 8 && !players.getPlayers().isEmpty()) {
+				var player = players.getPlayers().getFirst();
+				PlayerEvents.onPlayerTick(player);
+				require(PlayerHolder.getOrCreate(player).getWeight() == 45 && PlayerHolder.getOrCreate(player).getMaxWeight() == 513, "Provider contributions leaked into replacement entity");
+				FixtureProviders.reset();
+				HeavyInventories.LOGGER.info("API PROVIDERS RECONNECT SERVER PASSED: remote contributions rebuilt for the new entity");
+				serverStage = 9;
+			} else if (serverStage == 9 && players.getPlayers().isEmpty()) {
 				cleanup(server);
 				HeavyInventories.LOGGER.info("MULTIPLAYER RECONNECT SERVER PASSED: fresh holder, persisted inventory, changed offline definitions and capacity");
 				HeavyInventories.LOGGER.info("MULTIPLAYER SERVER AUTHORITY PASSED: denied/invalid/stale requests, valid operator edit, server-side persistence");
 				server.halt(false);
-				serverStage = 7;
+				serverStage = 10;
 			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);

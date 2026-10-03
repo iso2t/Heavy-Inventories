@@ -9,5 +9,14 @@
   ],
   "depends": {
     "heavyinventories": "*"
+  },
+  "entrypoints": {
+    "heavyinventories": [
+      "com.iso2t.heavyinventories.test.plugin.FixturePlugin",
+      "com.iso2t.heavyinventories.test.plugin.MissingDependencyPlugin"
+    ],
+    "heavyinventories_client": [
+      "com.iso2t.heavyinventories.test.plugin.FixtureClientPlugin"
+    ]
   }
 }

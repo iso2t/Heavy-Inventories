@@ -49,6 +49,19 @@ class TomlConfigTest {
 	}
 
 	@Test
+	void hudPreferencesRoundTripAndRejectInvalidIdentifiers () throws Exception {
+		var path = directory.resolve("hud.toml");
+		var settings = new ClientSettings(MeasuringSystem.LBS, true, 1, 2, 3, HudMode.BOTH, 7, "another_mod:ring", "heavyinventories:default");
+		ConfigFileManager.writeClientConfig(path, settings);
+		assertEquals(settings, ConfigFileManager.readClientConfig(path));
+		Files.writeString(path, "ringowner = \"Not an identifier\"");
+		assertThrows(IllegalArgumentException.class, () -> ConfigFileManager.readClientConfig(path));
+		Files.writeString(path, "ringverticaloffset = 12");
+		assertEquals("", ConfigFileManager.readClientConfig(path).ringOwner());
+		assertEquals("", ConfigFileManager.readClientConfig(path).numbersOwner());
+	}
+
+	@Test
 	void jsonIsImportedOnceAndPreservedAsBackup () throws Exception {
 		var legacyServer = directory.resolve("server.json");
 		var legacyClient = directory.resolve("client.json");

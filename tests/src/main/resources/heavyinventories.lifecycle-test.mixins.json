@@ -13,16 +13,19 @@
     "FoodDataTestAccess",
     "GameModeTestAccess",
     "ArrowKnockbackTestAccess",
-    "ExplosionKnockbackTestAccess"
+    "ExplosionKnockbackTestAccess",
+    "ApiStartupMixin"
   ],
   "client": [
+    "ClientGameModeTestAccess",
     "NewWorldWeightSmokeMixin",
     "ClientLifecycleSmokeMixin",
     "GuiFeedbackTestAccess",
     "HudFeedbackSmokeMixin",
     "RingHudSmokeMixin",
     "RingFrameSmokeMixin",
-    "ExperiencePositionSmokeMixin"
+    "ExperiencePositionSmokeMixin",
+    "HudApiSmokeMixin"
   ],
   "injectors": {
     "defaultRequire": 1

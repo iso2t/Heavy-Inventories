@@ -2,6 +2,7 @@ package com.iso2t.heavyinventories.api;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 
@@ -17,9 +18,17 @@ public interface ServerWeights {
 	WeightResult item (MinecraftServer server, Identifier item);
 
 	/**
-	 * Weight of this count and all supported nested contents. Does not mutate the stack.
+	 * Weight of this count and all supported nested contents, using the overworld as container context.
+	 * Does not mutate the stack. Use the level overload for dimension-dependent contents.
 	 */
 	WeightResult stack (MinecraftServer server, ItemStack stack);
+
+	/**
+	 * Weight using the supplied level for custom container contents.
+	 */
+	default WeightResult stack (ServerLevel level, ItemStack stack) {
+		return stack(level.getServer(), stack);
+	}
 
 	/**
 	 * Last completed update; never triggers recursive player calculation.

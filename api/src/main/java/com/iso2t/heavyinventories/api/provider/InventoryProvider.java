@@ -10,14 +10,17 @@ import net.minecraft.world.item.ItemStack;
 @FunctionalInterface
 public interface InventoryProvider {
 	/**
-	 * Runs on the server thread. Report stable slot IDs and stop if the sink returns false.
+	 * Runs each normal server update. Report globally unique slot IDs in the registration's namespace.
+	 * Stop if the sink returns false; the shared limit is 4096 slots, including empty slots.
+	 * Exceptions and rejected slots make carried weight incomplete. Never start a nested weight calculation.
 	 */
 	void collect (ServerPlayer player, SlotSink slots);
 
 	@FunctionalInterface
 	interface SlotSink {
 		/**
-		 * The sink reads the stack during this call; neither party may mutate or retain the other's data.
+		 * The sink copies the stack during this call. Do not retain the sink or call it from another thread.
+		 * Never report vanilla slots or storage already counted through a carried container.
 		 */
 		boolean accept (Identifier slot, ItemStack stack);
 	}

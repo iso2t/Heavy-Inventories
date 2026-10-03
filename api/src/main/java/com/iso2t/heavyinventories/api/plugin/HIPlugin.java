@@ -14,6 +14,12 @@ import java.lang.annotation.Target;
 public @interface HIPlugin {
 	Side value () default Side.COMMON;
 
+	/**
+	 * Required mod IDs for this optional integration, checked before loading the class on either loader.
+	 * Version requirements belong in loader metadata. Fabric still requires a named entrypoint.
+	 */
+	String[] requires () default {};
+
 	enum Side {
 		COMMON,
 		CLIENT

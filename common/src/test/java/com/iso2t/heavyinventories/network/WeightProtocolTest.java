@@ -67,13 +67,22 @@ class WeightProtocolTest {
 
 	@Test
 	void soaringLevelSurvivesTheSnapshotAndRejectsInvalidLevels () {
-		assertEquals(Identifier.parse("heavyinventories:player_weight_v4"), PlayerWeightPayload.TYPE.id());
+		assertEquals(Identifier.parse("heavyinventories:player_weight_v5"), PlayerWeightPayload.TYPE.id());
 		for (int level = 0; level <= 4; level++) {
 			var packet = new PlayerWeightPayload(7, Identifier.parse("minecraft:overworld"), 1000, 1000, 0, 0, 0, 0, WalkingMode.PROGRESSIVE, false, true, false, 1, level, EffectsSettings.DEFAULT);
 			assertEquals(packet, roundTrip(PlayerWeightPayload.CODEC, packet));
 		}
 		for (int level : new int[] { -1, 5, Integer.MAX_VALUE })
 			assertThrows(IllegalArgumentException.class, () -> new PlayerWeightPayload(7, Identifier.parse("minecraft:overworld"), 1000, 1000, 0, 0, 0, 0, WalkingMode.PROGRESSIVE, false, true, false, 1, level, EffectsSettings.DEFAULT));
+	}
+
+	@Test
+	void additionalCapacitySurvivesTheWireAndRejectsInvalidTotals () {
+		var packet = new PlayerWeightPayload(7, Identifier.withDefaultNamespace("overworld"), 1200, 1000, 100, 50, 100, 0.5f, WalkingMode.PROGRESSIVE, false, false, false, 1, 0, EffectsSettings.DEFAULT, 125.5f);
+		assertEquals(packet, roundTrip(PlayerWeightPayload.CODEC, packet));
+		for (float bonus : new float[] { -1, Float.NaN, Float.POSITIVE_INFINITY })
+			assertThrows(IllegalArgumentException.class, () -> new PlayerWeightPayload(7, Identifier.withDefaultNamespace("overworld"), 0, 1000, 0, 0, 0, 1, WalkingMode.PROGRESSIVE, false, false, false, 1, 0, EffectsSettings.DEFAULT, bonus));
+		assertThrows(IllegalArgumentException.class, () -> new PlayerWeightPayload(7, Identifier.withDefaultNamespace("overworld"), 0, Float.MAX_VALUE, 0, 0, 0, 1, WalkingMode.PROGRESSIVE, false, false, false, 1, 0, EffectsSettings.DEFAULT, Float.MAX_VALUE));
 	}
 
 	@Test

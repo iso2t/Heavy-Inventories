@@ -13,6 +13,8 @@ import com.iso2t.heavyinventories.player.PlayerEvents;
 import com.iso2t.heavyinventories.player.PlayerHolder;
 import com.iso2t.heavyinventories.server.ServerConfiguration;
 import com.iso2t.heavyinventories.server.ServerWeightState;
+import com.iso2t.heavyinventories.test.plugin.ApiWeightChecks;
+import com.iso2t.heavyinventories.test.plugin.FixtureClientNotifications;
 import com.iso2t.heavyinventories.tooltips.Tooltip;
 import com.iso2t.heavyinventories.weight.StackWeight;
 import net.minecraft.client.Minecraft;
@@ -63,13 +65,14 @@ public final class ClientLifecycleScenario {
 			return;
 		}
 		var server = client.getSingleplayerServer();
-		if (server == null || client.player == null || stage == 19) return;
+		if (server == null || client.player == null || stage == 21) return;
 		require(++ticks < 1800, "Timed out at client lifecycle stage " + stage);
 		switch (stage) {
 			case 0 -> {
 				var arrowId = BuiltInRegistries.ITEM.getKey(Items.ARROW);
 				var arrowWeight = ClientWeightData.weight(arrowId);
 				if (!PlayerHolder.getOrCreate(client.player).hasServerState() || arrowWeight == null) return;
+				com.iso2t.heavyinventories.test.plugin.ClientPluginScenario.verify();
 				require(Math.abs(arrowWeight - 0.09f) < 0.000001f, "Fresh client did not receive inferred arrow weight");
 				for (int count : new int[] { 1, 64 }) {
 					var lines = Tooltip.addTooltips(new ArrayList<>(), new ItemStack(Items.ARROW, count));
@@ -260,6 +263,7 @@ public final class ClientLifecycleScenario {
 				if (!operation.isDone()) return;
 				operation.join();
 				if (!weightsMatch(client, 44f)) return;
+				ApiClientStateScenario.run(client);
 				var box = client.player.getInventory().getItem(0);
 				if (!box.is(Items.SHULKER_BOX)) return;
 				var tooltipWeight = StackWeight.of(box, ClientWeightData::unitWeight);
@@ -282,6 +286,7 @@ public final class ClientLifecycleScenario {
 				if (!holder.serverSettings().effects().upwardMovement().enabled()) return;
 				require(holder.getStrengthOffset() == 200, "Strength capacity did not synchronize");
 				require(holder.isOverEncumbered(), "Overload did not synchronize");
+				ApiWeightChecks.client(1500, 1200, holder.serverRevision());
 				MovementScenario.checkImpulse(client.player, 0.2);
 				client.player.setDeltaMovement(Vec3.ZERO);
 				client.player.jumpFromGround();
@@ -348,6 +353,14 @@ public final class ClientLifecycleScenario {
 				if (!RingCompatibilityScenario.tick(client, serverPlayer)) return;
 				FeedbackScenario.restore();
 				HeavyInventories.LOGGER.info("PLAYER FEEDBACK PASSED: registered HUD, local jump feedback/throttle, independent color edits, persistence, fresh settings screens, kilogram display");
+				stage++;
+			}
+			case 19 -> {
+				if (!HudApiScenario.tick(client)) return;
+				stage++;
+			}
+			case 20 -> {
+				if (!ProviderClientScenario.tick(client)) return;
 				client.options.pauseOnLostFocus = pauseOnLostFocus;
 				stage++;
 				client.stop();
@@ -366,7 +379,7 @@ public final class ClientLifecycleScenario {
 		if (!weightCheck.isDone()) return false;
 		boolean serverMatches = weightCheck.join();
 		weightCheck = null;
-		return serverMatches && PlayerHolder.getOrCreate(client.player).hasServerState() && PlayerHolder.getOrCreate(client.player).getWeight() == expected;
+		return serverMatches && PlayerHolder.getOrCreate(client.player).hasServerState() && PlayerHolder.getOrCreate(client.player).getWeight() == expected && FixtureClientNotifications.current();
 	}
 
 	private static void require (boolean condition, String message) {

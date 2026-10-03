@@ -11,6 +11,9 @@ import com.iso2t.heavyinventories.network.ServerConfigUpdatePayload;
 import com.iso2t.heavyinventories.platform.Services;
 import com.iso2t.heavyinventories.player.PlayerHolder;
 import com.iso2t.heavyinventories.test.mixin.GuiFeedbackTestAccess;
+import com.iso2t.heavyinventories.test.plugin.ApiWeightChecks;
+import com.iso2t.heavyinventories.test.plugin.FixtureClientNotifications;
+import com.iso2t.heavyinventories.test.plugin.FixtureClientPlugin;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.ConnectScreen;
@@ -21,6 +24,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Items;
 
 public final class NetworkAuthorityClient {
@@ -32,18 +36,19 @@ public final class NetworkAuthorityClient {
 	private static          ServerData     reconnectServer;
 
 	public static void clientTick (Minecraft client) {
-		if (clientStage == 6) return;
+		if (clientStage == 9) return;
 		require(++ticks < 1200, "Timed out at multiplayer client stage " + clientStage);
-		if (clientStage == 4) {
+		if (clientStage == 4 || clientStage == 7) {
+			ApiWeightChecks.unavailableClient();
 			require(client.player == null, "Disconnect retained local player");
 			if (++reconnectTicks < 15) return;
 			require(ClientWeightData.weight(BuiltInRegistries.ITEM.getKey(Items.STONE)) == null, "Disconnect retained server definitions");
 			ConnectScreen.startConnecting(new TitleScreen(), client, ServerAddress.parseString(reconnectServer.ip), reconnectServer, false, null);
-			clientStage = 5;
+			clientStage = clientStage == 4 ? 5 : 8;
 			return;
 		}
 		if (client.player == null) {
-			if (clientStage > 0 && clientStage != 5) {
+			if (clientStage > 0 && clientStage != 5 && clientStage != 8) {
 				client.stop();
 				throw new AssertionError("Disconnected before multiplayer assertions completed");
 			}
@@ -52,6 +57,7 @@ public final class NetworkAuthorityClient {
 		var holder = PlayerHolder.getOrCreate(client.player);
 		if (!holder.hasServerState()) return;
 		if (clientStage == 0 && holder.getWeight() == 16f && holder.getBaseMaxWeight() == 10.5f) {
+			ApiWeightChecks.client(16, 10.5, holder.serverRevision());
 			originalSettings = ClientSettings.current();
 			ClientSettings.DEFAULT.apply();
 			RingHudScenario.active = true;
@@ -105,6 +111,9 @@ public final class NetworkAuthorityClient {
 			client.disconnectFromWorld(Component.literal("Lifecycle reconnect test"));
 		} else if (clientStage == 5 && holder.getBaseMaxWeight() == 512 && holder.getWeight() == 45 && holder.getMaxWeight() == 512) {
 			if (!verifyRing(client, "multiplayer-reconnected")) return;
+			ApiWeightChecks.client(45, 512, holder.serverRevision());
+			ApiWeightChecks.near(FixtureClientPlugin.weights.item(Identifier.withDefaultNamespace("stone")).pounds().orElseThrow(), 3);
+			HeavyInventories.LOGGER.info("API QUERIES RECONNECT PASSED: unavailable between connections, fresh player, changed definitions/capacity");
 			require(client.player != initialPlayer && holder != PlayerHolder.getOrCreate(initialPlayer), "Reconnect reused local holder");
 			require(ClientWeightData.weight(BuiltInRegistries.ITEM.getKey(Items.STONE)) == 3f, "Reconnect kept old definitions");
 			require(!holder.isEncumbered() && !holder.isOverEncumbered() && holder.getStrengthOffset() == 0, "Reconnect kept stale bonuses/penalties");
@@ -113,7 +122,20 @@ public final class NetworkAuthorityClient {
 			HeavyInventories.LOGGER.info("MULTIPLAYER RING PASSED: rendered before and after reconnect, fresh synchronized status, vanilla XP offset, no duplicate draws");
 			RingHudScenario.active = false;
 			originalSettings.apply();
+			send(client, 513, holder.serverRevision());
 			clientStage = 6;
+		} else if (clientStage == 6 && holder.getWeight() == 54 && holder.getMaxWeight() == 638) {
+			ApiWeightChecks.client(54, 638, holder.serverRevision());
+			clientStage = 7;
+			reconnectTicks = 0;
+			client.disconnectFromWorld(Component.literal("Provider reconnect test"));
+		} else if (clientStage == 8 && holder.getWeight() == 45 && holder.getMaxWeight() == 513) {
+			if (!FixtureClientNotifications.current()) return;
+			require(FixtureClientNotifications.unavailable >= 2 && FixtureClientNotifications.ready >= 3, "Reconnect notifications missing");
+			HeavyInventories.LOGGER.info("API NOTIFICATIONS RECONNECT PASSED: unavailable on disconnect, new ready state on both reconnects");
+			ApiWeightChecks.client(45, 513, holder.serverRevision());
+			HeavyInventories.LOGGER.info("API PROVIDERS RECONNECT CLIENT PASSED: synchronized server-only contributions cleared across reconnect");
+			clientStage = 9;
 			client.stop();
 		}
 	}

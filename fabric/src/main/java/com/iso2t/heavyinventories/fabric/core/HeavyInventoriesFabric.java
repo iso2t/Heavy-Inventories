@@ -1,8 +1,12 @@
 package com.iso2t.heavyinventories.fabric.core;
 
+import com.iso2t.heavyinventories.api.plugin.HIPlugin;
+import com.iso2t.heavyinventories.api.plugin.HeavyInventoriesPlugin;
 import com.iso2t.heavyinventories.fabric.enchantments.ModEnchantmentEffects;
 import com.iso2t.heavyinventories.fabric.hooks.ModHooks;
+import com.iso2t.heavyinventories.fabric.integration.FabricPluginDiscovery;
 import com.iso2t.heavyinventories.fabric.platform.FabricConfigScreenHelper;
+import com.iso2t.heavyinventories.integration.CommonPlugins;
 import com.iso2t.heavyinventories.server.ServerWeightState;
 import com.iso2t.heavyinventories.server.weight.WeightPackReloadListener;
 import net.fabricmc.api.ModInitializer;
@@ -18,5 +22,6 @@ public final class HeavyInventoriesFabric implements ModInitializer {
 		FabricConfigScreenHelper.registerPayloads();
 		ModHooks.registerHooks();
 		ModEnchantmentEffects.register();
+		CommonPlugins.INSTANCE.initialize(FabricPluginDiscovery.find("heavyinventories", HeavyInventoriesPlugin.class, HIPlugin.Side.COMMON));
 	}
 }

@@ -15,7 +15,10 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
- * Initialization-only registration. IDs must be unique within each registration category.
+ * Initialization-only registration, on the loader's registration thread, before register returns.
+ * IDs use the plugin's namespace and must be unique within each registration category across plugins.
+ * Notifications run in registration-ID order on the owning server thread. Runtime and linkage failures
+ * are isolated and logged at most once per minute per listener/category for that session.
  */
 public interface PluginRegistration {
 	/**
@@ -33,17 +36,21 @@ public interface PluginRegistration {
 	void capacity (Identifier id, CapacityProvider provider);
 
 	/**
-	 * Called after initial definitions or a successful reload commit, on the server thread.
+	 * Called after each committed definition/settings revision, including initial readiness.
+	 * Rejected reloads emit nothing. Weight queries see the new table; players update afterward.
 	 */
 	void onWeightsReady (Identifier id, BiConsumer<MinecraftServer, Long> listener);
 
 	/**
-	 * Called after a changed snapshot is committed. Invalidation inside a listener is deferred.
+	 * Called after the first snapshot and each change to its values or revision; tick-only changes are ignored.
+	 * Previous is the last delivered snapshot, or empty for a new player entity.
+	 * Invalidation inside a listener schedules a later update; recursive HI commits are rejected.
 	 */
 	void onPlayerChanged (Identifier id, PlayerWeightListener listener);
 
 	/**
-	 * Release any plugin-owned session state here. Registrations themselves survive server restarts.
+	 * Called once after normal server shutdown; weight queries are unavailable at this point.
+	 * Release plugin-owned session state here. Registrations themselves survive server restarts.
 	 */
 	void onServerStopped (Identifier id, Consumer<MinecraftServer> listener);
 

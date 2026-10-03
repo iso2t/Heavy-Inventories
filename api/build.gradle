@@ -42,6 +42,52 @@ sourceSets.create('consumer') {
 tasks.named('compileConsumerJava') { dependsOn tasks.named('jar') }
 tasks.named('check') { dependsOn tasks.named('compileConsumerJava') }
 
+def wikiPages = rootProject.fileTree('wiki') { include 'API-*.md' }
+def wikiSources = layout.buildDirectory.dir('generated/sources/wikiExamples')
+def extractWikiExamples = tasks.register('extractWikiExamples') {
+    group = 'verification'
+    description = 'Extracts complete Java examples from the checked-out API wiki pages.'
+    inputs.files(wikiPages)
+    outputs.dir(wikiSources)
+    doLast {
+        if (wikiPages.empty) throw new GradleException('Check out the wiki before compiling its API examples.')
+        def destination = wikiSources.get().asFile.canonicalFile
+        if (!destination.toPath().startsWith(layout.buildDirectory.get().asFile.canonicalFile.toPath())) {
+            throw new GradleException('Wiki example output must stay inside the API build directory.')
+        }
+        project.delete(destination)
+        def written = new HashSet<String>()
+        wikiPages.files.sort().each { page ->
+            def blocks = page.getText('UTF-8') =~ /(?ms)^```java\r?\n(.*?)^```[ \t]*\r?$/
+            blocks.each { block ->
+                String source = block[1]
+                def packageName = source =~ /(?m)^package ([\w.]+);/
+                def className = source =~ /(?m)^public (?:final )?class (\w+)/
+                if (!packageName.find() || !className.find()) {
+                    throw new GradleException("Java examples must be complete public classes: ${page.name}")
+                }
+                String path = packageName.group(1).replace('.', '/') + '/' + className.group(1) + '.java'
+                if (!written.add(path)) throw new GradleException("Duplicate wiki example: ${path}")
+                def target = new File(destination, path)
+                target.parentFile.mkdirs()
+                target.setText(source, 'UTF-8')
+            }
+        }
+        if (written.empty) throw new GradleException('No Java examples found in the API wiki pages.')
+        logger.lifecycle("Extracted ${written.size()} API wiki examples")
+    }
+}
+
+sourceSets.create('wikiExamples') {
+    java.srcDir wikiSources
+    compileClasspath = files(tasks.named('jar').flatMap { it.archiveFile }) + sourceSets.main.compileClasspath
+}
+tasks.named('compileWikiExamplesJava') {
+    dependsOn tasks.named('jar'), extractWikiExamples
+    group = 'verification'
+    description = 'Compiles the wiki examples against the API jar and Minecraft, without HI implementation classes.'
+}
+
 configurations.create('apiJava') {
     canBeResolved = false
     canBeConsumed = true

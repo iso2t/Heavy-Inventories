@@ -4,7 +4,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
 
 /**
- * Client initialization only. Ownership resolves by user choice, then descending priority, then ID.
+ * Client initialization only. Ownership resolves by user choice, then descending priority, then registration ID.
  */
 public interface HudRegistration {
 	/**
@@ -25,7 +25,7 @@ public interface HudRegistration {
 	@FunctionalInterface
 	interface Decoration {
 		/**
-		 * Restore any graphics state you change. Do not retain the graphics object.
+		 * HI isolates pose and scissor stacks. Restore other graphics state you change; do not retain the graphics object.
 		 */
 		void render (GuiGraphicsExtractor graphics, HudContext context, HudLayout layout);
 	}

@@ -15,7 +15,12 @@ public interface ClientPluginRegistration {
 	HudRegistration hud ();
 
 	/**
-	 * Initial state, changed synchronized state, and empty on disconnect; called on the client thread.
+	 * Reports ready/changed state in registration-ID order on the client thread, sampled once per tick.
+	 * Tick-only changes are ignored; multiple packets may produce one notification. Replacement player
+	 * entities emit fresh state even if the values match. Empty follows loss of readiness or disconnect;
+	 * repeated unavailable state emits nothing. Snapshots may contain an incomplete carried weight.
+	 * Runtime and linkage failures are isolated and logged at most once per minute per listener/session.
+	 * Registrations survive disconnects; clear connection-specific state when receiving empty.
 	 */
 	void onPlayerChanged (Identifier id, Consumer<Optional<PlayerWeightSnapshot>> listener);
 }

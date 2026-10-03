@@ -6,7 +6,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 /**
- * Pure balance rules; all bonuses are additive percentages of the configured base capacity.
+ * Built-in bonuses scale with base capacity; integrations contribute additional pounds.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Encumbrance {
@@ -15,10 +15,15 @@ public final class Encumbrance {
 	}
 
 	public static State calculate (float weight, float base, int bracingLevel, int reinforcedLevel, int strengthLevel, int surefootedLevel, WalkingMode mode, boolean exempt) {
+		return calculate(weight, base, bracingLevel, reinforcedLevel, strengthLevel, surefootedLevel, mode, exempt, 0);
+	}
+
+	public static State calculate (float weight, float base, int bracingLevel, int reinforcedLevel, int strengthLevel, int surefootedLevel, WalkingMode mode, boolean exempt, float additionalCapacity) {
 		float bracing = base * (Math.clamp(bracingLevel, 0, 10) * 0.1f);
 		float reinforced = base * (Math.clamp(reinforcedLevel, 0, 5) * 0.05f);
 		float strength = base * (Math.clamp(strengthLevel, 0, 256) * 0.1f);
-		float capacity = base + bracing + reinforced + strength;
+		float capacity = (float) ((double) (base + bracing + reinforced + strength) + additionalCapacity);
+		if (!Float.isFinite(additionalCapacity) || additionalCapacity < 0 || !Float.isFinite(capacity) || capacity <= 0) throw new IllegalArgumentException("Invalid capacity contribution");
 		double ratio = (double) weight / capacity;
 		boolean over = !exempt && (weight == StackWeight.TOO_COMPLEX || ratio >= 1);
 		boolean encumbered = !exempt && !over && ratio >= 0.9;

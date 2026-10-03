@@ -36,6 +36,10 @@ public final class ClientWeightData {
 		DEFINITIONS.clear();
 	}
 
+	public static long revision () {
+		return DEFINITIONS.revision;
+	}
+
 	/**
 	 * Publishes a complete revision atomically, never a partly received item table.
 	 */

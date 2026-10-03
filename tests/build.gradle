@@ -24,8 +24,18 @@ dependencies {
 // The harness uses the same Minecraft, Mixin, and EasyConfig APIs as the shared production code.
 sourceSets.main.compileClasspath += project(':common').sourceSets.main.compileClasspath
 
+sourceSets.create('apiConsumer') {
+    java.srcDir 'src/main/java'
+    java.include '**/plugin/ApiWeightChecks.java', '**/plugin/FixturePlugin.java', '**/plugin/FixtureClientPlugin.java', '**/plugin/PluginProbe.java', '**/plugin/FixtureHud.java', '**/plugin/FixtureProviders.java', '**/plugin/FixtureNotifications.java', '**/plugin/FixtureClientNotifications.java'
+    compileClasspath = files(project(':api').tasks.named('jar').flatMap { it.archiveFile }) + project(':api').sourceSets.main.compileClasspath
+}
+tasks.named('compileApiConsumerJava') { dependsOn project(':api').tasks.named('jar') }
+tasks.named('check') { dependsOn tasks.named('compileApiConsumerJava') }
+
 apply from: 'verify-log.gradle'
 
-if (providers.gradleProperty('runtimeTests').isPresent()) {
+if (providers.gradleProperty('apiPluginAbsent').isPresent()) {
+    apply from: 'plugin-absence.gradle'
+} else if (providers.gradleProperty('runtimeTests').isPresent()) {
     apply from: 'runs.gradle'
 }

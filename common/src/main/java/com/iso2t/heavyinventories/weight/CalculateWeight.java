@@ -1,9 +1,11 @@
 package com.iso2t.heavyinventories.weight;
 
+import com.iso2t.heavyinventories.integration.CommonPlugins;
 import com.iso2t.heavyinventories.player.PlayerHolder;
 import com.iso2t.heavyinventories.server.ServerWeightState;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -28,11 +30,15 @@ public final class CalculateWeight {
 	}
 
 	public static float from (Player player) {
+		if (player instanceof ServerPlayer serverPlayer) {
+			var inventory = CommonPlugins.INSTANCE.providers().inventory(serverPlayer, carriedStacks(player));
+			return inventory.complete() ? from(player, inventory.stacks()) : StackWeight.TOO_COMPLEX;
+		}
 		return from(player, carriedStacks(player));
 	}
 
 	public static float from (Player player, List<ItemStack> stacks) {
 		if (player.level().isClientSide()) return PlayerHolder.getOrCreate(player).getWeight();
-		return StackWeight.total(stacks, ServerWeightState.of(player.level().getServer())::unitWeight).weight();
+		return StackWeight.total(stacks, ServerWeightState.of(player.level().getServer())::unitWeight, player.level()).weight();
 	}
 }

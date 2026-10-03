@@ -5,7 +5,9 @@ import java.util.OptionalDouble;
 
 /**
  * The last completed player update. Safe to retain as data; it contains no player or world references.
- * Revision identifies the weight/settings table. Tick is the server game tick of calculation.
+ * Revision identifies the weight/settings table. Tick is the owning level's game time when this
+ * side captured the state: calculation on the server, receipt on the client. It is not a shared clock.
+ * Client reads apply locally known game-mode and movement exemptions without recalculating weight.
  * An absent snapshot means not ready; an incomplete carried weight means a calculation could not finish.
  */
 public record PlayerWeightSnapshot(WeightResult carriedWeight, double baseCapacity, double capacity, EncumbranceState state, double walkingMultiplier, boolean effectsApply, long revision, long tick) {

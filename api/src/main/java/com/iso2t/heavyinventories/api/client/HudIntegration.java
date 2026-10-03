@@ -14,7 +14,9 @@ public interface HudIntegration {
 	}
 
 	/**
-	 * Override to replace drawing; omit drawDefault() to suppress the built-in element.
+	 * Override to replace drawing; omit drawDefault() to suppress the built-in artwork. This does not reset XP
+	 * positioning: return a hidden layout with zero offset from layout() to hide the element completely.
+	 * Runs only for a visible layout. Graphics and drawing helpers are valid only within this callback.
 	 */
 	default void render (GuiGraphicsExtractor graphics, HudContext context, HudLayout layout, HudDrawing drawing) {
 		drawing.drawDefault();

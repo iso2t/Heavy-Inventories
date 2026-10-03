@@ -10,6 +10,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(WeightRingRenderer.class)
 public class RingHudSmokeMixin {
+	@Inject(method = "draw", at = @At("HEAD"))
+	private static void apiNativeRing (net.minecraft.client.gui.GuiGraphicsExtractor graphics, int x, int y, com.iso2t.heavyinventories.api.PlayerWeightSnapshot snapshot, CallbackInfo ci) {
+		if (com.iso2t.heavyinventories.test.HudApiScenario.active) {
+			com.iso2t.heavyinventories.test.HudApiScenario.nativeRings++;
+			com.iso2t.heavyinventories.test.HudApiScenario.ringX = x;
+			com.iso2t.heavyinventories.test.HudApiScenario.ringY = y;
+		}
+	}
+
 	@Inject(method = "render", at = @At("TAIL"))
 	private static void heavyinventories$ring (CallbackInfo ci) {
 		FeedbackScenario.hudFrames++;

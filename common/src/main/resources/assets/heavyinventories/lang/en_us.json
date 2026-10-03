@@ -20,7 +20,7 @@
   "option.heavyinventories.encumbered_text_color.tooltip": "The text color for encumbered GUI.",
   "option.heavyinventories.over_encumbered_text_color": "Over Encumbered Text Color",
   "option.heavyinventories.over_encumbered_text_color.tooltip": "The text color for over encumbered GUI.",
-  "tooltip.heavyinventories.calculation_limit": "Contents exceed the weight calculation limit; treated as over capacity.",
+  "tooltip.heavyinventories.calculation_limit": "Weight could not be fully calculated.",
   "tooltip.heavyinventories.item_weight": "Weight: %s",
   "tooltip.heavyinventories.item_stack_weight": "Stack Weight: %s",
   "tooltip.heavyinventories.item_max_stack_weight": "Max Stack Weight: %s",
@@ -44,7 +44,7 @@
   "config.heavyinventories.edit_help": "Saving sends your changes to the server. Operator permission is checked there; accepted changes apply to all players.",
   "config.heavyinventories.read_only": "These are the server's settings. Only server operators can change them.",
   "hud.heavyinventories.weight": "%s / %s (%s%%)",
-  "hud.heavyinventories.calculation_limit": "Weight calculation limit reached",
+  "hud.heavyinventories.calculation_limit": "Weight calculation incomplete",
   "config.heavyinventories.client_failed": "Client preferences were not saved: %s",
   "command.heavyinventories.players_reloaded": "Player weights will refresh on the next tick.",
   "command.heavyinventories.config.invalid": "Unknown config: %s. Use client, server, or common.",
@@ -127,5 +127,9 @@
   "option.heavyinventories.effects.sinking.startPercent": "Penalty begins at capacity (%)",
   "option.heavyinventories.effects.sinking.startPercent.tooltip": "0 to 10000 percent of effective capacity. Must be below the full-penalty threshold.",
   "option.heavyinventories.effects.sinking.fullPercent": "Full penalty at capacity (%)",
-  "option.heavyinventories.effects.sinking.fullPercent.tooltip": "0 to 10000 percent of effective capacity. Must be above the onset threshold; the penalty is capped here."
+  "option.heavyinventories.effects.sinking.fullPercent.tooltip": "0 to 10000 percent of effective capacity. Must be above the onset threshold; the penalty is capped here.",
+  "option.heavyinventories.ring_owner": "Ring renderer",
+  "option.heavyinventories.numbers_owner": "Weight readout renderer",
+  "option.heavyinventories.hud_owner.tooltip": "Leave blank for automatic selection. Enter a renderer ID supplied by an integration, or heavyinventories:default to use the built-in display. Missing or failed renderers fall back to the built-in display.",
+  "chat.heavyinventories.incomplete_weight": "Carried weight could not be fully calculated; treated as over capacity."
 }

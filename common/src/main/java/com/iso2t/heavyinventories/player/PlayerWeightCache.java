@@ -1,9 +1,14 @@
 package com.iso2t.heavyinventories.player;
 
+import com.iso2t.heavyinventories.integration.CommonPlugins;
+import com.iso2t.heavyinventories.integration.GameplayProviders;
 import com.iso2t.heavyinventories.weight.CalculateWeight;
+import com.iso2t.heavyinventories.weight.StackWeight;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -19,17 +24,28 @@ import java.util.function.DoubleSupplier;
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public final class PlayerWeightCache {
 
-	static final  int             FALLBACK_TICKS = 20;
-	private final List<ItemStack> snapshot       = new ArrayList<>();
-	private       Object          level;
-	private       long            lastComputedTick;
-	private       float           weight;
-	private       boolean         dirty          = true;
+	static final  int              FALLBACK_TICKS = 20;
+	private final List<ItemStack>  snapshot       = new ArrayList<>();
+	private       Object           level;
+	private       long             lastComputedTick;
+	private       float            weight;
+	private       boolean          dirty          = true;
+	private       long             invalidations;
+	private       List<Identifier> extraSlots     = List.of();
 
 	public static float getOrCompute (Player player) {
 		if (player.level().isClientSide()) return PlayerHolder.getOrCreate(player).getWeight();
-		var stacks = CalculateWeight.carriedStacks(player);
-		return PlayerHolder.getOrCreate(player).weightCache().compute(stacks, player.level(), player.tickCount, () -> CalculateWeight.from(player, stacks));
+		GameplayProviders.checkCalculation();
+		var vanilla = CalculateWeight.carriedStacks(player);
+		var inventory = player instanceof ServerPlayer serverPlayer ? CommonPlugins.INSTANCE.providers().inventory(serverPlayer, vanilla) : new GameplayProviders.Inventory(List.of(), vanilla, true);
+		var cache = PlayerHolder.getOrCreate(player).weightCache();
+		if (!inventory.complete()) {
+			cache.invalidate();
+			return StackWeight.TOO_COMPLEX;
+		}
+		if (!cache.extraSlots.equals(inventory.slots())) cache.invalidate();
+		cache.extraSlots = inventory.slots();
+		return cache.compute(inventory.stacks(), player.level(), player.tickCount, () -> CalculateWeight.from(player, inventory.stacks()));
 	}
 
 	/**
@@ -48,6 +64,7 @@ public final class PlayerWeightCache {
 
 	void invalidate () {
 		dirty = true;
+		invalidations++;
 	}
 
 	float compute (Container inventory, Object currentLevel, long tick, DoubleSupplier calculate) {
@@ -58,6 +75,7 @@ public final class PlayerWeightCache {
 
 	float compute (List<ItemStack> stacks, Object currentLevel, long tick, DoubleSupplier calculate) {
 		if (dirty || level != currentLevel || tick < lastComputedTick || tick - lastComputedTick >= FALLBACK_TICKS || inventoryChanged(stacks)) {
+			long generation = invalidations;
 			float updatedWeight = (float) calculate.getAsDouble();
 			snapshot.clear();
 			for (var stack : stacks) {
@@ -66,7 +84,7 @@ public final class PlayerWeightCache {
 			weight = updatedWeight;
 			level = currentLevel;
 			lastComputedTick = tick;
-			dirty = false;
+			dirty = generation != invalidations;
 		}
 		return weight;
 	}

@@ -8,7 +8,8 @@ import net.minecraft.server.level.ServerPlayer;
 @FunctionalInterface
 public interface CapacityProvider {
 	/**
-	 * Finite, nonnegative pounds. Return zero while the contribution is inactive.
+	 * Finite, nonnegative pounds. Return zero while inactive. Exceptions, invalid values, and contributions
+	 * that overflow effective capacity add nothing. Never start another weight calculation inside this callback.
 	 */
 	double bonus (ServerPlayer player);
 }

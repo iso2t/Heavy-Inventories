@@ -3,6 +3,8 @@ package com.iso2t.heavyinventories.server;
 import com.iso2t.heavyinventories.HeavyInventories;
 import com.iso2t.heavyinventories.config.ConfigFileManager;
 import com.iso2t.heavyinventories.config.ServerSettings;
+import com.iso2t.heavyinventories.integration.CommonPlugins;
+import com.iso2t.heavyinventories.integration.Notifications;
 import com.iso2t.heavyinventories.network.ItemWeightsPayload;
 import com.iso2t.heavyinventories.platform.Services;
 import com.iso2t.heavyinventories.player.PlayerEvents;
@@ -34,12 +36,15 @@ import java.util.Map;
 @Accessors(fluent = true)
 public final class ServerWeightState {
 
-	private ServerSettings                    settings        = ServerSettings.DEFAULT;
-	private Map<Identifier, Float>            weights         = Map.of();
-	private Map<Identifier, Float>            explicitWeights = Map.of();
-	private Map<Identifier, WeightProvenance> provenance      = Map.of();
-	private List<ItemWeightsPayload>          packets         = List.of();
-	private long                              revision;
+	private       ServerSettings                    settings        = ServerSettings.DEFAULT;
+	private       Map<Identifier, Float>            weights         = Map.of();
+	private       Map<Identifier, Float>            explicitWeights = Map.of();
+	private       Map<Identifier, WeightProvenance> provenance      = Map.of();
+	private       List<ItemWeightsPayload>          packets         = List.of();
+	private       long                              revision;
+	private       MinecraftServer                   owner;
+	private       boolean                           stopped;
+	private final Notifications                     notifications   = new Notifications();
 
 	public static ServerWeightState of (MinecraftServer server) {
 		return ((ServerStateAccess) server).heavyinventories$getWeightState();
@@ -50,6 +55,7 @@ public final class ServerWeightState {
 	 */
 	public static void start (MinecraftServer server) {
 		var state = of(server);
+		state.owner = server;
 		var settings = ServerSettings.DEFAULT;
 		try {
 			settings = readSettings();
@@ -141,6 +147,8 @@ public final class ServerWeightState {
 	}
 
 	private void replace (ServerSettings settings, Map<Identifier, Float> values, Map<Identifier, Float> explicitWeights, Map<Identifier, WeightProvenance> sources) {
+		Notifications.checkCommit();
+		if (stopped) throw new IllegalStateException("Server weight state is stopped");
 		if (values.size() > ItemWeightsPayload.MAX_ENTRIES) throw new IllegalArgumentException("Too many item weights to synchronize");
 		values.values().forEach(ServerSettings::validateItemWeight);
 		var entries = values.entrySet().stream().map(e -> new ItemWeightsPayload.Entry(e.getKey(), e.getValue())).toList();
@@ -162,6 +170,19 @@ public final class ServerWeightState {
 		provenance = nextSources;
 		packets = nextPackets;
 		revision++;
+		if (owner != null) notifications.dispatch("weights ready", CommonPlugins.INSTANCE.registrations().weightsReady(), listener -> listener.accept(owner, revision));
+	}
+
+	public static void stop (MinecraftServer server) {
+		var state = of(server);
+		if (state.owner == null || state.stopped) return;
+		state.stopped = true;
+		try {
+			state.notifications.dispatch("server stopped", CommonPlugins.INSTANCE.registrations().serverStopped(), listener -> listener.accept(server));
+		} finally {
+			state.notifications.clear();
+			state.owner = null;
+		}
 	}
 
 	public float weight (ItemStack stack) {

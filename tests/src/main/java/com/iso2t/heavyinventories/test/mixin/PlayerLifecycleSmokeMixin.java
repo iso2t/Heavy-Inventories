@@ -6,6 +6,8 @@ import com.iso2t.heavyinventories.player.PlayerHolder;
 import com.iso2t.heavyinventories.player.PlayerWeightCache;
 import com.iso2t.heavyinventories.server.ServerWeightState;
 import com.iso2t.heavyinventories.test.*;
+import com.iso2t.heavyinventories.test.plugin.ApiWeightChecks;
+import com.iso2t.heavyinventories.test.plugin.FixtureNotifications;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.MinecraftServer;
@@ -52,6 +54,10 @@ public abstract class PlayerLifecycleSmokeMixin {
 		var server = (MinecraftServer) (Object) this;
 		if (!server.isDedicatedServer()) return;
 		ApiContractScenario.verify();
+		ApiWeightChecks.provenance(server);
+		FixtureNotifications.server(server, TestPlayerTick::update);
+		com.iso2t.heavyinventories.test.plugin.FixtureProviders.server(server, TestPlayerTick::update);
+		com.iso2t.heavyinventories.test.plugin.PluginScenario.server(server);
 		var profile = new GameProfile(UUID.fromString("b80f4e78-1bd2-4b0e-a7de-8e662f03b999"), "LifecycleTest");
 		var original = new ServerPlayer(server, server.overworld(), profile, ClientInformation.createDefault());
 		var holder = PlayerHolder.getOrCreate(original);
@@ -120,6 +126,8 @@ public abstract class PlayerLifecycleSmokeMixin {
 		HeavyInventories.LOGGER.info("LIFECYCLE SMOKE PASSED: entity ownership, same-UUID replacement, inventory mutation, copied inventory, level change, deferred invalidation, equipment/cursor/crafting accounting, nested contents, loaded recipe inference");
 		MovementScenario.run(original);
 		HeavyInventories.LOGGER.info("SERVER MOVEMENT PASSED: both curves, equipped bonuses, replacement/removal, diagonal input, ground jumping");
+		var apiPlayer = new ServerPlayer(server, server.overworld(), new GameProfile(UUID.randomUUID(), "ApiQueries"), ClientInformation.createDefault());
+		ApiWeightChecks.server(apiPlayer, () -> TestPlayerTick.update(apiPlayer));
 		server.halt(false);
 	}
 

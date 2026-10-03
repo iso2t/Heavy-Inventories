@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "heavyinventories_lifecycle_test",
+  "version": "1.0.0",
+  "name": "HI Optional Plugin Fixture",
+  "environment": "*",
+  "entrypoints": {
+    "heavyinventories": [
+      "com.iso2t.heavyinventories.test.plugin.FixturePlugin",
+      "com.iso2t.heavyinventories.test.plugin.MissingDependencyPlugin"
+    ],
+    "heavyinventories_client": [
+      "com.iso2t.heavyinventories.test.plugin.FixtureClientPlugin"
+    ]
+  },
+  "mixins": [
+    "hi-plugin-absence.mixins.json"
+  ]
+}

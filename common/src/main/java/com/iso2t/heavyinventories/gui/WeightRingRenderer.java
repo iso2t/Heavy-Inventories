@@ -1,8 +1,10 @@
 package com.iso2t.heavyinventories.gui;
 
 import com.iso2t.heavyinventories.HeavyInventories;
+import com.iso2t.heavyinventories.api.EncumbranceState;
+import com.iso2t.heavyinventories.api.PlayerWeightSnapshot;
+import com.iso2t.heavyinventories.api.client.HudElement;
 import com.iso2t.heavyinventories.config.ConfigOptions;
-import com.iso2t.heavyinventories.player.PlayerHolder;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.client.Minecraft;
@@ -19,16 +21,17 @@ public final class WeightRingRenderer {
 	}
 
 	public static int verticalOffset (Minecraft client) {
-		return visible(client) ? ConfigOptions.RING_VERTICAL_OFFSET : 0;
+		return WeightHud.xpOffset(client);
 	}
 
 	public static void render (GuiGraphicsExtractor graphics, Minecraft client) {
 		if (!visible(client)) return;
-		var holder = PlayerHolder.getOrCreate(client.player);
-		int rows = WeightRingGeometry.filledRows(holder.getWeight(), holder.getMaxWeight());
-		int color = WeightRingGeometry.color(holder.isEncumbered(), holder.isOverEncumbered());
-		int x = graphics.guiWidth() / 2 - 8;
-		int y = graphics.guiHeight() - 39 - ConfigOptions.RING_VERTICAL_OFFSET;
+		WeightHud.render(HudElement.RING, graphics, client);
+	}
+
+	public static void draw (GuiGraphicsExtractor graphics, int x, int y, PlayerWeightSnapshot snapshot) {
+		int rows = snapshot.carriedWeight().pounds().isEmpty() ? 14 : WeightRingGeometry.filledRows(snapshot.carriedWeight().pounds().orElseThrow(), snapshot.capacity());
+		int color = WeightRingGeometry.color(snapshot.state() == EncumbranceState.ENCUMBERED, snapshot.state() == EncumbranceState.OVERLOADED);
 		// One rectangle per interior row preserves the pixel outline without a shader or scissor state.
 		for (int row = 1; row <= 14; row++) {
 			int left = WeightRingGeometry.left(row);
@@ -43,7 +46,7 @@ public final class WeightRingRenderer {
 	public static void experienceLevel (GuiGraphicsExtractor graphics, Minecraft client, Runnable vanilla) {
 		graphics.pose().pushMatrix();
 		try {
-			graphics.pose().translate(0, -verticalOffset(client));
+			graphics.pose().translate(0, -(float) verticalOffset(client));
 			vanilla.run();
 		} finally {
 			graphics.pose().popMatrix();

@@ -7,6 +7,7 @@ import com.iso2t.heavyinventories.client.ConfigScreens;
 import com.iso2t.heavyinventories.config.ConfigOptions;
 import com.iso2t.heavyinventories.gui.GraphicsRenderer;
 import com.iso2t.heavyinventories.gui.WeightRingRenderer;
+import com.iso2t.heavyinventories.integration.client.ClientNotifications;
 import com.iso2t.heavyinventories.network.ItemWeightsPayload;
 import com.iso2t.heavyinventories.network.OpenConfigPayload;
 import com.iso2t.heavyinventories.network.PlayerWeightPayload;
@@ -31,14 +32,19 @@ public final class FabricClientHooks {
 		// INFO_BAR wraps the background even at XP level zero; EXPERIENCE_LEVEL does not.
 		HudElementRegistry.attachElementAfter(VanillaHudElements.INFO_BAR, HeavyInventories.get("weight_ring"), (graphics, _) -> WeightRingRenderer.render(graphics, Minecraft.getInstance()));
 		HudElementRegistry.replaceElement(VanillaHudElements.EXPERIENCE_LEVEL, original -> (graphics, delta) -> WeightRingRenderer.experienceLevel(graphics, Minecraft.getInstance(), () -> original.extractRenderState(graphics, delta)));
-		ClientPlayConnectionEvents.INIT.register((_, _) -> ClientWeightData.clear());
-		ClientPlayConnectionEvents.DISCONNECT.register((_, _) -> ClientWeightData.clear());
+		ClientPlayConnectionEvents.INIT.register((_, client) -> client.execute(FabricClientHooks::clearConnection));
+		ClientPlayConnectionEvents.DISCONNECT.register((_, client) -> client.execute(FabricClientHooks::clearConnection));
 		ClientPlayNetworking.registerGlobalReceiver(PlayerWeightPayload.TYPE, (packet, context) -> {
 			var player = context.player();
 			PlayerHolder.getOrCreate(player).accept(packet);
 		});
 		ClientPlayNetworking.registerGlobalReceiver(ItemWeightsPayload.TYPE, (packet, _) -> ClientWeightData.accept(packet));
 		ClientPlayNetworking.registerGlobalReceiver(OpenConfigPayload.TYPE, (packet, context) -> context.client().execute(() -> ConfigScreens.fromString(packet.configType()).ifPresent(ConfigScreens::open)));
+	}
+
+	private static void clearConnection () {
+		ClientWeightData.clear();
+		ClientNotifications.disconnected();
 	}
 
 }

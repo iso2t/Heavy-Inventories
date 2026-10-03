@@ -4,7 +4,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 /**
- * Supplies one container item's contents. HI counts the shell, count, and nested children itself.
+ * Owns contents for registered items, replacing their standard container/bundle traversal.
+ * HI counts the shell and multiplies shell plus contents by the outer count itself.
  */
 @FunctionalInterface
 public interface ContainerContentsProvider {
@@ -18,7 +19,8 @@ public interface ContainerContentsProvider {
 	@FunctionalInterface
 	interface ContentsSink {
 		/**
-		 * Stop supplying contents when false is returned. Stack references are callback-scoped.
+		 * Stop supplying contents when false is returned. Custom and standard contents share recursion/work limits.
+		 * The sink and stack references are callback-scoped and confined to the callback thread.
 		 */
 		boolean accept (ItemStack stack);
 	}

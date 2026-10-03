@@ -5,6 +5,9 @@ import com.iso2t.heavyinventories.client.ClientWeightData;
 import com.iso2t.heavyinventories.client.WeightDisplay;
 import com.iso2t.heavyinventories.config.ConfigOptions;
 import com.iso2t.heavyinventories.player.PlayerHolder;
+import com.iso2t.heavyinventories.test.plugin.ApiWeightChecks;
+import com.iso2t.heavyinventories.test.plugin.FixtureClientNotifications;
+import com.iso2t.heavyinventories.test.plugin.FixtureClientPlugin;
 import com.iso2t.heavyinventories.tooltips.Tooltip;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
@@ -40,10 +43,15 @@ public final class DatapackReloadClient {
 				var tooltip = Tooltip.addTooltips(new ArrayList<>(), new ItemStack(Items.ARROW, count));
 				require(tooltip.stream().anyMatch(line -> line.getString().contains(expected)), "Reloaded tooltip mismatch");
 			}
+			if (!FixtureClientNotifications.current()) return;
+			ApiWeightChecks.client(checkpoint.total(), holder.getMaxWeight(), checkpoint.revision());
+			ApiWeightChecks.near(FixtureClientPlugin.weights.item(Identifier.withDefaultNamespace("arrow")).pounds().orElseThrow(), checkpoint.arrow());
 			checked = checkpoint.id();
 			DatapackLoadingScenario.acknowledge(checked);
 		}
 		if (DatapackLoadingScenario.complete()) {
+			HeavyInventories.LOGGER.info("API NOTIFICATIONS RELOAD PASSED: one server event per successful revision, none for rejected reloads, coherent client notifications");
+			HeavyInventories.LOGGER.info("API QUERIES RELOAD PASSED: eight successful/rejected reload checkpoints through retained server/client services");
 			require(checked == 8, "Not all successful/failed reload checkpoints reached the client");
 			HeavyInventories.LOGGER.info("CLIENT DATAPACK RELOAD PASSED: 8 checkpoints, definitions, unchanged inventory totals, single/stack tooltips, failure retention, restoration");
 			client.options.pauseOnLostFocus = pauseOnLostFocus;

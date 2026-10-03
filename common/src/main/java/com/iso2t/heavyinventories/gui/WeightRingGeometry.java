@@ -18,8 +18,8 @@ public final class WeightRingGeometry {
 		return LEFT[row];
 	}
 
-	public static int filledRows (float weight, float capacity) {
-		if (!Float.isFinite(weight) || !Float.isFinite(capacity) || capacity <= 0) return 14;
+	public static int filledRows (double weight, double capacity) {
+		if (!Double.isFinite(weight) || !Double.isFinite(capacity) || capacity <= 0) return 14;
 		return (int) Math.floor(Math.clamp((double) weight / capacity, 0, 1) * 14);
 	}
 

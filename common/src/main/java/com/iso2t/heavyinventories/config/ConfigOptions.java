@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ConfigOptions {
 
+	public static String          RING_HUD_OWNER             = "";
+	public static String          NUMBERS_HUD_OWNER          = "";
 	public static MeasuringSystem WEIGHT_MEASURE             = MeasuringSystem.LBS;
 	public static boolean         ENABLE_GUI_OVERLAY         = true;
 	public static HudMode         HUD_MODE                   = HudMode.RING;

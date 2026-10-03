@@ -1,6 +1,7 @@
 package com.iso2t.heavyinventories.test.mixin;
 
 import com.iso2t.heavyinventories.test.ClientLifecycleScenario;
+import com.iso2t.heavyinventories.test.plugin.ApiWeightChecks;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,6 +24,7 @@ public abstract class ClientLifecycleSmokeMixin {
 	@Inject(method = "tick", at = @At("TAIL"))
 	private void heavyinventories$testClient (CallbackInfo ci) {
 		var client = (Minecraft) (Object) this;
+		if (client.player == null || !com.iso2t.heavyinventories.player.PlayerHolder.getOrCreate(client.player).hasServerState()) ApiWeightChecks.unavailableClient();
 		if (client.player != null) heavyinventories$joined = true;
 		if (!heavyinventories$joined) {
 			var upgrade = client.gui.screen();

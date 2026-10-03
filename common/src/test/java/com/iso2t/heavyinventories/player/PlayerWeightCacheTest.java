@@ -31,6 +31,18 @@ class PlayerWeightCacheTest {
 	}
 
 	@Test
+	void invalidationDuringCalculationSurvivesUntilTheNextUpdate () {
+		var cache = new PlayerWeightCache();
+		var stacks = List.<net.minecraft.world.item.ItemStack>of();
+		var level = new Object();
+		assertEquals(3, cache.compute(stacks, level, 1, () -> {
+			cache.invalidate();
+			return 3;
+		}));
+		assertEquals(4, cache.compute(stacks, level, 2, () -> 4));
+	}
+
+	@Test
 	void inventoryMutationsRefreshWithoutPickupOrCraftCallbacks () {
 		var cache = new PlayerWeightCache();
 		var inventory = new SimpleContainer(43);

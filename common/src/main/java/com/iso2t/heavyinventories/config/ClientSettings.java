@@ -8,15 +8,21 @@ import java.util.Locale;
 /**
  * Parse fully before changing any local display preferences.
  */
-public record ClientSettings(MeasuringSystem measure, boolean overlay, int normal, int encumbered, int overloaded, HudMode hudMode, int ringVerticalOffset) {
+public record ClientSettings(MeasuringSystem measure, boolean overlay, int normal, int encumbered, int overloaded, HudMode hudMode, int ringVerticalOffset, String ringOwner, String numbersOwner) {
 
 	public static final ClientSettings DEFAULT = new ClientSettings(MeasuringSystem.LBS, true, 0xFFFFFF, 0xFFFF55, 0xFF5555, HudMode.RING, 7);
+
+	public ClientSettings (MeasuringSystem measure, boolean overlay, int normal, int encumbered, int overloaded, HudMode hudMode, int ringVerticalOffset) {
+		this(measure, overlay, normal, encumbered, overloaded, hudMode, ringVerticalOffset, "", "");
+	}
 
 	public ClientSettings (MeasuringSystem measure, boolean overlay, int normal, int encumbered, int overloaded) {
 		this(measure, overlay, normal, encumbered, overloaded, HudMode.RING, 7);
 	}
 
 	public ClientSettings {
+		validateOwner(ringOwner);
+		validateOwner(numbersOwner);
 		if (hudMode == null) throw new IllegalArgumentException("Missing HUD mode");
 		if (ringVerticalOffset < 0 || ringVerticalOffset > 64) throw new IllegalArgumentException("ringVerticalOffset must be between 0 and 64");
 		if (measure == null) throw new IllegalArgumentException("Missing weight measure");
@@ -25,10 +31,12 @@ public record ClientSettings(MeasuringSystem measure, boolean overlay, int norma
 	}
 
 	public static ClientSettings current () {
-		return new ClientSettings(ConfigOptions.WEIGHT_MEASURE, ConfigOptions.ENABLE_GUI_OVERLAY, ConfigOptions.NORMAL_TEXT_COLOR, ConfigOptions.ENCUMBERED_TEXT_COLOR, ConfigOptions.OVER_ENCUMBERED_TEXT_COLOR, ConfigOptions.HUD_MODE, ConfigOptions.RING_VERTICAL_OFFSET);
+		return new ClientSettings(ConfigOptions.WEIGHT_MEASURE, ConfigOptions.ENABLE_GUI_OVERLAY, ConfigOptions.NORMAL_TEXT_COLOR, ConfigOptions.ENCUMBERED_TEXT_COLOR, ConfigOptions.OVER_ENCUMBERED_TEXT_COLOR, ConfigOptions.HUD_MODE, ConfigOptions.RING_VERTICAL_OFFSET, ConfigOptions.RING_HUD_OWNER, ConfigOptions.NUMBERS_HUD_OWNER);
 	}
 
 	public void apply () {
+		ConfigOptions.RING_HUD_OWNER = ringOwner;
+		ConfigOptions.NUMBERS_HUD_OWNER = numbersOwner;
 		ConfigOptions.WEIGHT_MEASURE = measure;
 		ConfigOptions.HUD_MODE = hudMode;
 		ConfigOptions.RING_VERTICAL_OFFSET = ringVerticalOffset;
@@ -57,7 +65,18 @@ public record ClientSettings(MeasuringSystem measure, boolean overlay, int norma
 			if (!value.isJsonPrimitive() || !value.getAsJsonPrimitive().isString()) throw new IllegalArgumentException("hudMode must be a string");
 			mode = HudMode.valueOf(value.getAsString().toUpperCase(Locale.ROOT));
 		}
-		return new ClientSettings(measure, overlay, integer(root, "normalTextColor", DEFAULT.normal), integer(root, "encumberedTextColor", DEFAULT.encumbered), integer(root, "overencumberedTextColor", DEFAULT.overloaded), mode, integer(root, "ringVerticalOffset", DEFAULT.ringVerticalOffset));
+		return new ClientSettings(measure, overlay, integer(root, "normalTextColor", DEFAULT.normal), integer(root, "encumberedTextColor", DEFAULT.encumbered), integer(root, "overencumberedTextColor", DEFAULT.overloaded), mode, integer(root, "ringVerticalOffset", DEFAULT.ringVerticalOffset), owner(root, "ringOwner"), owner(root, "numbersOwner"));
+	}
+
+	private static String owner (JsonObject root, String key) {
+		if (!root.has(key)) return "";
+		var value = root.get(key);
+		if (!value.isJsonPrimitive() || !value.getAsJsonPrimitive().isString()) throw new IllegalArgumentException(key + " must be a renderer ID");
+		return value.getAsString();
+	}
+
+	private static void validateOwner (String value) {
+		if (value == null || !value.isEmpty() && (!value.contains(":") || net.minecraft.resources.Identifier.tryParse(value) == null)) throw new IllegalArgumentException("HUD renderer must be blank or a namespaced ID");
 	}
 
 	private static int integer (JsonObject root, String key, int fallback) {
@@ -73,6 +92,8 @@ public record ClientSettings(MeasuringSystem measure, boolean overlay, int norma
 
 	public JsonObject toJson () {
 		var json = new JsonObject();
+		json.addProperty("ringOwner", ringOwner);
+		json.addProperty("numbersOwner", numbersOwner);
 		json.addProperty("weightMeasure", measure.name());
 		json.addProperty("enableGuiOverlay", overlay);
 		json.addProperty("hudMode", hudMode.name().toLowerCase(Locale.ROOT));

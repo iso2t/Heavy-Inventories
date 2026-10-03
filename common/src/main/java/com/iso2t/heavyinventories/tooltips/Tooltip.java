@@ -24,7 +24,9 @@ public final class Tooltip {
 	static List<Component> addTooltips (List<Component> tooltip, ItemStack stack, boolean showDetails) {
 		if (stack.isEmpty() || ClientWeightData.weight(BuiltInRegistries.ITEM.getKey(stack.getItem())) == null) return tooltip;
 
-		var total = StackWeight.of(stack, ClientWeightData::unitWeight);
+		var client = Minecraft.getInstance();
+		var level = client == null ? null : client.level;
+		var total = StackWeight.of(stack, ClientWeightData::unitWeight, level);
 		if (!total.complete()) {
 			tooltip.add(calculationLimit());
 			return tooltip;
@@ -36,11 +38,11 @@ public final class Tooltip {
 		if (stacked || belowMaxStack) {
 			if (showDetails) {
 				if (stacked) {
-					var single = StackWeight.of(stack.copyWithCount(1), ClientWeightData::unitWeight);
+					var single = StackWeight.of(stack.copyWithCount(1), ClientWeightData::unitWeight, level);
 					tooltip.add(single.complete() ? weightLine("tooltip.heavyinventories.item_weight", single.weight()) : calculationLimit());
 				}
 				if (belowMaxStack) {
-					var maximum = StackWeight.of(stack.copyWithCount(stack.getMaxStackSize()), ClientWeightData::unitWeight);
+					var maximum = StackWeight.of(stack.copyWithCount(stack.getMaxStackSize()), ClientWeightData::unitWeight, level);
 					tooltip.add(maximum.complete() ? weightLine("tooltip.heavyinventories.item_max_stack_weight", maximum.weight()) : calculationLimit());
 				}
 			} else {

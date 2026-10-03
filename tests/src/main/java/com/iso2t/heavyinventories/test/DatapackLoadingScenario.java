@@ -6,6 +6,8 @@ import com.iso2t.heavyinventories.player.PlayerEvents;
 import com.iso2t.heavyinventories.player.PlayerHolder;
 import com.iso2t.heavyinventories.server.ServerWeightState;
 import com.iso2t.heavyinventories.server.weight.*;
+import com.iso2t.heavyinventories.test.plugin.ApiWeightChecks;
+import com.iso2t.heavyinventories.test.plugin.FixtureNotifications;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
@@ -258,11 +260,13 @@ public final class DatapackLoadingScenario {
 
 	private static void unchangedGameplay (MinecraftServer server) {
 		var state = ServerWeightState.of(server);
+		require(FixtureNotifications.readyEvents == state.revision(), "Rejected reload emitted an event");
 		require(state.revision() == gameplayRevision && state.weights().equals(gameplayWeights) && state.packets() == gameplayPackets && state.provenance() == gameplayProvenance, "Failed reload changed gameplay");
 	}
 
 	private static void adoptedGameplay (MinecraftServer server) {
 		var state = ServerWeightState.of(server);
+		require(FixtureNotifications.readyEvents == state.revision(), "Successful commit did not emit exactly one ready event");
 		require(state.revision() == gameplayRevision + 1, "Successful application did not advance revision");
 		require(state.weights().size() == BuiltInRegistries.ITEM.size(), "Incomplete gameplay table");
 		gameplayRevision = state.revision();
@@ -280,6 +284,7 @@ public final class DatapackLoadingScenario {
 		var player = server.getPlayerList().getPlayers().getFirst();
 		float total = state.unitWeight(id("minecraft:arrow")) * 64;
 		require(Math.abs(PlayerHolder.getOrCreate(player).getWeight() - total) < 0.0001f, "Reload did not immediately refresh the unchanged inventory");
+		ApiWeightChecks.reload(server, player, state.unitWeight(id("minecraft:arrow")), state.unitWeight(id("minecraft:stone")), total, state.revision());
 		afterClient = action;
 		checkpoint = new Checkpoint(++checkpointId, state.revision(), state.unitWeight(id("minecraft:arrow")), state.unitWeight(id("minecraft:stone")), total);
 	}

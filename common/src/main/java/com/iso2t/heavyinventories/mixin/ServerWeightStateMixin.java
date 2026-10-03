@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Collection;
@@ -20,6 +21,11 @@ public abstract class ServerWeightStateMixin implements ServerStateAccess {
 	@Override
 	public ServerWeightState heavyinventories$getWeightState () {
 		return heavyinventories$weightState;
+	}
+
+	@Inject(method = "stopServer", at = @At("TAIL"))
+	private void heavyinventories$stopped (CallbackInfo ci) {
+		ServerWeightState.stop((MinecraftServer) (Object) this);
 	}
 
 	/**

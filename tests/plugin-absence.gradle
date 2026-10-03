@@ -1,0 +1,35 @@
+def fixtureJar = tasks.register('optionalPluginJar', Jar) {
+    archiveClassifier = 'optional-plugin'
+    from(sourceSets.main.output) {
+        include 'com/iso2t/heavyinventories/test/plugin/FixturePlugin.class'
+        include 'com/iso2t/heavyinventories/test/plugin/FixtureClientPlugin.class'
+        include 'com/iso2t/heavyinventories/test/plugin/FixtureHud*.class'
+        include 'com/iso2t/heavyinventories/test/plugin/FixtureProviders*.class'
+        include 'com/iso2t/heavyinventories/test/plugin/FixtureNotifications*.class'
+        include 'com/iso2t/heavyinventories/test/plugin/FixtureClientNotifications*.class'
+        include 'com/iso2t/heavyinventories/test/plugin/MissingDependencyPlugin.class'
+        include 'com/iso2t/heavyinventories/test/plugin/PluginProbe.class'
+        include 'com/iso2t/heavyinventories/test/plugin/mixin/AbsentHiSmokeMixin.class'
+    }
+    from('src/optionalPlugin/resources')
+}
+
+gradle.projectsEvaluated {
+    [project(':fabric'), project(':neoforge')].each { modProject ->
+        modProject.tasks.named('runServer') {
+            dependsOn fixtureJar
+            def outputs = modProject.sourceSets.main.output.files
+            classpath = classpath.filter { !outputs.contains(it) } + modProject.files(fixtureJar.flatMap { it.archiveFile })
+            if (modProject.name == 'neoforge') {
+                classpathProvider.setFrom(classpathProvider.files.findAll { !outputs.contains(it) })
+            }
+            doFirst {
+                def fixture = fixtureJar.get().archiveFile.get().asFile.absolutePath
+                if (modProject.name == 'fabric') {
+                    systemProperty 'fabric.addMods', fixture
+                    if (!args.contains('--nogui')) args '--nogui'
+                } else environment 'MOD_CLASSES', "heavyinventories_lifecycle_test%%${fixture}"
+            }
+        }
+    }
+}
