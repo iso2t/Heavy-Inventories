@@ -12,7 +12,16 @@ java {
 
 evaluationDependsOn(':common')
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
+    testImplementation project(':api')
+    testImplementation platform('org.junit:junit-bom:6.0.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
     compileOnly project(':api')
     compileOnly(project(':common')) {
         attributes {
@@ -24,6 +33,15 @@ dependencies {
 // The harness uses the same Minecraft, Mixin, and EasyConfig APIs as the shared production code.
 sourceSets.main.compileClasspath += project(':common').sourceSets.main.compileClasspath
 
+test {
+    useJUnitPlatform()
+}
+
+sourceSets.test {
+    compileClasspath += project(':api').sourceSets.main.compileClasspath
+    runtimeClasspath += project(':api').sourceSets.main.compileClasspath
+}
+
 sourceSets.create('apiConsumer') {
     java.srcDir 'src/main/java'
     java.include '**/plugin/ApiWeightChecks.java', '**/plugin/FixturePlugin.java', '**/plugin/FixtureClientPlugin.java', '**/plugin/PluginProbe.java', '**/plugin/FixtureHud.java', '**/plugin/FixtureProviders.java', '**/plugin/FixtureNotifications.java', '**/plugin/FixtureClientNotifications.java'
@@ -33,6 +51,7 @@ tasks.named('compileApiConsumerJava') { dependsOn project(':api').tasks.named('j
 tasks.named('check') { dependsOn tasks.named('compileApiConsumerJava') }
 
 apply from: 'verify-log.gradle'
+apply from: 'wiki-examples.gradle'
 
 if (providers.gradleProperty('apiPluginAbsent').isPresent()) {
     apply from: 'plugin-absence.gradle'

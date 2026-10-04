@@ -4,6 +4,9 @@
 
 ## Added
 
+- Maven publications for the standalone developer API and loader artifacts, including sources and Javadocs, using the
+  iso2t repository.
+
 - Developer API plugin discovery on Fabric and NeoForge, with validated startup registrations and weight-query services.
 - API callbacks for committed weight revisions, changed player snapshots, client readiness/disconnects, and server
   shutdown.

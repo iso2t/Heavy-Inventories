@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -14,6 +15,16 @@ class ApiBoundaryTest {
 	@Test
 	void commonContractsHaveNoClientOrImplementationDependencies () throws Exception {
 		var root = Path.of(WeightResult.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+		if (Files.isDirectory(root)) {
+			verifyBoundaries(root);
+		} else {
+			try (var jar = FileSystems.newFileSystem(root)) {
+				verifyBoundaries(jar.getPath("/"));
+			}
+		}
+	}
+
+	private void verifyBoundaries (Path root) throws IOException {
 		try (var paths = Files.walk(root)) {
 			for (var path : paths.filter(p -> p.toString().endsWith(".class")).toList()) {
 				String name = root.relativize(path).toString().replace('\\', '/');

@@ -1,0 +1,51 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+def isApiProject = project.name == 'api'
+if (isApiProject) version = api_version
+
+publishing {
+    publications {
+        register('mavenJava', MavenPublication) {
+            groupId = "com.iso2t.${mod_id}"
+            artifactId = isApiProject ? 'api' : "${mod_id}-${project.name}-${minecraft_version}"
+            version = project.version
+            from components.java
+            if (!isApiProject) {
+                suppressPomMetadataWarningsFor('apiElements')
+                suppressPomMetadataWarningsFor('runtimeElements')
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = 'iso2t'
+            url = uri(System.getenv('ISO2T_MAVEN_URL') ?: 'https://maven.iso2t.com/releases')
+            credentials(PasswordCredentials) {
+                username = credentialValue(['ISO2T_MAVEN_USERNAME', 'MAVEN_USERNAME', 'MAVEN_USER'], ['iso2tUsername', 'mavenUsername'])
+                password = credentialValue(['ISO2T_MAVEN_PASSWORD', 'MAVEN_PASSWORD', 'MAVEN_TOKEN'], ['iso2tPassword', 'mavenPassword'])
+            }
+            authentication {
+                basic(BasicAuthentication)
+            }
+        }
+    }
+}
+
+String credentialValue(List<String> environmentNames, List<String> propertyNames) {
+    for (String environmentName : environmentNames) {
+        String value = System.getenv(environmentName)
+        if (value != null && !value.isBlank()) return value
+    }
+    for (String propertyName : propertyNames) {
+        Object value = findProperty(propertyName)
+        if (value != null && !value.toString().isBlank()) return value.toString()
+    }
+    return null
+}
+
+tasks.withType(PublishToMavenRepository).configureEach {
+    dependsOn ':api:check', ':common:check', ':tests:check', ':fabric:build', ':neoforge:build'
+}

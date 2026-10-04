@@ -1,18 +1,22 @@
-# Runtime tests
+# Tests
 
 This module contains the test mod used by both Fabric and NeoForge. Its sources live in
 `src/main/java`, so a normal Gradle import recognizes them in the IDE. Reload the Gradle
 project after pulling this change.
 
-`./gradlew build` compiles the harness and runs the JUnit tests in `common`. It does not
+`./gradlew build` compiles the harness and runs the JUnit tests in `common` and `tests`. It does not
 launch Minecraft. To compile only the harness, use `./gradlew :tests:classes`.
 
-With the wiki submodule checked out, `./gradlew :api:compileWikiExamplesJava` also compiles the complete Java examples
+With the wiki submodule checked out, `./gradlew :tests:compileWikiExamplesJava` also compiles the complete Java examples
 from `wiki/API-*.md` against the API jar and Minecraft alone. This task is opt-in so normal builds don't require a wiki
-checkout. Generated examples remain under `api/build` and aren't packaged in the API or loader jars.
+checkout. Generated examples remain under `tests/build` and aren't packaged in the API or loader jars.
 
 The test jar is built under `tests/build/libs`. It is not included in either release jar
 or the publishing workflow.
+
+API contract tests live in `src/test/java`. Run them with `:tests:test`. The API module contains only production
+contracts;
+consumer fixtures and wiki-example compilation belong to this module.
 
 ## Run locally
 

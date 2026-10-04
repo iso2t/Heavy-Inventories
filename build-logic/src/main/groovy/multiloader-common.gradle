@@ -1,6 +1,6 @@
 plugins {
     id 'java-library'
-    id 'maven-publish'
+    id 'iso2t-publishing'
 }
 
 base {
@@ -93,20 +93,6 @@ processResources {
     }
 
     inputs.properties(expandProps)
-}
-
-publishing {
-    publications {
-        register('mavenJava', MavenPublication) {
-            artifactId base.archivesName.get()
-            from components.java
-        }
-    }
-    repositories {
-        maven {
-            url System.getenv('local_maven_url')
-        }
-    }
 }
 
 // One authoring catalog, emitted as ordinary overridable datapack resources in every module.

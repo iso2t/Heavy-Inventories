@@ -35,7 +35,7 @@ jobs:
           cache-provider: basic
           cache-read-only: true
       - name: Build publishing preview
-        run: bash ./gradlew build publishMods --stacktrace --no-daemon --max-workers=2 --console=plain
+        run: bash ./gradlew build publishMods publishToMavenLocal -Dmaven.repo.local="$GITHUB_WORKSPACE/build/maven-preview" --stacktrace --no-daemon --max-workers=2 --console=plain
         env:
           PUBLISH_DRY_RUN: 'true'
           CURSEFORGE_PROJECT_ID: ${{ vars.CURSEFORGE_PROJECT_ID }}
@@ -53,6 +53,13 @@ jobs:
             !**/*-dev.jar
             !**/*-lifecycle-test.jar
             build/publishMods/
+
+      - name: Save Maven preview
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: maven-preview
+          if-no-files-found: error
+          path: build/maven-preview/
 
   publish:
     if: ${{ !inputs.dry_run }}
@@ -74,7 +81,7 @@ jobs:
           cache-provider: basic
           cache-read-only: true
       - name: Build and publish
-        run: bash ./gradlew build publishMods --stacktrace --no-daemon --max-workers=2 --console=plain
+        run: bash ./gradlew build publish publishMods --stacktrace --no-daemon --max-workers=2 --console=plain
         env:
           PUBLISH_DRY_RUN: 'false'
           CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY || secrets.CURSEFORGE_TOKEN }}
@@ -82,6 +89,9 @@ jobs:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
           MODRINTH_PROJECT_ID: ${{ vars.MODRINTH_PROJECT_ID }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISO2T_MAVEN_URL: ${{ vars.ISO2T_MAVEN_URL }}
+          ISO2T_MAVEN_USERNAME: ${{ secrets.ISO2T_MAVEN_USERNAME || secrets.MAVEN_USERNAME || secrets.MAVEN_USER }}
+          ISO2T_MAVEN_PASSWORD: ${{ secrets.ISO2T_MAVEN_PASSWORD || secrets.MAVEN_PASSWORD || secrets.MAVEN_TOKEN }}
       - name: Save jars and publishing previews
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
