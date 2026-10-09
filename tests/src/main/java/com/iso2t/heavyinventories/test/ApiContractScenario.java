@@ -9,6 +9,7 @@ import com.iso2t.heavyinventories.api.WeightResult;
  * Common API linkage on a real dedicated server, using classes from the production jar.
  */
 public final class ApiContractScenario {
+
 	public static void verify () {
 		for (String name : new String[] { "ServerWeights", "WeightSource", "plugin.HeavyInventoriesPlugin", "plugin.PluginRegistration", "plugin.HIPlugin", "provider.InventoryProvider", "provider.ContainerContentsProvider", "provider.CapacityProvider" }) {
 			try {
@@ -25,4 +26,5 @@ public final class ApiContractScenario {
 		}
 		HeavyInventories.LOGGER.info("API CONTRACTS PASSED: dedicated-server linkage, weight availability, unclamped load ratio");
 	}
+
 }

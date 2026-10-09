@@ -24,52 +24,66 @@ public record EffectsSettings(boolean water, boolean lava, Exhaustion exhaustion
 	}
 
 	public record Exhaustion(boolean enabled, float maxMultiplier, float walkingCostPerBlock) {
+
 		public Exhaustion {
 			range("exhaustion.maxMultiplier", maxMultiplier, 1, MAX_MULTIPLIER);
 			range("exhaustion.walkingCostPerBlock", walkingCostPerBlock, 0, 100);
 		}
+
 	}
 
 	public record FallDamage(boolean enabled, float startPercent, float fullPercent, float maxMultiplier) {
+
 		public FallDamage {
 			thresholds("fallDamage", startPercent, fullPercent);
 			range("fallDamage.maxMultiplier", maxMultiplier, 1, MAX_MULTIPLIER);
 		}
+
 	}
 
 	public record Swimming(boolean enabled, float startPercent, float fullPercent, float minMultiplier) {
+
 		public Swimming {
 			thresholds("swimming", startPercent, fullPercent);
 			range("swimming.minMultiplier", minMultiplier, 0, 1);
 		}
+
 	}
 
 	public record Sinking(boolean enabled, float startPercent, float fullPercent, float maxMultiplier) {
+
 		public Sinking {
 			thresholds("sinking", startPercent, fullPercent);
 			range("sinking.maxMultiplier", maxMultiplier, 1, MAX_MULTIPLIER);
 		}
+
 	}
 
 	public record UpwardMovement(boolean enabled, float thresholdPercent) {
+
 		public UpwardMovement {
 			range("upwardMovement.thresholdPercent", thresholdPercent, 0, MAX_PERCENT);
 		}
+
 	}
 
 	public record Knockback(boolean enabled, float referenceWeight, float maxResistance) {
+
 		public Knockback {
 			range("knockback.referenceWeight", referenceWeight, Float.MIN_VALUE, ServerSettings.MAX_VALUE);
 			range("knockback.maxResistance", maxResistance, 0, 1);
 		}
+
 	}
 
 	public record Elytra(boolean enabled, float referenceWeight, float maxLiftReduction, float maxRocketReduction) {
+
 		public Elytra {
 			range("elytra.referenceWeight", referenceWeight, Float.MIN_VALUE, ServerSettings.MAX_VALUE);
 			range("elytra.maxLiftReduction", maxLiftReduction, 0, 1);
 			range("elytra.maxRocketReduction", maxRocketReduction, 0, 1);
 		}
+
 	}
 
 	private static void thresholds (String group, float start, float full) {
@@ -117,4 +131,5 @@ public record EffectsSettings(boolean water, boolean lava, Exhaustion exhaustion
 		if (!value.isJsonPrimitive() || !value.getAsJsonPrimitive().isNumber()) throw new IllegalArgumentException(key + " must be a JSON number");
 		return value.getAsFloat();
 	}
+
 }

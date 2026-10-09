@@ -25,4 +25,5 @@ public final class FabricConfigScreenHelper implements IConfigScreenHelper {
 		var packet = new OpenConfigPayload(configType);
 		ServerPlayNetworking.send(player, packet);
 	}
+
 }

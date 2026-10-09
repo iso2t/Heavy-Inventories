@@ -9,6 +9,7 @@ import net.minecraft.world.level.Level;
  */
 @FunctionalInterface
 public interface ContainerContentsProvider {
+
 	/**
 	 * Runs on the level's game thread. Return false if contents cannot be completely supplied.
 	 * Client previews may lack server-only contents and must return false in that case.
@@ -18,10 +19,13 @@ public interface ContainerContentsProvider {
 
 	@FunctionalInterface
 	interface ContentsSink {
+
 		/**
 		 * Stop supplying contents when false is returned. Custom and standard contents share recursion/work limits.
 		 * The sink and stack references are callback-scoped and confined to the callback thread.
 		 */
 		boolean accept (ItemStack stack);
+
 	}
+
 }

@@ -10,7 +10,9 @@ import java.util.function.Function;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class PluginLoader {
+
 	public record Loaded<T>(Identifier id, String description, T plugin) {
+
 	}
 
 	public static <T> List<Loaded<T>> load (List<PluginCandidate<T>> candidates, Function<T, Identifier> identifier, boolean optional) {
@@ -38,4 +40,5 @@ public final class PluginLoader {
 		loaded.sort(Comparator.comparing(plugin -> plugin.id().toString()));
 		return List.copyOf(loaded);
 	}
+
 }

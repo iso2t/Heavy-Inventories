@@ -20,21 +20,26 @@ public final class WeightPackData {
 	public static final int    MAX_DEFINITIONS = 100_000;
 
 	public record Entry(WeightDefinition definition, Identifier resource, String sourcePack) {
+
 		public Entry {
 			Objects.requireNonNull(definition);
 			Objects.requireNonNull(resource);
 			Objects.requireNonNull(sourcePack);
 		}
+
 	}
 
 	public record Problem(String resource, String sourcePack, String message) {
+
 		@Override
 		public @NonNull String toString () {
 			return resource + " [pack " + sourcePack + "]: " + message;
 		}
+
 	}
 
 	public record Result(Map<Identifier, Entry> definitions, List<Problem> errors, List<Problem> warnings) {
+
 		public Result {
 			errors = List.copyOf(errors);
 			warnings = List.copyOf(warnings);
@@ -44,6 +49,7 @@ public final class WeightPackData {
 		public boolean valid () {
 			return errors.isEmpty();
 		}
+
 	}
 
 	public static Result load (ResourceManager manager, Predicate<Identifier> registeredItem) {
@@ -79,4 +85,5 @@ public final class WeightPackData {
 		if (itemPath.isEmpty()) throw new IllegalArgumentException("Missing item path: " + resource);
 		return Identifier.fromNamespaceAndPath(resource.getNamespace(), itemPath);
 	}
+
 }

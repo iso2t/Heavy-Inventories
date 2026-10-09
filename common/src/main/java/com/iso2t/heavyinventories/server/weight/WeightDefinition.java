@@ -18,9 +18,11 @@ public sealed interface WeightDefinition {
 	int MAX_DOCUMENT_CHARS = 4096;
 
 	record Fixed(float weight) implements WeightDefinition {
+
 		public Fixed {
 			ServerSettings.validateItemWeight(weight);
 		}
+
 	}
 
 	enum Infer implements WeightDefinition {
@@ -71,4 +73,5 @@ public sealed interface WeightDefinition {
 	private static IllegalArgumentException invalid () {
 		return new IllegalArgumentException("Expected exactly {\"weight\": <number>} or {\"infer\": true}");
 	}
+
 }

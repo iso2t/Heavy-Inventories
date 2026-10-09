@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class DisplaySettingsTest {
+
 	@Test
 	void unitConversionChangesDisplayOnly () {
 		assertEquals(45.359237, MeasuringSystem.KGS.fromStored(100), 0.0000001);
@@ -82,4 +83,5 @@ class DisplaySettingsTest {
 			assertEquals(original, ClientSettings.current());
 		}
 	}
+
 }

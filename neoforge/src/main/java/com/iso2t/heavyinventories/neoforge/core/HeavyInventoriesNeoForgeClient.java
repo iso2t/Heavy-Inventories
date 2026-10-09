@@ -23,4 +23,5 @@ public final class HeavyInventoriesNeoForgeClient {
 		ConfigFileManager.loadClientConfig();
 		NeoForgeClientHooks.register(modEventBus);
 	}
+
 }

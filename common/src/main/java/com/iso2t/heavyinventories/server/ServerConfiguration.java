@@ -45,4 +45,5 @@ public final class ServerConfiguration {
 			player.sendSystemMessage(Component.translatable("config.heavyinventories.failed", e.getMessage()));
 		}
 	}
+
 }

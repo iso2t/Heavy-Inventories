@@ -7,6 +7,7 @@ import net.minecraft.resources.Identifier;
 
 @HIPlugin(requires = "hi_missing_fixture_dependency")
 public final class MissingDependencyPlugin implements HeavyInventoriesPlugin {
+
 	static {
 		if (true) throw new AssertionError("Missing dependency plugin must not initialize");
 	}
@@ -20,4 +21,5 @@ public final class MissingDependencyPlugin implements HeavyInventoriesPlugin {
 	public void register (PluginRegistration registration) {
 		throw new AssertionError("Must not register");
 	}
+
 }

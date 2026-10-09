@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 public final class FabricPlatformHelper implements IPlatformHelper {
+
 	@Override
 	public void sendToPlayer (ServerPlayer player, CustomPacketPayload payload) {
 		ServerPlayNetworking.send(player, payload);
@@ -29,4 +30,5 @@ public final class FabricPlatformHelper implements IPlatformHelper {
 	public Path getGameDirectory () {
 		return FabricLoader.getInstance().getGameDir();
 	}
+
 }

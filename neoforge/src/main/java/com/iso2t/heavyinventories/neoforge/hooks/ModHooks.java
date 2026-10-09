@@ -10,6 +10,7 @@ import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 public class ModHooks {
+
 	public static void hookReloadListeners (AddServerReloadListenersEvent event) {
 		event.addListener(WeightPackReloadListener.ID, new WeightPackReloadListener());
 	}
@@ -26,4 +27,5 @@ public class ModHooks {
 	public static void hookCommands (RegisterCommandsEvent event) {
 		ModCommands.registerCommands(event.getDispatcher());
 	}
+
 }

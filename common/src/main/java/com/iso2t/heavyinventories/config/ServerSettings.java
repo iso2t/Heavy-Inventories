@@ -53,4 +53,5 @@ public record ServerSettings(float startingWeight, WalkingMode walkingMode, Effe
 		if (!Float.isFinite(value) || value < 0 || value > MAX_VALUE) throw new IllegalArgumentException("Item weight must be finite and between 0 and " + MAX_VALUE);
 		return value;
 	}
+
 }

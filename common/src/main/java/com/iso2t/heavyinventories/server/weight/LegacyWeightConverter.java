@@ -26,10 +26,12 @@ import java.util.zip.ZipOutputStream;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class LegacyWeightConverter {
+
 	private static final Gson JSON           = new GsonBuilder().setPrettyPrinting().create();
 	private static final int  MAX_FILE_CHARS = 16 * 1024 * 1024, MAX_TOTAL_CHARS = 64 * 1024 * 1024;
 
 	public record Result(Path file, int converted, int skipped) {
+
 	}
 
 	public static Result convert (Path input, Path output, String name, int major, int minor) throws IOException {
@@ -133,4 +135,5 @@ public final class LegacyWeightConverter {
 		zip.write(JSON.toJson(json).getBytes(StandardCharsets.UTF_8));
 		zip.closeEntry();
 	}
+
 }

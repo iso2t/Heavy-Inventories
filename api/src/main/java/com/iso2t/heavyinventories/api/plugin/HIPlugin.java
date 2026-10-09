@@ -12,6 +12,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface HIPlugin {
+
 	Side value () default Side.COMMON;
 
 	/**
@@ -24,4 +25,5 @@ public @interface HIPlugin {
 		COMMON,
 		CLIENT
 	}
+
 }

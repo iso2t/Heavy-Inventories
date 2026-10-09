@@ -5,6 +5,7 @@ import net.minecraft.resources.Identifier;
 import java.util.*;
 
 public final class RegistrationScope implements AutoCloseable {
+
 	private final    Identifier       plugin;
 	private final    Thread           thread = Thread.currentThread();
 	private volatile boolean          open   = true;
@@ -70,4 +71,5 @@ public final class RegistrationScope implements AutoCloseable {
 		merged.putAll(added);
 		return merged;
 	}
+
 }

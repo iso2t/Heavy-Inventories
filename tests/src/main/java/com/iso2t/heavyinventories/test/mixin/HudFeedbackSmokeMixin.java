@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GraphicsRenderer.class)
 public class HudFeedbackSmokeMixin {
+
 	@Inject(method = "drawNumbers", at = @At("HEAD"))
 	private static void apiNativeNumbers (CallbackInfo ci) {
 		if (com.iso2t.heavyinventories.test.HudApiScenario.active) com.iso2t.heavyinventories.test.HudApiScenario.nativeNumbers++;
@@ -18,4 +19,5 @@ public class HudFeedbackSmokeMixin {
 	private static void heavyinventories$rendered (CallbackInfo ci) {
 		FeedbackScenario.hudFrames++;
 	}
+
 }

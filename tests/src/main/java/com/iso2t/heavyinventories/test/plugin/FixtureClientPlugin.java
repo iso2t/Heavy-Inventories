@@ -10,6 +10,7 @@ import net.minecraft.resources.Identifier;
 
 @HIPlugin(HIPlugin.Side.CLIENT)
 public final class FixtureClientPlugin implements HeavyInventoriesClientPlugin {
+
 	private static final Minecraft       CLIENT = Minecraft.getInstance();
 	public static        ClientWeights   weights;
 	public static        HudRegistration hud;
@@ -27,4 +28,5 @@ public final class FixtureClientPlugin implements HeavyInventoriesClientPlugin {
 		FixtureHud.register(hud);
 		FixtureClientNotifications.register(registration);
 	}
+
 }

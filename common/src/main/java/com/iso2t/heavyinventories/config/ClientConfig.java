@@ -63,4 +63,5 @@ public final class ClientConfig {
 	public ClientSettings settings () {
 		return new ClientSettings(measure.get(), overlay.get(), normal.get() & 0xFFFFFF, encumbered.get() & 0xFFFFFF, overloaded.get() & 0xFFFFFF, hudMode.get(), ringVerticalOffset.get(), ringOwner.get(), numbersOwner.get());
 	}
+
 }

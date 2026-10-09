@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * Exercises the actual EasyConfig controls and their outgoing request in a disposable client.
  */
 public final class EffectsConfigScenario {
+
 	public static EffectsSettings expected () {
 		var d = EffectsSettings.DEFAULT;
 		return new EffectsSettings(d.water(), d.lava(), new EffectsSettings.Exhaustion(true, 2.25f, 0.01f), new EffectsSettings.FallDamage(true, 80, 125, 3.5f), new EffectsSettings.Swimming(true, 90, 100, 0.35f), d.sinking(), d.upwardMovement(), new EffectsSettings.Knockback(true, 800.25f, 0.4f), new EffectsSettings.Elytra(true, 750, 0.2f, 0.4f));
@@ -101,4 +102,5 @@ public final class EffectsConfigScenario {
 	private static void require (boolean condition, String message) {
 		if (!condition) throw new AssertionError(message);
 	}
+
 }

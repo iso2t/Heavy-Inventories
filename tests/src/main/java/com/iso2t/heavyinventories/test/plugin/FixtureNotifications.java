@@ -17,6 +17,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 public final class FixtureNotifications {
+
 	public static int readyEvents, playerEvents, failures, stoppedEvents;
 	public static  long                 readyRevision;
 	private static int                  target = -1;
@@ -112,4 +113,5 @@ public final class FixtureNotifications {
 	private static void require (boolean value, String message) {
 		if (!value) throw new AssertionError(message);
 	}
+
 }

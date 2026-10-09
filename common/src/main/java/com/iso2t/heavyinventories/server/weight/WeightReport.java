@@ -41,4 +41,5 @@ public final class WeightReport {
 		root.add("items", entries);
 		return root;
 	}
+
 }

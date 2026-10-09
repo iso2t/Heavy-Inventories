@@ -13,6 +13,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 class NotificationsTest {
+
 	private static PlayerWeightSnapshot snapshot (double weight, long revision, long tick) {
 		return new PlayerWeightSnapshot(WeightResult.complete(weight), 1000, 1000, EncumbranceState.NORMAL, 1, true, revision, tick);
 	}
@@ -45,4 +46,5 @@ class NotificationsTest {
 		notifications.clear();
 		assertDoesNotThrow(() -> notifications.dispatch("test", Map.of(), Runnable::run));
 	}
+
 }

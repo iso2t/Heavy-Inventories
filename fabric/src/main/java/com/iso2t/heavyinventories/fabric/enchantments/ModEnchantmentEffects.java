@@ -22,4 +22,5 @@ public class ModEnchantmentEffects {
 	public static void register () {
 		HeavyInventories.LOGGER.info("Initializing enchantment effects");
 	}
+
 }

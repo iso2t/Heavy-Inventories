@@ -34,6 +34,7 @@ import java.util.concurrent.CompletableFuture;
  * Real contextual-bar transitions and window/background fixtures in disposable worlds.
  */
 public final class RingCompatibilityScenario {
+
 	private static final String[] NAMES    = { "locator", "mounted-jump", "experience-return", "day-small-crowded", "night-large-crowded" };
 	private static final String[] BARS     = { "LocatorBar", "JumpableVehicleBar", "ExperienceBar", "ExperienceBar", "ExperienceBar" };
 	private static final UUID     WAYPOINT = UUID.fromString("5157cc0f-1f54-479a-970c-5d831ee234ec");
@@ -152,4 +153,5 @@ public final class RingCompatibilityScenario {
 		}
 		return false;
 	}
+
 }

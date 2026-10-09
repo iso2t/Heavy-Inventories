@@ -8,8 +8,10 @@ import java.util.Objects;
  * Hidden layouts must use zero so hiding a ring cannot leave its XP displacement behind.
  */
 public record HudLayout(HudBounds bounds, boolean visible, int xpOffset) {
+
 	public HudLayout {
 		Objects.requireNonNull(bounds, "bounds");
 		if (!visible && xpOffset != 0) throw new IllegalArgumentException("A hidden element cannot move XP");
 	}
+
 }

@@ -7,6 +7,7 @@ import java.util.OptionalDouble;
 import static org.junit.jupiter.api.Assertions.*;
 
 class WeightResultTest {
+
 	@Test
 	void unavailableAndIncompleteWeightsCannotBeMistakenForZero () {
 		assertEquals(0, WeightResult.complete(0).pounds().orElseThrow());
@@ -34,4 +35,5 @@ class WeightResultTest {
 		assertThrows(IllegalArgumentException.class, () -> new PlayerWeightSnapshot(WeightResult.unavailable(), 1000, 1000, EncumbranceState.NORMAL, 1, true, 1, 20));
 		assertThrows(IllegalArgumentException.class, () -> new PlayerWeightSnapshot(WeightResult.complete(5), 1000, 0, EncumbranceState.NORMAL, 1, true, 1, 20));
 	}
+
 }

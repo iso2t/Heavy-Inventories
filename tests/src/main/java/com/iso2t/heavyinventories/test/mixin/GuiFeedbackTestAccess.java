@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(Hud.class)
 public interface GuiFeedbackTestAccess {
+
 	@Accessor("contextualInfoBar")
 	com.mojang.datafixers.util.Pair<?, ?> heavyinventories$contextualBar ();
 
@@ -18,4 +19,5 @@ public interface GuiFeedbackTestAccess {
 
 	@Accessor("overlayMessageTime")
 	void heavyinventories$messageTime (int value);
+
 }

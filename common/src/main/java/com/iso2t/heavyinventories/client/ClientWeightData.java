@@ -45,6 +45,7 @@ public final class ClientWeightData {
 	 */
 	@RequiredArgsConstructor
 	public static final class DefinitionReceiver {
+
 		private final Predicate<Identifier>  registeredItem;
 		private       Map<Identifier, Float> active    = Map.of();
 		private final Map<Identifier, Float> pending   = new HashMap<>();
@@ -98,5 +99,7 @@ public final class ClientWeightData {
 			nextIndex = -1;
 			chunks = pendingBytes = 0;
 		}
+
 	}
+
 }

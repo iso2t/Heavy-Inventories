@@ -6,6 +6,8 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(ServerExplosion.class)
 public interface ExplosionKnockbackTestAccess {
+
 	@Invoker("hurtEntities")
 	void heavyinventories$affectEntities ();
+
 }

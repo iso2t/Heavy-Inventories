@@ -6,6 +6,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 
 public final class PluginScenario {
+
 	public static void server (MinecraftServer server) {
 		require(PluginProbe.commonRegistrations == 1, "Common plugin must register exactly once");
 		require(PluginProbe.clientRegistrations == 0, "Client plugin loaded on dedicated server");
@@ -22,4 +23,5 @@ public final class PluginScenario {
 	private static void require (boolean condition, String message) {
 		if (!condition) throw new AssertionError(message);
 	}
+
 }

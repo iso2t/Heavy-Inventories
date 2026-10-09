@@ -15,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 
 @Mixin(MinecraftServer.class)
 public abstract class ServerWeightStateMixin implements ServerStateAccess {
+
 	@Unique
 	private final ServerWeightState heavyinventories$weightState = new ServerWeightState();
 
@@ -36,4 +37,5 @@ public abstract class ServerWeightStateMixin implements ServerStateAccess {
 		var server = (MinecraftServer) (Object) this;
 		cir.setReturnValue(cir.getReturnValue().thenRunAsync(() -> heavyinventories$weightState.reloadDatapacks(server), server));
 	}
+
 }

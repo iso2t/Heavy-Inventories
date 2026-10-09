@@ -6,6 +6,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
  * Exclusive layout/render owner for one element. Defaults preserve HI's drawing.
  */
 public interface HudIntegration {
+
 	/**
 	 * Cannot override the player's global HUD visibility rules. Only called once per element per frame.
 	 */
@@ -21,4 +22,5 @@ public interface HudIntegration {
 	default void render (GuiGraphicsExtractor graphics, HudContext context, HudLayout layout, HudDrawing drawing) {
 		drawing.drawDefault();
 	}
+
 }

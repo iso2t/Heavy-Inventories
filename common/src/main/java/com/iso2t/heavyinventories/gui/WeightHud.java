@@ -18,6 +18,7 @@ import java.util.Optional;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class WeightHud {
+
 	private static final HudHooks HOOKS = new HudHooks();
 	private static       Frame    frame;
 	private static       boolean  extracting;
@@ -96,13 +97,16 @@ public final class WeightHud {
 
 	@RequiredArgsConstructor
 	private static final class Frame {
+
 		private final HudContext          context;
 		private final ClientRegistrations registrations;
 		private final HudHooks.Resolved   ring, numbers;
 		private final EnumSet<HudElement> drawn = EnumSet.noneOf(HudElement.class);
+
 	}
 
 	private static final class Drawing implements HudDrawing, AutoCloseable {
+
 		private final Thread               thread = Thread.currentThread();
 		private       GuiGraphicsExtractor graphics;
 		private       Runnable             defaultDraw;
@@ -142,5 +146,7 @@ public final class WeightHud {
 			graphics = null;
 			defaultDraw = null;
 		}
+
 	}
+
 }

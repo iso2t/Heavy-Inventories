@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EffectsSettingsTest {
+
 	@TempDir
 	Path directory;
 
@@ -73,4 +74,5 @@ class EffectsSettingsTest {
 		assertThrows(IllegalArgumentException.class, () -> new EffectsSettings.Elytra(true, 1000, 1.01f, .25f));
 		assertThrows(IllegalArgumentException.class, () -> new EffectsSettings.Elytra(true, 1000, .15f, 1.01f));
 	}
+
 }

@@ -52,4 +52,5 @@ public final class NeoForgePluginDiscovery {
 			throw new IllegalStateException("HI plugin must implement " + type.getSimpleName() + " and have a public no-argument constructor: " + name, e);
 		}
 	}
+
 }

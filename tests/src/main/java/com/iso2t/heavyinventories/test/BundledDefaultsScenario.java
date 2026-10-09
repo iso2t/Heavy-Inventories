@@ -17,6 +17,7 @@ import java.util.Set;
  * Checks the bundled pack against the actual loaded vanilla recipes and tags.
  */
 public final class BundledDefaultsScenario {
+
 	private BundledDefaultsScenario () {
 	}
 
@@ -50,4 +51,5 @@ public final class BundledDefaultsScenario {
 		if (Math.abs(total - 132.41f) > .0001f) throw new AssertionError("Example kit weight: " + total);
 		HeavyInventories.LOGGER.info("BUNDLED DEFAULTS PASSED: material anchors and real recipe results");
 	}
+
 }

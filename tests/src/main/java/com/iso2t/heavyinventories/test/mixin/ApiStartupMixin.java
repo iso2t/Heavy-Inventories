@@ -10,8 +10,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerWeightState.class)
 public abstract class ApiStartupMixin {
+
 	@Inject(method = "start", at = @At("HEAD"))
 	private static void beforeDefinitions (MinecraftServer server, CallbackInfo ci) {
 		ApiWeightChecks.beforeDefinitions(server);
 	}
+
 }

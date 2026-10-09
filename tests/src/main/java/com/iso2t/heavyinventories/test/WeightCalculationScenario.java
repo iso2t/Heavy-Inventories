@@ -21,6 +21,7 @@ import java.util.Map;
  * Real inventory/menu/component and loaded-recipe checks shared by both runtime environments.
  */
 public final class WeightCalculationScenario {
+
 	public static void run (ServerPlayer player) {
 		var state = ServerWeightState.of(player.level().getServer());
 		var values = new HashMap<>(state.weights());
@@ -74,4 +75,5 @@ public final class WeightCalculationScenario {
 	private static void require (boolean condition, String message) {
 		if (!condition) throw new AssertionError(message);
 	}
+
 }

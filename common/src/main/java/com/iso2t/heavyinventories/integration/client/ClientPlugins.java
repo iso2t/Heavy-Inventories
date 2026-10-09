@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 public final class ClientPlugins {
+
 	public static final ClientPlugins       INSTANCE      = new ClientPlugins(new ClientWeightAccess());
 	private final       ClientWeights       weights;
 	private volatile    ClientRegistrations registrations = ClientRegistrations.EMPTY;
@@ -40,4 +41,5 @@ public final class ClientPlugins {
 		registrations = next;
 		HeavyInventories.LOGGER.info("Registered HI client plugins");
 	}
+
 }

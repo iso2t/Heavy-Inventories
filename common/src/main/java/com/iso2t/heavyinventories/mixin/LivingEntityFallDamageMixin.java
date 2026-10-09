@@ -21,4 +21,5 @@ public abstract class LivingEntityFallDamageMixin {
 		var holder = PlayerHolder.getOrCreate(player);
 		return damage * holder.getFallDamageMultiplier();
 	}
+
 }

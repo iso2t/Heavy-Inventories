@@ -28,6 +28,7 @@ import java.util.HashMap;
  * Opt-in, separate-process localhost test. The server restores its config after the client exits.
  */
 public final class NetworkAuthorityScenario {
+
 	private static int serverStage, ticks, startedAt;
 	private static long         initialRevision;
 	private static ServerPlayer initialPlayer;
@@ -140,4 +141,5 @@ public final class NetworkAuthorityScenario {
 	private static void require (boolean condition, String message) {
 		if (!condition) throw new AssertionError(message);
 	}
+
 }

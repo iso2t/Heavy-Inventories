@@ -28,6 +28,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Items;
 
 public final class NetworkAuthorityClient {
+
 	private static int clientStage, ticks, reconnectTicks;
 	private static int ringWait, ringStart, xpStart;
 	private static volatile boolean        captured;
@@ -164,4 +165,5 @@ public final class NetworkAuthorityClient {
 	private static void require (boolean condition, String message) {
 		if (!condition) throw new AssertionError(message);
 	}
+
 }

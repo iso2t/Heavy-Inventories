@@ -15,8 +15,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Mixin(WeightPackReloadListener.class)
 public abstract class ReloadFailureTestMixin {
+
 	@Inject(method = "apply(Lcom/iso2t/heavyinventories/server/weight/WeightPackData$Result;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V", at = @At("TAIL"))
 	private void heavyinventories$failReload (WeightPackData.Result result, ResourceManager manager, ProfilerFiller profiler, CallbackInfo ci) {
 		if (DatapackLoadingScenario.failReload) throw new IllegalStateException("Intentional test-only reload failure");
 	}
+
 }

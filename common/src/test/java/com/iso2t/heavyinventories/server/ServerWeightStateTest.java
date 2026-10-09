@@ -10,6 +10,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ServerWeightStateTest {
+
 	private static final Identifier STONE = Identifier.parse("minecraft:stone");
 
 	@Test
@@ -41,4 +42,5 @@ class ServerWeightStateTest {
 			assertSame(packets, state.packets());
 		}
 	}
+
 }

@@ -113,4 +113,5 @@ class TooltipTest {
 		var displayed = (Component) contents(line).getArgs()[0];
 		assertEquals(WeightDisplay.weight(weight, ConfigOptions.WEIGHT_MEASURE), displayed.getString());
 	}
+
 }

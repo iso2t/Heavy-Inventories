@@ -51,6 +51,7 @@ public record ItemWeightsPayload(long revision, int index, int chunks, List<Entr
 	}
 
 	public record Entry(Identifier item, float weight) {
+
 		public Entry {
 			Preconditions.checkArgument(item != null && item.toString().length() <= MAX_IDENTIFIER_LENGTH, "Invalid item weight identifier");
 			ServerSettings.validateItemWeight(weight);
@@ -59,10 +60,12 @@ public record ItemWeightsPayload(long revision, int index, int chunks, List<Entr
 		public int sizeBytes () {
 			return item.toString().length() + Float.BYTES + 2;
 		}
+
 	}
 
 	@Override
 	public @NonNull Type<? extends CustomPacketPayload> type () {
 		return TYPE;
 	}
+
 }

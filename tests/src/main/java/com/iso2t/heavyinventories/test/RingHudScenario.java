@@ -32,10 +32,12 @@ import java.util.concurrent.CompletableFuture;
  * Opt-in visual checkpoints in disposable worlds, using server-synchronized weights.
  */
 public final class RingHudScenario {
+
 	public static int ringFrames, xpFrames, ringsThisFrame;
 	public static boolean active;
 
 	private record Case(String name, int percent, int level, int offset, HudMode mode, boolean overlay) {
+
 	}
 
 	private static final List<Case> CASES = cases();
@@ -140,4 +142,5 @@ public final class RingHudScenario {
 		}
 		return false;
 	}
+
 }

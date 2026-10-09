@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
  */
 @Mixin(Entity.class)
 public interface FluidTestAccess {
+
 	@org.spongepowered.asm.mixin.gen.Invoker("restituteMovementAfterCollisions")
 	void heavyinventories$restituteMovement (net.minecraft.world.level.block.state.BlockState state, boolean xCollision, boolean zCollision, net.minecraft.world.phys.Vec3 movement);
 
@@ -20,4 +21,5 @@ public interface FluidTestAccess {
 
 	@Accessor("wasTouchingWater")
 	void heavyinventories$setWater (boolean value);
+
 }

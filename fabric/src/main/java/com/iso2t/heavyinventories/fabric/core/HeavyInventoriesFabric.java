@@ -24,4 +24,5 @@ public final class HeavyInventoriesFabric implements ModInitializer {
 		ModEnchantmentEffects.register();
 		CommonPlugins.INSTANCE.initialize(FabricPluginDiscovery.find("heavyinventories", HeavyInventoriesPlugin.class, HIPlugin.Side.COMMON));
 	}
+
 }

@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 public final class KnockbackScenario {
+
 	public static void run (ServerPlayer anchor) {
 		var server = anchor.level().getServer();
 		var level = server.overworld();
@@ -195,4 +196,5 @@ public final class KnockbackScenario {
 	private static void close (double expected, double actual, String message) {
 		if (Math.abs(expected - actual) > .00001) throw new AssertionError(message + ": expected " + expected + ", got " + actual);
 	}
+
 }

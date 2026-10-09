@@ -16,4 +16,5 @@ public final class HeavyInventories {
 	public static Identifier get (String path) {
 		return Identifier.fromNamespaceAndPath(MOD_ID, path);
 	}
+
 }

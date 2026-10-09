@@ -15,4 +15,5 @@ public record OpenConfigPayload(String configType) implements CustomPacketPayloa
 	public @NonNull Type<? extends CustomPacketPayload> type () {
 		return TYPE;
 	}
+
 }

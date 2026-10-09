@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EncumbranceEffectsTest {
+
 	private static EncumbranceEffects.State state (float weight, float capacity, WalkingMode mode, EffectsSettings settings, EncumbranceEffects.Fluid fluid) {
 		return EncumbranceEffects.calculate(weight, capacity, mode, settings, fluid, false, false);
 	}
@@ -87,4 +88,5 @@ class EncumbranceEffectsTest {
 		assertThrows(IllegalArgumentException.class, () -> state(Float.NaN, 1000, WalkingMode.PROGRESSIVE, EffectsSettings.DEFAULT, EncumbranceEffects.Fluid.NONE));
 		assertThrows(IllegalArgumentException.class, () -> state(100, 0, WalkingMode.PROGRESSIVE, EffectsSettings.DEFAULT, EncumbranceEffects.Fluid.NONE));
 	}
+
 }

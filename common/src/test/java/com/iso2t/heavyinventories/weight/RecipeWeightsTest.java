@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class RecipeWeightsTest {
+
 	private static Identifier id (String path) {
 		return Identifier.parse("test:" + path);
 	}
@@ -76,4 +77,5 @@ class RecipeWeightsTest {
 		for (int i = 1; i < 5000; i++) chain.add(recipe("item" + i, 1, "item" + (i - 1)));
 		assertEquals(2f, RecipeWeights.resolve(chain, Map.of(id("item0"), 2f)).get(id("item4999")));
 	}
+
 }

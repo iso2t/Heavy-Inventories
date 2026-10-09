@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.At;
  */
 @Mixin(LivingEntity.class)
 public abstract class NeoForgeFluidAscentMixin {
+
 	@WrapOperation(method = "aiStep", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;jumpInFluid(Lnet/neoforged/neoforge/fluids/FluidType;)V"), require = 2)
 	private void heavyinventories$denyFluidJump (LivingEntity entity, FluidType fluid, Operation<Void> original) {
 		if (entity instanceof Player player && PlayerHolder.getOrCreate(player).preventsFluidAscent()) {
@@ -23,4 +24,5 @@ public abstract class NeoForgeFluidAscentMixin {
 		}
 		original.call(entity, fluid);
 	}
+
 }

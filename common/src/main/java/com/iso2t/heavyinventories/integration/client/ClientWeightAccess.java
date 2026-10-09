@@ -16,6 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.Optional;
 
 final class ClientWeightAccess implements ClientWeights {
+
 	private static Minecraft client () {
 		var client = Minecraft.getInstance();
 		if (!client.isSameThread()) throw new IllegalStateException("Weight queries require the client thread");
@@ -55,4 +56,5 @@ final class ClientWeightAccess implements ClientWeights {
 		if (!Double.isFinite(pounds) || pounds < 0) throw new IllegalArgumentException("Weight must be finite and nonnegative");
 		return WeightDisplay.weight(pounds, ConfigOptions.WEIGHT_MEASURE);
 	}
+
 }

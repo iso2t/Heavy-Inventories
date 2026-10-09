@@ -24,6 +24,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 public final class FixtureProviders {
+
 	public static int target = -1, count = 4;
 	public static ItemStack                              extra         = ItemStack.EMPTY;
 	public static String                                 inventoryMode = "normal";
@@ -199,4 +200,5 @@ public final class FixtureProviders {
 	private static void require (boolean condition, String message) {
 		if (!condition) throw new AssertionError(message);
 	}
+
 }

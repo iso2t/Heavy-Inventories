@@ -31,4 +31,5 @@ public final class WeightPackReloadListener extends SimplePreparableReloadListen
 			HeavyInventories.LOGGER.error("Rejected datapack weight candidate; no partial definitions will be applied");
 		}
 	}
+
 }

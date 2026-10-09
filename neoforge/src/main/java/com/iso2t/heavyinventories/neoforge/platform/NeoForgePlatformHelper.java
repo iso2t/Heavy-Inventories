@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 public final class NeoForgePlatformHelper implements IPlatformHelper {
+
 	@Override
 	public void sendToPlayer (ServerPlayer player, CustomPacketPayload payload) {
 		player.connection.send(payload);
@@ -30,4 +31,5 @@ public final class NeoForgePlatformHelper implements IPlatformHelper {
 	public Path getGameDirectory () {
 		return FMLPaths.GAMEDIR.get();
 	}
+
 }

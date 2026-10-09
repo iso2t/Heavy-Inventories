@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Entity.class)
 public abstract class ExternalMovementExhaustionMixin {
+
 	@Inject(method = "push(DDD)V", at = @At("HEAD"))
 	private void heavyinventories$externalImpulse (double x, double y, double z, CallbackInfo ci) {
 		if ((Object) this instanceof ServerPlayer player && Double.isFinite(x) && Double.isFinite(y) && Double.isFinite(z) && (x != 0 || y != 0 || z != 0)) PlayerHolder.getOrCreate(player).suppressMovementExhaustion();
@@ -26,4 +27,5 @@ public abstract class ExternalMovementExhaustionMixin {
 	private void heavyinventories$bubbleMotion (CallbackInfo ci) {
 		if ((Object) this instanceof ServerPlayer player) PlayerHolder.getOrCreate(player).suppressMovementExhaustion();
 	}
+
 }

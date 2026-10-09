@@ -9,8 +9,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Minecraft.class)
 public abstract class ClientNotificationsMixin {
+
 	@Inject(method = "tick", at = @At("TAIL"))
 	private void heavyinventories$notifyPlayer (CallbackInfo ci) {
 		ClientNotifications.tick();
 	}
+
 }

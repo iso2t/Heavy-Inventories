@@ -41,6 +41,7 @@ import java.util.concurrent.CompletableFuture;
  * Runs only in disposable singleplayer smoke worlds; mutations run on the server thread.
  */
 public final class ClientLifecycleScenario {
+
 	private          int                             stage;
 	private          int                             ticks;
 	private          LocalPlayer                     oldClient;
@@ -385,4 +386,5 @@ public final class ClientLifecycleScenario {
 	private static void require (boolean condition, String message) {
 		if (!condition) throw new AssertionError(message);
 	}
+
 }

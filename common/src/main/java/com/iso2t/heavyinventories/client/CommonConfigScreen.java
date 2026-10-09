@@ -24,5 +24,7 @@ public final class CommonConfigScreen {
 	}
 
 	public static final class EmptyConfig {
+
 	}
+
 }

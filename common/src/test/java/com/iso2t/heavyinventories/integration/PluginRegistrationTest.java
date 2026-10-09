@@ -19,6 +19,7 @@ import java.util.function.Consumer;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PluginRegistrationTest {
+
 	private static final ServerWeights SERVER = unusedService(ServerWeights.class);
 	private static final ClientWeights CLIENT = unusedService(ClientWeights.class);
 
@@ -155,6 +156,7 @@ class PluginRegistrationTest {
 
 	@HIPlugin(value = HIPlugin.Side.CLIENT, requires = "optional_mod")
 	static class UnloadedPlugin {
+
 		static {
 			if (true) throw new AssertionError("Metadata reading initialized the plugin");
 		}
@@ -197,4 +199,5 @@ class PluginRegistrationTest {
 			throw new AssertionError("Registration must not query a world: " + method);
 		}));
 	}
+
 }

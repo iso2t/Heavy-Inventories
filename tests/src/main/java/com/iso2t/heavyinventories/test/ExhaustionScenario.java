@@ -32,6 +32,7 @@ import java.util.UUID;
  * Exercises the real transformed server methods, without changing the connected test player's state.
  */
 public final class ExhaustionScenario {
+
 	private static final Input FORWARD = new Input(true, false, false, false, false, false, false);
 
 	public static void run (ServerPlayer anchor) {
@@ -225,4 +226,5 @@ public final class ExhaustionScenario {
 	private static void close (double expected, double actual, String name) {
 		if (Math.abs(expected - actual) > .000001) throw new AssertionError(name + ": expected " + expected + ", got " + actual);
 	}
+
 }

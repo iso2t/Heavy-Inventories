@@ -7,6 +7,8 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(PlayerInfo.class)
 public interface ClientGameModeTestAccess {
+
 	@Invoker("setGameMode")
 	void heavyinventories$setMode (GameType mode);
+
 }

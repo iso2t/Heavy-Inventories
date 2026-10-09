@@ -22,6 +22,7 @@ public final class RecipeWeights {
 	 * Each slot consumes one item chosen from its alternatives; repeated slots retain multiplicity.
 	 */
 	public record Recipe(Identifier output, int outputCount, List<List<Identifier>> slots) {
+
 		public Recipe {
 			Objects.requireNonNull(output);
 			if (outputCount <= 0 || slots.isEmpty()) throw new IllegalArgumentException("Recipe must consume and produce items");
@@ -30,13 +31,16 @@ public final class RecipeWeights {
 				return slot.stream().distinct().sorted(ORDER).toList();
 			}).sorted(Comparator.comparing(Object::toString)).toList();
 		}
+
 	}
 
 	public record Resolution(Map<Identifier, Float> weights, Set<Identifier> inferred) {
+
 		public Resolution {
 			weights = Map.copyOf(weights);
 			inferred = Set.copyOf(inferred);
 		}
+
 	}
 
 	public static Map<Identifier, Float> resolve (Collection<Recipe> recipes, Map<Identifier, Float> overrides) {
@@ -70,6 +74,7 @@ public final class RecipeWeights {
 		var visited = new HashSet<Identifier>();
 		var finished = new ArrayList<Identifier>();
 		record Frame(Identifier id, Iterator<Identifier> edges) {
+
 		}
 		for (var root : graph.keySet()) {
 			if (!visited.add(root)) continue;
@@ -132,4 +137,5 @@ public final class RecipeWeights {
 		}
 		return new Resolution(result, inferred);
 	}
+
 }

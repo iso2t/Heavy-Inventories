@@ -12,6 +12,7 @@ import java.util.Optional;
  * Server-thread queries. Implementations are supplied by HI through plugin registration.
  */
 public interface ServerWeights {
+
 	/**
 	 * Base weight of one empty item. A registered recipe fallback is a complete result.
 	 */
@@ -44,4 +45,5 @@ public interface ServerWeights {
 	 * Mark for the next normal server update. Does not immediately read inventories.
 	 */
 	void invalidate (ServerPlayer player);
+
 }

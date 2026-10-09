@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class ApiBoundaryTest {
+
 	@Test
 	void commonContractsHaveNoClientOrImplementationDependencies () throws Exception {
 		var root = Path.of(WeightResult.class.getProtectionDomain().getCodeSource().getLocation().toURI());
@@ -73,4 +74,5 @@ class ApiBoundaryTest {
 			assertDoesNotThrow(type::getDeclaredConstructors, name);
 		}
 	}
+
 }

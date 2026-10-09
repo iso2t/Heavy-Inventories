@@ -17,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityFluidAscentMixin {
+
 	@Inject(method = "jumpInLiquid", at = @At("HEAD"), cancellable = true)
 	private void heavyinventories$denyFluidJump (CallbackInfo ci) {
 		if ((Object) this instanceof Player player && PlayerHolder.getOrCreate(player).preventsFluidAscent()) {
@@ -42,4 +43,5 @@ public abstract class LivingEntityFluidAscentMixin {
 		}
 		return original.call(x, y, z);
 	}
+
 }

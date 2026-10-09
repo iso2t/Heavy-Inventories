@@ -38,4 +38,5 @@ public final class FabricPluginDiscovery {
 		}
 		return List.copyOf(candidates);
 	}
+
 }

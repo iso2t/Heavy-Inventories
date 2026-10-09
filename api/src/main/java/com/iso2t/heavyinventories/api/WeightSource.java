@@ -9,6 +9,7 @@ import java.util.Optional;
  * Server-side provenance; source details are not promised to clients.
  */
 public record WeightSource(Kind kind, Optional<String> pack, Optional<Identifier> resource) {
+
 	public WeightSource {
 		Objects.requireNonNull(kind, "kind");
 		Objects.requireNonNull(pack, "pack");
@@ -21,4 +22,5 @@ public record WeightSource(Kind kind, Optional<String> pack, Optional<Identifier
 		FALLBACK,
 		SESSION
 	}
+
 }

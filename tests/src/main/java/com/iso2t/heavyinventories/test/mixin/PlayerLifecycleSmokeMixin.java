@@ -31,6 +31,7 @@ import java.util.function.BooleanSupplier;
  */
 @Mixin(MinecraftServer.class)
 public abstract class PlayerLifecycleSmokeMixin {
+
 	@Unique
 	private boolean heavyinventories$tested;
 
@@ -135,4 +136,5 @@ public abstract class PlayerLifecycleSmokeMixin {
 	private static void require (boolean condition, String message) {
 		if (!condition) throw new AssertionError(message);
 	}
+
 }

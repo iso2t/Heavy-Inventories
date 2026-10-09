@@ -10,4 +10,5 @@ public interface ElytraFlightTestAccess {
 
 	@Invoker("updateFallFlyingMovement")
 	Vec3 heavyinventories$glide (Vec3 movement);
+
 }

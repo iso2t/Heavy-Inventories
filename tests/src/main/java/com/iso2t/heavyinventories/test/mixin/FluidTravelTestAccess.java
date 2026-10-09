@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(LivingEntity.class)
 public interface FluidTravelTestAccess {
+
 	@Invoker("tickEffects")
 	void heavyinventories$tickEffects ();
 
@@ -21,4 +22,5 @@ public interface FluidTravelTestAccess {
 
 	@Invoker("detectEquipmentUpdates")
 	void heavyinventories$refreshEquipment ();
+
 }

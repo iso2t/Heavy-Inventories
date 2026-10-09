@@ -27,4 +27,5 @@ public final class HeavyInventoriesNeoForgeBootstrap {
 		ModEnchantmentEffects.register(modEventBus);
 		if (FMLEnvironment.getDist() == Dist.CLIENT) HeavyInventoriesNeoForgeClient.initialize(modEventBus, container);
 	}
+
 }

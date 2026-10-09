@@ -22,4 +22,5 @@ public abstract class PlayerStateMixin implements PlayerStateAccess {
 		}
 		return heavyinventories$holder;
 	}
+
 }

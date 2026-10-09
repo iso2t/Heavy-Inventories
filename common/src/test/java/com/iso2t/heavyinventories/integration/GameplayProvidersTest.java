@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.junit.jupiter.api.Assertions.*;
 
 class GameplayProvidersTest {
+
 	@BeforeAll
 	static void bootstrap () {
 		SharedConstants.tryDetectVersion();
@@ -104,4 +105,5 @@ class GameplayProvidersTest {
 		assertEquals(Math.sqrt(1 - 1250d / 1500), state.walkingMultiplier(), 0.00001);
 		assertTrue(Encumbrance.calculate(1250, 1000, 1, 1, 1, 0, WalkingMode.PROGRESSIVE, false, 0).overloaded());
 	}
+
 }

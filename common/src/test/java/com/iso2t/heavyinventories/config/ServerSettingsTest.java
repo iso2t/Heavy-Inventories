@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ServerSettingsTest {
+
 	@TempDir
 	Path directory;
 
@@ -93,4 +94,5 @@ class ServerSettingsTest {
 			assertEquals(1, children.count());
 		}
 	}
+
 }

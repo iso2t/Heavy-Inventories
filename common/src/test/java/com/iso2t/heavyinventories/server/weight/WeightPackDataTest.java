@@ -20,6 +20,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 class WeightPackDataTest {
+
 	@TempDir
 	Path directory;
 
@@ -118,4 +119,5 @@ class WeightPackDataTest {
 		assertThrows(IllegalArgumentException.class, () -> WeightPackData.itemId(id("test:heavyinventories/weights/.json")));
 		assertThrows(IllegalArgumentException.class, () -> WeightPackData.itemId(id("test:other/arrow.json")));
 	}
+
 }

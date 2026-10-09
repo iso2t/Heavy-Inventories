@@ -43,6 +43,7 @@ import java.util.UUID;
  * Combined engine checks and repeatable water-recovery trials in a restored local fixture.
  */
 public final class CombinedEffectsScenario {
+
 	public static void run (ServerPlayer anchor) {
 		var server = anchor.level().getServer();
 		var level = server.overworld();
@@ -215,4 +216,5 @@ public final class CombinedEffectsScenario {
 	private static void close (double expected, double actual, String name) {
 		if (!Double.isFinite(actual) || Math.abs(expected - actual) > .00003) throw new AssertionError(name + ": expected " + expected + ", got " + actual);
 	}
+
 }

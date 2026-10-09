@@ -42,4 +42,5 @@ public final class ClientConfigScreen {
 			Minecraft.getInstance().gui.hud.setOverlayMessage(Component.translatable("config.heavyinventories.client_failed", e.getMessage()), false);
 		}
 	}
+
 }

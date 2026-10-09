@@ -36,6 +36,7 @@ import java.util.UUID;
  * Real fall/health processing on an isolated player, with an unattached connection for vanilla feedback.
  */
 public final class FallDamageScenario {
+
 	public static void run (ServerPlayer anchor) {
 		var server = anchor.level().getServer();
 		var level = server.overworld();
@@ -186,4 +187,5 @@ public final class FallDamageScenario {
 	private static void close (double expected, double actual, String name) {
 		if (Math.abs(expected - actual) > .00002) throw new AssertionError(name + ": expected " + expected + ", got " + actual);
 	}
+
 }

@@ -19,6 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.Optional;
 
 final class ServerWeightAccess implements ServerWeights {
+
 	private static ServerWeightState state (MinecraftServer server) {
 		if (!server.isSameThread()) throw new IllegalStateException("Weight queries require the owning server thread");
 		return ServerWeightState.of(server);
@@ -70,4 +71,5 @@ final class ServerWeightAccess implements ServerWeights {
 		var state = state(server);
 		if (!state.stopped() && !player.isRemoved() && !server.isStopped()) PlayerWeightCache.markDirty(player);
 	}
+
 }

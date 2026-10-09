@@ -10,6 +10,7 @@ import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
 
 public record ServerConfigUpdatePayload(float startingWeight, String walkingMode, EffectsSettings effects, long expectedRevision) implements CustomPacketPayload {
+
 	public static final Type<ServerConfigUpdatePayload>                         TYPE  = new Type<>(Identifier.fromNamespaceAndPath(HeavyInventories.MOD_ID, "edit_server_config_v3"));
 	public static final StreamCodec<FriendlyByteBuf, ServerConfigUpdatePayload> CODEC = StreamCodec.of((buf, p) -> {
 		buf.writeFloat(p.startingWeight);
@@ -34,4 +35,5 @@ public record ServerConfigUpdatePayload(float startingWeight, String walkingMode
 	public @NonNull Type<? extends CustomPacketPayload> type () {
 		return TYPE;
 	}
+
 }

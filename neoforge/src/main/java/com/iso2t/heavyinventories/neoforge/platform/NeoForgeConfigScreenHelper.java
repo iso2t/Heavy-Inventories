@@ -21,6 +21,7 @@ public final class NeoForgeConfigScreenHelper implements IConfigScreenHelper {
 	@SuppressWarnings("unused")
 	@EventBusSubscriber(modid = HeavyInventories.MOD_ID)
 	public static class NetworkHandler {
+
 		@SubscribeEvent
 		public static void registerPayload (RegisterPayloadHandlersEvent event) {
 			PayloadRegistrar registrar = event.registrar("5");
@@ -32,6 +33,7 @@ public final class NeoForgeConfigScreenHelper implements IConfigScreenHelper {
 
 			registrar.playToClient(OpenConfigPayload.TYPE, OpenConfigPayload.CODEC, (packet, context) -> context.enqueueWork(() -> ConfigScreens.fromString(packet.configType()).ifPresent(ConfigScreens::open)));
 		}
+
 	}
 
 	@Override
@@ -39,4 +41,5 @@ public final class NeoForgeConfigScreenHelper implements IConfigScreenHelper {
 		var packet = new OpenConfigPayload(configType);
 		player.connection.send(packet);
 	}
+
 }

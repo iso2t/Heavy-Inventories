@@ -11,6 +11,7 @@ import java.util.OptionalDouble;
  * An absent snapshot means not ready; an incomplete carried weight means a calculation could not finish.
  */
 public record PlayerWeightSnapshot(WeightResult carriedWeight, double baseCapacity, double capacity, EncumbranceState state, double walkingMultiplier, boolean effectsApply, long revision, long tick) {
+
 	public PlayerWeightSnapshot {
 		Objects.requireNonNull(carriedWeight, "carriedWeight");
 		Objects.requireNonNull(state, "state");
@@ -32,4 +33,5 @@ public record PlayerWeightSnapshot(WeightResult carriedWeight, double baseCapaci
 	public OptionalDouble loadRatio () {
 		return carriedWeight.pounds().isPresent() ? OptionalDouble.of(carriedWeight.pounds().getAsDouble() / capacity) : OptionalDouble.empty();
 	}
+
 }

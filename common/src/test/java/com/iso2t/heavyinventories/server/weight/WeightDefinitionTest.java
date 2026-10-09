@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class WeightDefinitionTest {
+
 	private static WeightDefinition parse (String json) throws Exception {
 		return WeightDefinition.parse(new StringReader(json));
 	}
@@ -40,4 +41,5 @@ class WeightDefinitionTest {
 		assertThrows(IllegalArgumentException.class, () -> parse(" ".repeat(WeightDefinition.MAX_DOCUMENT_CHARS) + "{\"weight\":1}"));
 		assertThrows(IllegalArgumentException.class, () -> parse("{\"weight\":0." + "0".repeat(WeightDefinition.MAX_DOCUMENT_CHARS) + "1}"));
 	}
+
 }

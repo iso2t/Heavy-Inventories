@@ -23,4 +23,5 @@ public class ModEnchantmentGenerator extends FabricDynamicRegistryProvider {
 	public @NotNull String getName () {
 		return "Heavy Inventories enchantments";
 	}
+
 }

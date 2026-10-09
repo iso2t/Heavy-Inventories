@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
  * Mutates only disposable test files; restores original bytes and permissions in finally.
  */
 public final class AdminScenario {
+
 	public static void run (ServerPlayer player) {
 		var server = player.level().getServer();
 		var state = ServerWeightState.of(server);
@@ -148,4 +149,5 @@ public final class AdminScenario {
 	private static void require (boolean condition, String message) {
 		if (!condition) throw new AssertionError(message);
 	}
+
 }

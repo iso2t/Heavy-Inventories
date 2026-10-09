@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
  * Runs after MovementScenario's deterministic capacity and item definitions are installed.
  */
 public final class CompatibilityScenario {
+
 	public static void run (ServerPlayer player) {
 		var holder = PlayerHolder.getOrCreate(player);
 		player.removeAllEffects();
@@ -127,4 +128,5 @@ public final class CompatibilityScenario {
 	private static void require (boolean condition, String message) {
 		if (!condition) throw new AssertionError(message);
 	}
+
 }

@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 public interface IPlatformHelper {
+
 	void sendToPlayer (ServerPlayer player, CustomPacketPayload payload);
 
 	String getPlatformName ();
@@ -14,4 +15,5 @@ public interface IPlatformHelper {
 	List<String> getModIds ();
 
 	Path getGameDirectory ();
+
 }

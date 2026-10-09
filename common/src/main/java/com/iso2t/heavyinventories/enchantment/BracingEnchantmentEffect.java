@@ -22,4 +22,5 @@ public record BracingEnchantmentEffect() implements EnchantmentEntityEffect {
 	public @NotNull MapCodec<? extends EnchantmentEntityEffect> codec () {
 		return CODEC;
 	}
+
 }

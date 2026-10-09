@@ -7,6 +7,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
  * Drawing helpers scoped to a render callback; helpers never invoke integration hooks recursively.
  */
 public interface HudDrawing {
+
 	/**
 	 * Draw the owned element at its resolved layout. At most one call is allowed per owner callback.
 	 */
@@ -21,4 +22,5 @@ public interface HudDrawing {
 	 * Draw the weight readout, right-aligned at x, beginning at y, using local display preferences.
 	 */
 	void numbers (GuiGraphicsExtractor graphics, int x, int y, PlayerWeightSnapshot player);
+
 }

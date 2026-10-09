@@ -28,6 +28,7 @@ import java.util.concurrent.CompletableFuture;
  * Opt-in disposable-world test: fixtures are removed and the original pack selection restored on success.
  */
 public final class DatapackLoadingScenario {
+
 	private static int stage, ticks;
 	private static Path dataDirectory, base, override, convertedPack;
 	private static List<String>            originalSelection;
@@ -48,6 +49,7 @@ public final class DatapackLoadingScenario {
 	private static volatile boolean                           complete;
 
 	public record Checkpoint(int id, long revision, float arrow, float stone, float total) {
+
 	}
 
 	public static Checkpoint checkpoint () {
@@ -341,4 +343,5 @@ public final class DatapackLoadingScenario {
 	private static void require (boolean condition, String message) {
 		if (!condition) throw new AssertionError(message);
 	}
+
 }

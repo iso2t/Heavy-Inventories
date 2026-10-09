@@ -14,4 +14,5 @@ public record WeightProvenance(Source source, WeightPackData.Entry definition) {
 
 	public static final WeightProvenance FALLBACK = new WeightProvenance(Source.FALLBACK, null);
 	public static final WeightProvenance SESSION  = new WeightProvenance(Source.SESSION, null);
+
 }

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RingSettingsTest {
+
 	private ClientSettings parse (String json) {
 		return ClientSettings.parse(JsonParser.parseString(json).getAsJsonObject());
 	}
@@ -38,4 +39,5 @@ class RingSettingsTest {
 		}
 		assertThrows(IllegalArgumentException.class, () -> parse("{\"hudMode\":\"invalid\"}"));
 	}
+
 }

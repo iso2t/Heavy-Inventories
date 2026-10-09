@@ -11,6 +11,7 @@ import java.util.Optional;
  * feedback may make the number layout visible in Ring mode.
  */
 public record HudContext(Optional<PlayerWeightSnapshot> player, int screenWidth, int screenHeight, boolean visible, boolean ringEnabled, boolean numbersEnabled, HudLayout ring, HudLayout numbers) {
+
 	public HudContext {
 		Objects.requireNonNull(player, "player");
 		Objects.requireNonNull(ring, "ring");
@@ -18,4 +19,5 @@ public record HudContext(Optional<PlayerWeightSnapshot> player, int screenWidth,
 		if (screenWidth < 0 || screenHeight < 0) throw new IllegalArgumentException("Screen dimensions cannot be negative");
 		if (numbers.xpOffset() != 0) throw new IllegalArgumentException("Only the ring layout can move XP");
 	}
+
 }

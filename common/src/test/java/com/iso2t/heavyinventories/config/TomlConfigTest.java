@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TomlConfigTest {
+
 	@TempDir
 	Path directory;
 
@@ -92,4 +93,5 @@ class TomlConfigTest {
 		assertFalse(Files.exists(toml));
 		assertEquals("{\"startingWeight\":0}", Files.readString(legacy));
 	}
+
 }

@@ -129,4 +129,5 @@ class WeightSyncLimitsTest {
 	private static ItemWeightsPayload packet (long revision, int index, int chunks, ItemWeightsPayload.Entry... entries) {
 		return new ItemWeightsPayload(revision, index, chunks, List.of(entries));
 	}
+
 }

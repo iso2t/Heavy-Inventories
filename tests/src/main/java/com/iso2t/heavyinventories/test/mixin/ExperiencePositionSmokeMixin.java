@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ContextualBar.class)
 public interface ExperiencePositionSmokeMixin {
+
 	@Inject(method = "extractExperienceLevel", at = @At("HEAD"))
 	private static void heavyinventories$position (GuiGraphicsExtractor graphics, Font font, int level, CallbackInfo ci) {
 		com.iso2t.heavyinventories.test.HudApiScenario.xp(graphics);
@@ -21,4 +22,5 @@ public interface ExperiencePositionSmokeMixin {
 		if (graphics.pose().m21() != -expected) throw new AssertionError("Vanilla XP layer offset differs: " + graphics.pose().m21());
 		RingHudScenario.xpFrames++;
 	}
+
 }

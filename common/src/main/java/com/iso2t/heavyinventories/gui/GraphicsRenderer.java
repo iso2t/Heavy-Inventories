@@ -66,4 +66,5 @@ public final class GraphicsRenderer {
 	private static void draw (GuiGraphicsExtractor graphics, Component text, int right, int y, int color) {
 		graphics.textRenderer().accept(TextAlignment.RIGHT, right, y, text.copy().withStyle(style -> style.withColor(color)));
 	}
+
 }

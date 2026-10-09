@@ -19,4 +19,5 @@ public final class HeavyInventoriesFabricClient implements ClientModInitializer 
 		ItemTooltipCallback.EVENT.register((stack, _, _, lines) -> Tooltip.addTooltips(lines, stack));
 		ConfigFileManager.loadClientConfig();
 	}
+
 }

@@ -11,6 +11,7 @@ import org.jspecify.annotations.NonNull;
 
 public record PlayerWeightPayload(int entityId, Identifier dimension, float weight, float baseCapacity, float bracing, float reinforced, float strength, float walkingMultiplier, WalkingMode walkingMode, boolean encumbered,
 								  boolean overEncumbered, boolean canEdit, long revision, int soaringLevel, EffectsSettings effects, float additionalCapacity) implements CustomPacketPayload {
+
 	public static final Type<PlayerWeightPayload>                         TYPE  = new Type<>(HeavyInventories.get("player_weight_v5"));
 	public static final StreamCodec<FriendlyByteBuf, PlayerWeightPayload> CODEC = StreamCodec.of((buf, p) -> {
 		buf.writeVarInt(p.entityId);
@@ -51,4 +52,5 @@ public record PlayerWeightPayload(int entityId, Identifier dimension, float weig
 	public @NonNull Type<? extends CustomPacketPayload> type () {
 		return TYPE;
 	}
+
 }

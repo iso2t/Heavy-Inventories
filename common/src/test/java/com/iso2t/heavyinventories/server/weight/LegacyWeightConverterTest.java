@@ -14,6 +14,7 @@ import java.util.zip.ZipFile;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LegacyWeightConverterTest {
+
 	@TempDir
 	Path directory;
 
@@ -115,4 +116,5 @@ class LegacyWeightConverterTest {
 		assertThrows(IllegalArgumentException.class, this::convert);
 		assertFalse(Files.exists(output()));
 	}
+
 }

@@ -103,4 +103,5 @@ public record ClientSettings(MeasuringSystem measure, boolean overlay, int norma
 		json.addProperty("overencumberedTextColor", overloaded);
 		return json;
 	}
+
 }

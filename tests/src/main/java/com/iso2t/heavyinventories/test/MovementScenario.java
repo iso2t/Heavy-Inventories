@@ -24,6 +24,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.HashMap;
 
 public final class MovementScenario {
+
 	public static ItemStack enchanted (Player player, Item item, ResourceKey<Enchantment> enchantment, int level) {
 		var stack = new ItemStack(item);
 		stack.enchant(player.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(enchantment), level);
@@ -191,4 +192,5 @@ public final class MovementScenario {
 	private static void require (boolean condition, String message) {
 		if (!condition) throw new AssertionError(message);
 	}
+
 }

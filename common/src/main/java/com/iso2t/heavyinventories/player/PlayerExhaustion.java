@@ -81,4 +81,5 @@ public final class PlayerExhaustion {
 		}
 		return false;
 	}
+
 }

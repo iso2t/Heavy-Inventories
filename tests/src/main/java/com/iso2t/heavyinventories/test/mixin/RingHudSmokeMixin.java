@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(WeightRingRenderer.class)
 public class RingHudSmokeMixin {
+
 	@Inject(method = "draw", at = @At("HEAD"))
 	private static void apiNativeRing (net.minecraft.client.gui.GuiGraphicsExtractor graphics, int x, int y, com.iso2t.heavyinventories.api.PlayerWeightSnapshot snapshot, CallbackInfo ci) {
 		if (com.iso2t.heavyinventories.test.HudApiScenario.active) {
@@ -25,4 +26,5 @@ public class RingHudSmokeMixin {
 		RingHudScenario.ringFrames++;
 		if (RingHudScenario.active && ++RingHudScenario.ringsThisFrame > 1) throw new AssertionError("Ring rendered twice in one GUI frame");
 	}
+
 }

@@ -21,6 +21,7 @@ import java.util.function.Consumer;
  * are isolated and logged at most once per minute per listener/category for that session.
  */
 public interface PluginRegistration {
+
 	/**
 	 * A stateless service that can be retained. Queries still require a ready world and its thread.
 	 */
@@ -56,6 +57,9 @@ public interface PluginRegistration {
 
 	@FunctionalInterface
 	interface PlayerWeightListener {
+
 		void changed (ServerPlayer player, Optional<PlayerWeightSnapshot> previous, PlayerWeightSnapshot current);
+
 	}
+
 }

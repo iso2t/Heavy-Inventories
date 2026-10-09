@@ -12,4 +12,5 @@ public interface FireworkFlightTestAccess {
 
 	@Accessor("life")
 	int heavyinventories$life ();
+
 }

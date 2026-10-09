@@ -31,4 +31,5 @@ public final class PlayerFeedback {
 	public static void fluidAscentDenied (PlayerHolder holder) {
 		fluidDenied.accept(holder);
 	}
+
 }

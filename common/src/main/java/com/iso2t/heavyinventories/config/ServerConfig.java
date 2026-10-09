@@ -94,6 +94,7 @@ public final class ServerConfig {
 		public EffectsSettings settings () {
 			return new EffectsSettings(water.get(), lava.get(), exhaustion.settings(), fallDamage.settings(), swimming.settings(), sinking.settings(), upwardMovement.settings(), knockback.settings(), elytra.settings());
 		}
+
 	}
 
 	@NoArgsConstructor
@@ -120,6 +121,7 @@ public final class ServerConfig {
 		public EffectsSettings.Exhaustion settings () {
 			return new EffectsSettings.Exhaustion(enabled.get(), maxMultiplier.get(), walkingCostPerBlock.get());
 		}
+
 	}
 
 	@NoArgsConstructor
@@ -151,6 +153,7 @@ public final class ServerConfig {
 		public EffectsSettings.FallDamage settings () {
 			return new EffectsSettings.FallDamage(enabled.get(), startPercent.get(), fullPercent.get(), maxMultiplier.get());
 		}
+
 	}
 
 	@NoArgsConstructor
@@ -182,6 +185,7 @@ public final class ServerConfig {
 		public EffectsSettings.Swimming settings () {
 			return new EffectsSettings.Swimming(enabled.get(), startPercent.get(), fullPercent.get(), minMultiplier.get());
 		}
+
 	}
 
 	@NoArgsConstructor
@@ -213,6 +217,7 @@ public final class ServerConfig {
 		public EffectsSettings.Sinking settings () {
 			return new EffectsSettings.Sinking(enabled.get(), startPercent.get(), fullPercent.get(), maxMultiplier.get());
 		}
+
 	}
 
 	@NoArgsConstructor
@@ -234,6 +239,7 @@ public final class ServerConfig {
 		public EffectsSettings.UpwardMovement settings () {
 			return new EffectsSettings.UpwardMovement(enabled.get(), thresholdPercent.get());
 		}
+
 	}
 
 	@NoArgsConstructor
@@ -260,6 +266,7 @@ public final class ServerConfig {
 		public EffectsSettings.Knockback settings () {
 			return new EffectsSettings.Knockback(enabled.get(), referenceWeight.get(), maxResistance.get());
 		}
+
 	}
 
 	@NoArgsConstructor
@@ -291,5 +298,7 @@ public final class ServerConfig {
 		public EffectsSettings.Elytra settings () {
 			return new EffectsSettings.Elytra(enabled.get(), referenceWeight.get(), maxLiftReduction.get(), maxRocketReduction.get());
 		}
+
 	}
+
 }

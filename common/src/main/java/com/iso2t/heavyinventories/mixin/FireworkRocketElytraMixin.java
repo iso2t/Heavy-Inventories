@@ -22,4 +22,5 @@ public abstract class FireworkRocketElytraMixin {
 		float multiplier = PlayerHolder.getOrCreate(player).elytraEffects().rocketMultiplier();
 		return multiplier == 1 ? direction : direction.scale(multiplier);
 	}
+
 }

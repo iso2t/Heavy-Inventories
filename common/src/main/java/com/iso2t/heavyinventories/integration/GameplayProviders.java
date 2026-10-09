@@ -12,15 +12,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 public final class GameplayProviders {
+
 	private static final ThreadLocal<Boolean>       CALLBACK    = ThreadLocal.withInitial(() -> false);
 	private static final Map<String, Long>          NEXT_REPORT = new ConcurrentHashMap<>();
 	private final        CommonRegistrations        registrations;
 	private final        Map<Identifier, Container> containers  = new HashMap<>();
 
 	public record Container(Identifier id, CommonRegistrations.Container registration) {
+
 	}
 
 	public record Inventory(List<Identifier> slots, List<ItemStack> stacks, boolean complete) {
+
 	}
 
 	public GameplayProviders (CommonRegistrations registrations) {
@@ -98,6 +101,7 @@ public final class GameplayProviders {
 	}
 
 	private static final class Slots implements InventoryProvider.SlotSink, AutoCloseable {
+
 		private final Identifier                 owner;
 		private final Thread                     thread   = Thread.currentThread();
 		private       Map<Identifier, ItemStack> slots;
@@ -128,5 +132,7 @@ public final class GameplayProviders {
 			slots = null;
 			identities = null;
 		}
+
 	}
+
 }

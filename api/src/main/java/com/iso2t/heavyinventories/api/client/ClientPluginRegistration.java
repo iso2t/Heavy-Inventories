@@ -10,6 +10,7 @@ import java.util.function.Consumer;
  * Initialization-only client registration; services returned by weights() may be retained.
  */
 public interface ClientPluginRegistration {
+
 	ClientWeights weights ();
 
 	HudRegistration hud ();
@@ -23,4 +24,5 @@ public interface ClientPluginRegistration {
 	 * Registrations survive disconnects; clear connection-specific state when receiving empty.
 	 */
 	void onPlayerChanged (Identifier id, Consumer<Optional<PlayerWeightSnapshot>> listener);
+
 }

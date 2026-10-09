@@ -43,16 +43,21 @@ public final class PlayerHolder {
 
 	@Getter
 	private final Player               player;
+
 	@Getter(AccessLevel.PACKAGE)
 	@Accessors(fluent = true)
 	private final PlayerWeightCache    weightCache                       = new PlayerWeightCache();
+
 	@Getter
 	private       float                weight;
 	private       float                baseCapacity                      = ServerSettings.DEFAULT.startingWeight();
+
 	@Getter
 	private       float                bracingOffset;
+
 	@Getter
 	private       float                reinforcedOffset;
+
 	@Getter
 	private       float                strengthOffset;
 	private       float                additionalCapacity;
@@ -63,14 +68,17 @@ public final class PlayerHolder {
 	private       boolean              receivedState;
 	private       PlayerWeightSnapshot apiSnapshot;
 	private       PlayerWeightSnapshot notifiedSnapshot;
+
 	@Getter
 	@Accessors(fluent = true)
 	private       boolean              canEditServerConfig;
+
 	@Getter
 	@Accessors(fluent = true)
 	private       WalkingMode          walkingMode                       = ServerSettings.DEFAULT.walkingMode();
 	private       EffectsSettings      effectSettings                    = ServerSettings.DEFAULT.effects();
 	private       long                 definitionsRevision               = -1;
+
 	@Getter
 	@Accessors(fluent = true)
 	private       long                 serverRevision;
@@ -275,4 +283,5 @@ public final class PlayerHolder {
 			lastSent = snapshot;
 		}
 	}
+
 }

@@ -32,6 +32,7 @@ public final class StackWeight {
 	public static final float TOO_COMPLEX = Float.MAX_VALUE;
 
 	public record Result(float weight, boolean complete) {
+
 	}
 
 	public static Result of (ItemStack stack, ToDoubleFunction<Identifier> definitions) {
@@ -63,6 +64,7 @@ public final class StackWeight {
 
 	@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 	private static final class Calculation {
+
 		private final ToDoubleFunction<Identifier> definitions;
 		private final Level                        level;
 		private final GameplayProviders            providers;
@@ -126,9 +128,11 @@ public final class StackWeight {
 			if (!Double.isFinite(total) || total >= TOO_COMPLEX) complete = false;
 			return total;
 		}
+
 	}
 
 	private static final class Contents implements ContainerContentsProvider.ContentsSink, AutoCloseable {
+
 		private final Thread      thread = Thread.currentThread();
 		private final int         depth;
 		private       Calculation calculation;
@@ -152,5 +156,7 @@ public final class StackWeight {
 		public void close () {
 			calculation = null;
 		}
+
 	}
+
 }

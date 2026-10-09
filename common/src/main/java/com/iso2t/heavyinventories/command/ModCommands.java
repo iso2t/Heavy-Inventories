@@ -130,4 +130,5 @@ public final class ModCommands {
 		builder.suggest("common");
 		return builder.buildFuture();
 	}
+
 }

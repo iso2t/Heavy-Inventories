@@ -12,12 +12,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Minecraft.class)
 public abstract class ClientLifecycleSmokeMixin {
+
 	@Unique
 	private final ClientLifecycleScenario                 heavyinventories$scenario = new ClientLifecycleScenario();
+
 	@Unique
 	private       int                                     heavyinventories$startupTicks;
+
 	@Unique
 	private       boolean                                 heavyinventories$joined;
+
 	@Unique
 	private       net.minecraft.client.gui.screens.Screen heavyinventories$handledUpgrade;
 
@@ -48,4 +52,5 @@ public abstract class ClientLifecycleSmokeMixin {
 		}
 		heavyinventories$scenario.tick(client);
 	}
+
 }

@@ -11,6 +11,7 @@ import java.util.Optional;
 
 @Mixin( { MultiPackResourceManager.class, RecipeManager.class })
 public abstract class WeightPackDataMixin implements WeightPackAccess {
+
 	@Unique
 	private volatile Optional<WeightPackData.Result> heavyinventories$weightPackData = Optional.empty();
 
@@ -23,4 +24,5 @@ public abstract class WeightPackDataMixin implements WeightPackAccess {
 	public void heavyinventories$setWeightPackData (WeightPackData.Result result) {
 		heavyinventories$weightPackData = Optional.of(result);
 	}
+
 }

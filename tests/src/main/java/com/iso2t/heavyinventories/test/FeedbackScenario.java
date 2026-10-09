@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.util.Locale;
 
 public final class FeedbackScenario {
+
 	public static  int            hudFrames;
 	private static ClientSettings original;
 	private static byte[]         originalFile;
@@ -138,4 +139,5 @@ public final class FeedbackScenario {
 	private static void require (boolean condition, String message) {
 		if (!condition) throw new AssertionError(message);
 	}
+
 }

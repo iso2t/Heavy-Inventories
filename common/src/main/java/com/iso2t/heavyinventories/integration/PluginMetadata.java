@@ -13,6 +13,7 @@ import java.util.function.Predicate;
  * Reads only the class named by a loader entrypoint or annotation scan, without initializing it.
  */
 public record PluginMetadata(HIPlugin.Side side, Set<String> requiredMods) {
+
 	public PluginMetadata {
 		requiredMods = Set.copyOf(requiredMods);
 	}
@@ -57,4 +58,5 @@ public record PluginMetadata(HIPlugin.Side side, Set<String> requiredMods) {
 		}
 		return annotated[0] ? Optional.of(new PluginMetadata(side[0], required)) : Optional.empty();
 	}
+
 }

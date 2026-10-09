@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PlayerExhaustionTest {
+
 	@Test
 	void idleAndSidewaysOrBackwardDriftDoNotCount () {
 		assertEquals(0, PlayerExhaustion.voluntaryDistance(new Vec3(0, 0, 10), Vec3.ZERO));
@@ -35,4 +36,5 @@ class PlayerExhaustionTest {
 		assertEquals(0, PlayerExhaustion.extraMovementCost(.1f, 0, 0, 1.5f, .01f));
 		assertEquals(0, PlayerExhaustion.extraMovementCost(.1f, Double.NaN, 1, 1.5f, .01f));
 	}
+
 }

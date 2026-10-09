@@ -13,7 +13,9 @@ import lombok.NoArgsConstructor;
 public final class EncumbranceEffects {
 
 	public record State(float exhaustionMultiplier, float walkingCostPerBlock, float fallMultiplier, float swimmingMultiplier, float sinkingMultiplier, boolean deniesUpwardMovement, float knockbackResistance) {
+
 		public static final State NONE = new State(1, 0, 1, 1, 1, false, 0);
+
 	}
 
 	public enum Fluid {
@@ -45,4 +47,5 @@ public final class EncumbranceEffects {
 	private static double ramp (double ratio, float start, float full) {
 		return Math.clamp((ratio * 100 - start) / ((double) full - start), 0, 1);
 	}
+
 }

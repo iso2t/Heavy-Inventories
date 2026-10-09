@@ -17,4 +17,5 @@ public final class PlayerEvents {
 		holder.update();
 		if (player instanceof ServerPlayer target) holder.synchronize(target);
 	}
+
 }

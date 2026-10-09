@@ -7,6 +7,7 @@ import java.util.OptionalDouble;
  * A complete weight in pounds, or the reason no reliable total is available.
  */
 public record WeightResult(Status status, OptionalDouble pounds) {
+
 	public WeightResult {
 		Objects.requireNonNull(status, "status");
 		Objects.requireNonNull(pounds, "pounds");
@@ -49,4 +50,5 @@ public record WeightResult(Status status, OptionalDouble pounds) {
 		 */
 		INCOMPLETE
 	}
+
 }

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class WeightRingGeometryTest {
+
 	@Test
 	void fillUsesEffectiveCapacityAndNeverOverflows () {
 		assertEquals(0, WeightRingGeometry.filledRows(0, 1000));
@@ -35,4 +36,5 @@ class WeightRingGeometryTest {
 			}
 		}
 	}
+
 }

@@ -11,4 +11,5 @@ public interface WeightPackAccess {
 	Optional<WeightPackData.Result> heavyinventories$getWeightPackData ();
 
 	void heavyinventories$setWeightPackData (WeightPackData.Result result);
+
 }

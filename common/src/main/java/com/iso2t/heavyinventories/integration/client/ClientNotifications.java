@@ -12,6 +12,7 @@ import java.util.Optional;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ClientNotifications {
+
 	private static final ClientNotifications        INSTANCE      = new ClientNotifications();
 	private final        ClientWeightAccess         weights       = new ClientWeightAccess();
 	private final        Notifications              notifications = new Notifications();
@@ -36,4 +37,5 @@ public final class ClientNotifications {
 		player = new WeakReference<>(snapshot == null ? null : currentPlayer);
 		notifications.dispatch("client player", ClientPlugins.INSTANCE.registrations().playerChanged(), listener -> listener.accept(current));
 	}
+
 }

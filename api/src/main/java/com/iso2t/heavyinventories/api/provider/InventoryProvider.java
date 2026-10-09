@@ -9,6 +9,7 @@ import net.minecraft.world.item.ItemStack;
  */
 @FunctionalInterface
 public interface InventoryProvider {
+
 	/**
 	 * Runs each normal server update. Report globally unique slot IDs in the registration's namespace.
 	 * Stop if the sink returns false; the shared limit is 4096 slots, including empty slots.
@@ -18,10 +19,13 @@ public interface InventoryProvider {
 
 	@FunctionalInterface
 	interface SlotSink {
+
 		/**
 		 * The sink copies the stack during this call. Do not retain the sink or call it from another thread.
 		 * Never report vanilla slots or storage already counted through a carried container.
 		 */
 		boolean accept (Identifier slot, ItemStack stack);
+
 	}
+
 }

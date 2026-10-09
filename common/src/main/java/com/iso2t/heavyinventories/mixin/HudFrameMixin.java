@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(Gui.class)
 public abstract class HudFrameMixin {
+
 	@WrapMethod(method = "extractRenderState")
 	private void heavyinventories$frame (DeltaTracker delta, boolean renderLevel, boolean resourcesLoaded, Operation<Void> original) {
 		WeightHud.beginFrame();
@@ -18,4 +19,5 @@ public abstract class HudFrameMixin {
 			WeightHud.endFrame();
 		}
 	}
+
 }

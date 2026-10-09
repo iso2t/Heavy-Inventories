@@ -17,6 +17,7 @@ import net.minecraft.world.level.GameType;
 import java.util.ArrayList;
 
 public final class ApiClientStateScenario {
+
 	public static void run (Minecraft client) {
 		var holder = PlayerHolder.getOrCreate(client.player);
 		ApiWeightChecks.client(holder.getWeight(), holder.getMaxWeight(), holder.serverRevision());
@@ -73,4 +74,5 @@ public final class ApiClientStateScenario {
 		}
 		LogUtils.getLogger().info("API QUERIES CLIENT PASSED: nested/limited stacks, incomplete tables, revision mismatch, unavailable state, restored snapshots, display units");
 	}
+
 }

@@ -15,6 +15,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 final class CommonRegistrar implements PluginRegistration, AutoCloseable {
+
 	private final RegistrationScope                                  scope;
 	private final ServerWeights                                      weights;
 	private final Map<Identifier, InventoryProvider>                 inventories   = new HashMap<>();
@@ -74,4 +75,5 @@ final class CommonRegistrar implements PluginRegistration, AutoCloseable {
 	public void close () {
 		scope.close();
 	}
+
 }

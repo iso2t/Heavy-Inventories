@@ -10,12 +10,14 @@ import net.minecraft.resources.Identifier;
 import java.util.*;
 
 public final class HudHooks {
+
 	public static final Identifier      BUILTIN           = HeavyInventories.get("default");
 	private final       Set<Identifier> failedOwners      = new HashSet<>();
 	private final       Set<Identifier> failedDecorations = new HashSet<>();
 	private final       Set<HudElement> reportedConflicts = new HashSet<>();
 
 	public record Resolved(HudLayout layout, Identifier id, HudIntegration integration) {
+
 	}
 
 	public Resolved resolve (ClientRegistrations registrations, HudContext context, HudElement element, String preference) {
@@ -51,4 +53,5 @@ public final class HudHooks {
 	public void failDecoration (Identifier id, Throwable error) {
 		if (failedDecorations.add(id)) HeavyInventories.LOGGER.error("Disabled HI HUD decoration {} until restart", id, error);
 	}
+
 }

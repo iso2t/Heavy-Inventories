@@ -19,4 +19,5 @@ public final class Services {
 		HeavyInventories.LOGGER.debug("Loaded {} for service {}", loadedService, clazz);
 		return loadedService;
 	}
+
 }

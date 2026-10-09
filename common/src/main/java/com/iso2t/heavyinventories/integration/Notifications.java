@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public final class Notifications {
+
 	private static final ThreadLocal<Boolean> DISPATCHING = ThreadLocal.withInitial(() -> false);
 	private final        Map<String, Long>    nextReport  = new HashMap<>();
 
@@ -46,4 +47,5 @@ public final class Notifications {
 	public void clear () {
 		nextReport.clear();
 	}
+
 }

@@ -13,6 +13,7 @@ import net.minecraft.world.entity.player.Player;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class PlayerKnockback {
+
 	public static final Identifier MODIFIER_ID = HeavyInventories.get("carried_weight_knockback");
 
 	public static void update (Player player, float amount) {
@@ -28,4 +29,5 @@ public final class PlayerKnockback {
 		if (current != null) attribute.removeModifier(MODIFIER_ID);
 		attribute.addTransientModifier(new AttributeModifier(MODIFIER_ID, amount, AttributeModifier.Operation.ADD_VALUE));
 	}
+
 }

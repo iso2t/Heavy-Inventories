@@ -20,4 +20,5 @@ class SettingsTypeTest {
 			assertTrue(ConfigScreens.fromString(type).isEmpty());
 		}
 	}
+
 }

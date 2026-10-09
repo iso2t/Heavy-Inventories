@@ -15,4 +15,5 @@ public abstract class LivingEntityElytraMixin {
 		if (!((Object) this instanceof Player player)) return lift;
 		return lift * PlayerHolder.getOrCreate(player).elytraEffects().liftMultiplier();
 	}
+
 }

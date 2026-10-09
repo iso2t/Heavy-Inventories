@@ -9,6 +9,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ResolvedWeightsTest {
+
 	private static Identifier id (String name) {
 		return Identifier.parse("test:" + name);
 	}
@@ -108,4 +109,5 @@ class ResolvedWeightsTest {
 		assertEquals(0.1f, ResolvedWeights.resolve(pack(Map.of()), recipes, registry).weights().get(id("block")));
 		assertEquals(18f, ResolvedWeights.resolve(pack(Map.of("ingot", new WeightDefinition.Fixed(2))), recipes, registry).weights().get(id("block")));
 	}
+
 }

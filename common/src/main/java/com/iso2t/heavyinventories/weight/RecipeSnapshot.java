@@ -58,4 +58,5 @@ public final class RecipeSnapshot {
 		}
 		return List.copyOf(result);
 	}
+
 }

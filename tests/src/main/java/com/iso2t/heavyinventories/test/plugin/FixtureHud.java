@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class FixtureHud {
+
 	public enum Mode {
 		DEFAULT,
 		MOVE,
@@ -90,6 +91,7 @@ public final class FixtureHud {
 	}
 
 	private record Owner(boolean secondary) implements HudIntegration {
+
 		@Override
 		public HudLayout layout (HudContext c, HudElement e, HudLayout original) {
 			if (!active) return original;
@@ -140,6 +142,7 @@ public final class FixtureHud {
 				default -> drawing.drawDefault();
 			}
 		}
+
 	}
 
 	public static void reset () {
@@ -153,4 +156,5 @@ public final class FixtureHud {
 	private static void require (boolean condition, String message) {
 		if (!condition) throw new AssertionError(message);
 	}
+
 }

@@ -19,4 +19,5 @@ public class DataGenerators implements DataGeneratorEntrypoint {
 	public void buildRegistry (RegistrySetBuilder registryBuilder) {
 		registryBuilder.add(Registries.ENCHANTMENT, ModEnchantments::bootstrap);
 	}
+
 }

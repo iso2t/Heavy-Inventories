@@ -62,4 +62,5 @@ class ElytraFlightTest {
 		for (float weight : new float[] { -1, Float.NaN, Float.POSITIVE_INFINITY })
 			assertThrows(IllegalArgumentException.class, () -> ElytraFlight.calculate(weight, EffectsSettings.DEFAULT.elytra(), 0, false));
 	}
+
 }

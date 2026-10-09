@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 final class ClientRegistrar implements ClientPluginRegistration, HudRegistration, AutoCloseable {
+
 	private final RegistrationScope                                         scope;
 	private final ClientWeights                                             weights;
 	private final Map<Identifier, ClientRegistrations.Owner>                owners        = new HashMap<>();
@@ -58,4 +59,5 @@ final class ClientRegistrar implements ClientPluginRegistration, HudRegistration
 	public void close () {
 		scope.close();
 	}
+
 }

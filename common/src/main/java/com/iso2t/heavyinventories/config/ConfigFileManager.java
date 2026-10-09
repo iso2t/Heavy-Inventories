@@ -87,4 +87,5 @@ public final class ConfigFileManager {
 	private static Path legacyPath (Path path) {
 		return path.resolveSibling(path.getFileName().toString().replaceFirst("\\.toml$", ".json"));
 	}
+
 }

@@ -20,6 +20,7 @@ import java.util.Locale;
 import static org.junit.jupiter.api.Assertions.*;
 
 class StackWeightTest {
+
 	@BeforeAll
 	static void bootstrap () {
 		SharedConstants.tryDetectVersion();
@@ -96,4 +97,5 @@ class StackWeightTest {
 		stack.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(List.of(contents)));
 		return stack;
 	}
+
 }

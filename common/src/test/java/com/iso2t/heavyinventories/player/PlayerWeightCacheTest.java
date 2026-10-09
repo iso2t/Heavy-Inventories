@@ -20,6 +20,7 @@ import java.util.function.DoubleSupplier;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PlayerWeightCacheTest {
+
 	@BeforeAll
 	static void bootstrap () {
 		SharedConstants.tryDetectVersion();
@@ -154,4 +155,5 @@ class PlayerWeightCacheTest {
 		}));
 		assertEquals(7, cache.compute(inventory, level, 1, () -> 7));
 	}
+
 }

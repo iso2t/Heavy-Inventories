@@ -24,4 +24,5 @@ public final class ClientFeedback {
 			client.gui.hud.setOverlayMessage(Component.translatable("chat.heavyinventories.no_jump", Component.translatable(holder.isOverEncumbered() ? "chat.heavyinventories.over_encumbered" : "chat.heavyinventories.encumbered")), false);
 		});
 	}
+
 }

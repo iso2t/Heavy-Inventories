@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
 public final class ProviderClientScenario {
+
 	private static int phase, ticks;
 	private static CompletableFuture<double[]> operation;
 
@@ -67,4 +68,5 @@ public final class ProviderClientScenario {
 		var snapshot = FixtureClientPlugin.weights.player();
 		return snapshot.isPresent() && snapshot.get().carriedWeight().pounds().isPresent() && Math.abs(snapshot.get().carriedWeight().pounds().orElseThrow() - expected[0]) < 0.001 && Math.abs(snapshot.get().capacity() - expected[1]) < 0.001;
 	}
+
 }

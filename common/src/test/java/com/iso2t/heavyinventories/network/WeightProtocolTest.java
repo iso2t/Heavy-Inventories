@@ -19,6 +19,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 class WeightProtocolTest {
+
 	private static final Identifier STONE = Identifier.parse("minecraft:stone");
 	private static final Identifier DIRT  = Identifier.parse("minecraft:dirt");
 
@@ -162,4 +163,5 @@ class WeightProtocolTest {
 			buf.release();
 		}
 	}
+
 }

@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Gui.class)
 public abstract class HudApiSmokeMixin {
+
 	@WrapOperation(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Hud;extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/DeltaTracker;)V"))
 	private void fixtureFrame (Hud hud, GuiGraphicsExtractor graphics, DeltaTracker delta, Operation<Void> original) {
 		HudApiScenario.begin(graphics);
@@ -25,4 +26,5 @@ public abstract class HudApiSmokeMixin {
 	private void endFrame (CallbackInfo ci) {
 		HudApiScenario.end();
 	}
+
 }

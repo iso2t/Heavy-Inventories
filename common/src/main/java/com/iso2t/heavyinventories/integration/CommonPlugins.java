@@ -12,6 +12,7 @@ import java.util.Objects;
 import static com.iso2t.heavyinventories.integration.RegistrationScope.combine;
 
 public final class CommonPlugins {
+
 	public static final CommonPlugins       INSTANCE      = new CommonPlugins(new ServerWeightAccess());
 	private final       ServerWeights       weights;
 	private volatile    CommonRegistrations registrations = CommonRegistrations.EMPTY;
@@ -56,4 +57,5 @@ public final class CommonPlugins {
 		}));
 		return new CommonRegistrations(combine(current.inventories(), added.inventories()), containers, combine(current.capacities(), added.capacities()), combine(current.weightsReady(), added.weightsReady()), combine(current.playerChanged(), added.playerChanged()), combine(current.serverStopped(), added.serverStopped()));
 	}
+
 }

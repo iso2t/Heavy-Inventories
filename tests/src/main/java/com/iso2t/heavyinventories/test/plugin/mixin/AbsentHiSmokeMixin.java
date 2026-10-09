@@ -13,6 +13,7 @@ import java.util.function.BooleanSupplier;
 
 @Mixin(MinecraftServer.class)
 public abstract class AbsentHiSmokeMixin {
+
 	@Unique
 	private boolean hiFixture$tested;
 
@@ -29,4 +30,5 @@ public abstract class AbsentHiSmokeMixin {
 		LogUtils.getLogger().info("API PLUGINS ABSENT PASSED: optional consumer starts without HI or its API");
 		((MinecraftServer) (Object) this).halt(false);
 	}
+
 }

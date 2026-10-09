@@ -20,6 +20,7 @@ import java.util.ArrayList;
  * Confirms each server checkpoint over real packets before allowing the next reload.
  */
 public final class DatapackReloadClient {
+
 	private static boolean started, pauseOnLostFocus;
 	private static int ticks, checked;
 
@@ -62,4 +63,5 @@ public final class DatapackReloadClient {
 	private static void require (boolean condition, String message) {
 		if (!condition) throw new AssertionError(message);
 	}
+
 }

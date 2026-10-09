@@ -34,6 +34,7 @@ import java.util.LinkedHashMap;
 import java.util.UUID;
 
 public final class FluidMovementScenario {
+
 	public static void run (ServerPlayer anchor) {
 		var server = anchor.level().getServer();
 		var level = server.overworld();
@@ -292,4 +293,5 @@ public final class FluidMovementScenario {
 	private static void close (double expected, double actual, String message) {
 		if (Math.abs(expected - actual) > .00001) throw new AssertionError(message + ": expected " + expected + ", got " + actual);
 	}
+
 }

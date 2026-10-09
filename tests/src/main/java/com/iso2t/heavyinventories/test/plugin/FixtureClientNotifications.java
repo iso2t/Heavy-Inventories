@@ -10,6 +10,7 @@ import net.minecraft.resources.Identifier;
 import java.util.Optional;
 
 public final class FixtureClientNotifications {
+
 	public static int changes, failures, unavailable, ready;
 	public static  Optional<PlayerWeightSnapshot> last = Optional.empty();
 	private static LocalPlayer                    entity;
@@ -56,4 +57,5 @@ public final class FixtureClientNotifications {
 	private static void require (boolean value, String message) {
 		if (!value) throw new AssertionError(message);
 	}
+
 }

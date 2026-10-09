@@ -41,4 +41,5 @@ public final class ServerConfigScreen {
 			return Optional.of(Component.literal(e.getMessage()));
 		}
 	}
+
 }

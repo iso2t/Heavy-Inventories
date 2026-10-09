@@ -11,6 +11,7 @@ import java.util.Locale;
 import java.util.stream.Stream;
 
 final class ConfigScreenScenario {
+
 	static ConfigEntry entry (ConfigScreen screen, String path) {
 		return screen.selectedTab().schema().find(path.toLowerCase(Locale.ROOT)).orElseThrow();
 	}
@@ -22,4 +23,5 @@ final class ConfigScreenScenario {
 	static Stream<GuiEventListener> descendants (GuiEventListener listener) {
 		return Stream.concat(Stream.of(listener), listener instanceof ContainerEventHandler container ? container.children().stream().flatMap(ConfigScreenScenario::descendants) : Stream.empty());
 	}
+
 }

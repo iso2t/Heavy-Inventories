@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HudHooksTest {
+
 	private static final HudLayout      RING    = new HudLayout(new HudBounds(100, 200, 16, 16), true, 7);
 	private static final HudLayout      NUMBERS = new HudLayout(new HudBounds(180, 210, 50, 18), true, 0);
 	private static final HudContext     CONTEXT = new HudContext(Optional.empty(), 320, 240, true, true, true, RING, NUMBERS);
@@ -101,4 +102,5 @@ class HudHooksTest {
 	private static ClientRegistrations owners (Map<Identifier, ClientRegistrations.Owner> owners) {
 		return new ClientRegistrations(owners, Map.of(), Map.of());
 	}
+
 }

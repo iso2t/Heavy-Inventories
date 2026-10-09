@@ -8,7 +8,9 @@ import lombok.NoArgsConstructor;
 public final class ElytraFlight {
 
 	public record State(float liftMultiplier, float rocketMultiplier) {
+
 		public static final State NONE = new State(1, 1);
+
 	}
 
 	public static State calculate (float weight, EffectsSettings.Elytra settings, int soaringLevel, boolean exempt) {
@@ -18,4 +20,5 @@ public final class ElytraFlight {
 		load *= 1 - .2 * Math.clamp(soaringLevel, 0, 4);
 		return new State((float) (1 - settings.maxLiftReduction() * load), (float) (1 - settings.maxRocketReduction() * load));
 	}
+
 }

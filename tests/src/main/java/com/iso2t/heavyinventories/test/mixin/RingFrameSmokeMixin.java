@@ -9,8 +9,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Hud.class)
 public class RingFrameSmokeMixin {
+
 	@Inject(method = "extractRenderState", at = @At("HEAD"))
 	private void heavyinventories$frame (CallbackInfo ci) {
 		RingHudScenario.ringsThisFrame = 0;
 	}
+
 }

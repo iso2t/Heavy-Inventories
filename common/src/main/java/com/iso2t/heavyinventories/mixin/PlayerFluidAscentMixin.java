@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(Player.class)
 public abstract class PlayerFluidAscentMixin {
+
 	@WrapOperation(method = "travel", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/Vec3;add(DDD)Lnet/minecraft/world/phys/Vec3;"))
 	private Vec3 heavyinventories$denyUpwardSwimming (Vec3 movement, double x, double y, double z, Operation<Vec3> original) {
 		var holder = PlayerHolder.getOrCreate((Player) (Object) this);
@@ -20,4 +21,5 @@ public abstract class PlayerFluidAscentMixin {
 		}
 		return original.call(movement, x, y, z);
 	}
+
 }

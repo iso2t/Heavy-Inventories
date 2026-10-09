@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public final class Encumbrance {
 
 	public record State(float bracing, float reinforced, float strength, float capacity, boolean encumbered, boolean overloaded, float walkingMultiplier) {
+
 	}
 
 	public static State calculate (float weight, float base, int bracingLevel, int reinforcedLevel, int strengthLevel, int surefootedLevel, WalkingMode mode, boolean exempt) {
@@ -37,4 +38,5 @@ public final class Encumbrance {
 	static double walkingBeforeSurefooted (double ratio, WalkingMode mode) {
 		return mode == WalkingMode.PROGRESSIVE ? Math.sqrt(Math.max(0, 1 - ratio)) : Math.clamp((1 - ratio) / 0.1, 0, 1);
 	}
+
 }

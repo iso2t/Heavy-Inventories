@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 public final class ApiWeightChecks {
+
 	private static final Identifier STONE   = Identifier.withDefaultNamespace("stone");
 	private static final Identifier UNKNOWN = Identifier.fromNamespaceAndPath("hi_fixture", "unknown");
 	private static       boolean    unavailableChecked;
@@ -185,4 +186,5 @@ public final class ApiWeightChecks {
 	private static void require (boolean condition, String message) {
 		if (!condition) throw new AssertionError(message);
 	}
+
 }

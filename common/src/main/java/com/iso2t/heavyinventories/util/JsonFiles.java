@@ -16,6 +16,7 @@ import java.nio.file.StandardCopyOption;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class JsonFiles {
+
 	private static final Gson GSON = new GsonBuilder().setStrictness(Strictness.STRICT).setPrettyPrinting().create();
 
 	public static JsonObject readObject (Path path) throws IOException {
@@ -48,4 +49,5 @@ public final class JsonFiles {
 			Files.deleteIfExists(temp);
 		}
 	}
+
 }

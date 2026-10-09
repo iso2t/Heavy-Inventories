@@ -26,4 +26,5 @@ public abstract class NewWorldWeightSmokeMixin {
 		HeavyInventories.LOGGER.info("NEW WORLD HANDOFF EXERCISED: vanilla replaced the resource manager while retaining loaded server data");
 		ci.cancel();
 	}
+
 }

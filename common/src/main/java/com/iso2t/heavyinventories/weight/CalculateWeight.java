@@ -41,4 +41,5 @@ public final class CalculateWeight {
 		if (player.level().isClientSide()) return PlayerHolder.getOrCreate(player).getWeight();
 		return StackWeight.total(stacks, ServerWeightState.of(player.level().getServer())::unitWeight, player.level()).weight();
 	}
+
 }

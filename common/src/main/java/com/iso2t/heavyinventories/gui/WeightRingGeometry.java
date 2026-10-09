@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class WeightRingGeometry {
+
 	private static final int[] LEFT       = { 0, 6, 4, 3, 2, 2, 1, 1, 1, 1, 2, 2, 3, 4, 6, 0 };
 	public static final  int   EMPTY      = 0xFF282D26;
 	public static final  int   NORMAL     = 0xFF397541;
@@ -26,4 +27,5 @@ public final class WeightRingGeometry {
 	public static int color (boolean encumbered, boolean overloaded) {
 		return overloaded ? OVERLOADED : encumbered ? ENCUMBERED : NORMAL;
 	}
+
 }

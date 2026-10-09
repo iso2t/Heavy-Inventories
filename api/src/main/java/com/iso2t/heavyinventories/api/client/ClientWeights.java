@@ -11,6 +11,7 @@ import java.util.Optional;
  * Client-thread access to the active connection. Never supplies guessed values before synchronization.
  */
 public interface ClientWeights {
+
 	WeightResult item (Identifier item);
 
 	/**
@@ -24,4 +25,5 @@ public interface ClientWeights {
 	 * Format finite, nonnegative pounds using the local player's units and HI's rounding rules.
 	 */
 	String format (double pounds);
+
 }

@@ -97,4 +97,5 @@ public final class PlayerWeightCache {
 		}
 		return false;
 	}
+
 }

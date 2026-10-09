@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public final class HudApiScenario {
+
 	private static final List<String> CASES = List.of("auto", "selected", "builtin", "missing", "move", "hide", "replace", "helpers", "numbers", "ring", "off", "screen", "f1", "scale1", "scale2", "xp0", "layoutFailure", "renderFailure", "doubleDefault", "popParent", "decorationFailure", "restored", "limitedReplacement");
 	public static        boolean      active;
 	public static        int          nativeRings, nativeNumbers, xpCalls, ringX, ringY;
@@ -212,4 +213,5 @@ public final class HudApiScenario {
 	private static void require (boolean value, String message) {
 		if (!value) throw new AssertionError(message);
 	}
+
 }

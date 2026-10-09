@@ -7,6 +7,7 @@ import net.minecraft.resources.Identifier;
  * Client initialization only. Ownership resolves by user choice, then descending priority, then registration ID.
  */
 public interface HudRegistration {
+
 	/**
 	 * One winner per element; losing integrations do not modify layout or draw a replacement.
 	 */
@@ -24,9 +25,12 @@ public interface HudRegistration {
 
 	@FunctionalInterface
 	interface Decoration {
+
 		/**
 		 * HI isolates pose and scissor stacks. Restore other graphics state you change; do not retain the graphics object.
 		 */
 		void render (GuiGraphicsExtractor graphics, HudContext context, HudLayout layout);
+
 	}
+
 }

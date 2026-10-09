@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class HudLayoutTest {
+
 	@Test
 	void hiddenRingCannotLeaveAnXpOffset () {
 		var bounds = new HudBounds(100, 100, 16, 16);
@@ -23,4 +24,5 @@ class HudLayoutTest {
 		var corrected = new HudLayout(numbers.bounds(), true, 0);
 		assertEquals(ring, new HudContext(Optional.empty(), 320, 240, false, true, true, ring, corrected).ring());
 	}
+
 }

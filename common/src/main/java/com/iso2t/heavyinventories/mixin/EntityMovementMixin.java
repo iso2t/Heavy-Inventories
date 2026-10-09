@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.At;
  */
 @Mixin(Entity.class)
 public abstract class EntityMovementMixin {
+
 	@ModifyExpressionValue(method = "moveRelative", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;getInputVector(Lnet/minecraft/world/phys/Vec3;FF)Lnet/minecraft/world/phys/Vec3;"))
 	private Vec3 heavyinventories$scaleMovement (Vec3 movement) {
 		if (!((Object) this instanceof Player player)) return movement;
@@ -26,4 +27,5 @@ public abstract class EntityMovementMixin {
 		}
 		return multiplier == 1 && vertical == movement.y ? movement : new Vec3(movement.x * multiplier, vertical, movement.z * multiplier);
 	}
+
 }

@@ -29,4 +29,5 @@ public final class WeightDisplay {
 	public static String weight (double stored, MeasuringSystem system) {
 		return number(system.fromStored(stored)) + (system == MeasuringSystem.NONE ? "" : " " + system.getSub());
 	}
+
 }

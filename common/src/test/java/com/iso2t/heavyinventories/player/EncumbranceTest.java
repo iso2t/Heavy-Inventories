@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EncumbranceTest {
+
 	private static Encumbrance.State state (float weight, WalkingMode mode) {
 		return Encumbrance.calculate(weight, 1000, 0, 0, 0, 0, mode, false);
 	}
@@ -83,4 +84,5 @@ class EncumbranceTest {
 		assertFalse(exempt.overloaded());
 		assertEquals(1, exempt.walkingMultiplier());
 	}
+
 }

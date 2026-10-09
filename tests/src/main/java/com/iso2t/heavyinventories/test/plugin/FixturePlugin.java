@@ -8,6 +8,7 @@ import net.minecraft.resources.Identifier;
 
 @HIPlugin
 public final class FixturePlugin implements HeavyInventoriesPlugin {
+
 	public static PluginRegistration registrar;
 	public static ServerWeights      weights;
 
@@ -24,4 +25,5 @@ public final class FixturePlugin implements HeavyInventoriesPlugin {
 		FixtureProviders.register(registration);
 		FixtureNotifications.register(registration);
 	}
+
 }

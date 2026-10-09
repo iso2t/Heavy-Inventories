@@ -7,6 +7,7 @@ import com.iso2t.heavyinventories.integration.client.ClientPlugins;
 import net.minecraft.resources.Identifier;
 
 public final class ClientPluginScenario {
+
 	public static void verify () {
 		if (PluginProbe.commonRegistrations != 1 || PluginProbe.clientRegistrations != 1) throw new AssertionError("Common/client plugins must each register once, including singleplayer");
 		if (!ClientPlugins.INSTANCE.registrations().playerChanged().containsKey(Identifier.fromNamespaceAndPath("heavyinventories_lifecycle_test", "b_player"))) throw new AssertionError("Client plugin registration was not committed");
@@ -19,4 +20,5 @@ public final class ClientPluginScenario {
 		}
 		HeavyInventories.LOGGER.info("API PLUGINS CLIENT PASSED: common/client discovery, integrated-server registration once, synchronized service, frozen HUD registrar");
 	}
+
 }
